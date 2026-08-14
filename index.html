@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>のりくんのゲームサイト</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    color: white;
+}
+
+h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+.games {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.game-button {
+    display: block;
+    padding: 25px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    text-decoration: none;
+    border: 2px solid rgba(255,255,255,0.3);
+    transition: 0.3s;
+    backdrop-filter: blur(10px);
+}
+
+.game-button:hover {
+    transform: scale(1.03);
+    background: rgba(255,255,255,0.25);
+}
+
+.game-icon {
+    font-size: 50px;
+}
+
+.game-title {
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.game-description {
+    margin-top: 8px;
+    font-size: 15px;
+}
+
+footer {
+    margin-top: 40px;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+@media (min-width: 700px) {
+
+    .games {
+        flex-direction: row;
+    }
+
+    .game-button {
+        width: 50%;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎮 のりくんのゲームサイト</h1>
+
+    <div class="subtitle">
+        楽しく遊べるゲームをどうぞ！
+    </div>
+
+    <div class="games">
+
+        <a href="sky-striker.html" class="game-button">
+
+            <div class="game-icon">🚀</div>
+
+            <div class="game-title">
+                のりくんのスカイストライカー
+            </div>
+
+            <div class="game-description">
+                空を駆け抜けて敵を撃破しよう！
+            </div>
+
+        </a>
+
+
+        <a href="block-break.html" class="game-button">
+
+            <div class="game-icon">🧱</div>
+
+            <div class="game-title">
+                のりくんのブロック崩しゲーム
+            </div>
+
+            <div class="game-description">
+                ボールを操ってブロックを全部壊そう！
+            </div>
+
+        </a>
+
+    </div>
+
+    <footer>
+        © 2026 のりくんのゲームサイト
+    </footer>
+
+</div>
+
+</body>
+</html>

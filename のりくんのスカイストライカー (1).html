@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#060912">
+<meta name="apple-mobile-web-app-title" content="のりくんスカイストライカー">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+<title>のりくんのスカイストライカー</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: radial-gradient(circle at top, #1a2140, #05070f);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 20px);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  h1 {
+    margin: 14px 0 4px;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  #leaderboard {
+    width: auto;
+    max-width: 420px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto 8px;
+  }
+  .lb-title {
+    font-size: 12px;
+    margin: 0;
+    color: #6ec8ff;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  #lbList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #lbList li {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  #lbList li.rank1 { background: rgba(255,215,80,0.3); }
+  #lbList li.rank2 { background: rgba(210,215,225,0.28); }
+  #lbList li.rank3 { background: rgba(205,127,50,0.28); }
+  .lb-empty { color: #6b729c; text-align: center; justify-content: center !important; }
+  .lb-rank { font-weight: bold; }
+  .lb-name { letter-spacing: 1px; display: flex; align-items: center; gap: 3px; }
+  .lb-ship-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex-shrink: 0;
+  }
+  .lb-score { font-variant-numeric: tabular-nums; color: #6ec8ff; }
+
+  #info {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #mainArea {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #canvasWrap {
+    position: relative;
+    flex: 0 1 420px;
+    min-width: 0;
+  }
+  #gameCanvas {
+    background: #05070f;
+    border: 3px solid #3a5fd6;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(58, 95, 214, 0.5);
+    touch-action: none;
+    cursor: crosshair;
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  #controlPanel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+  }
+  #startBtn, #endBtn, #pauseBtn, #resumeBtn {
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    white-space: nowrap;
+  }
+  #startBtn { background: #6ec8ff; color: #072235; }
+  #startBtn:hover { background: #8fd6ff; }
+  #pauseBtn { background: #6b8bd6; color: #fff; }
+  #pauseBtn:hover { background: #83a0e2; }
+  #resumeBtn { background: #4dbb7a; color: #fff; }
+  #resumeBtn:hover { background: #5fd18f; }
+  #endBtn { background: #4a4f6b; color: #fff; }
+  #endBtn:hover { background: #5c6284; }
+
+  #shipSelect {
+    max-width: 108px;
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 7px;
+    margin-top: 4px;
+  }
+  #shipSelect h2 {
+    font-size: 11px;
+    margin: 0 0 8px;
+    text-align: center;
+    color: #6ec8ff;
+  }
+  #shipCards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .ship-card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .ship-card.selected {
+    border-color: #ffd35c;
+    background: rgba(255,211,92,0.12);
+  }
+  .ship-card canvas { display: block; }
+  .ship-card .ship-name { font-size: 10px; font-weight: bold; }
+  .ship-card .ship-trait { font-size: 8.5px; color: #ffd35c; text-align: center; }
+  #legend {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 520px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  #message {
+    margin-top: 10px;
+    font-size: 18px;
+    min-height: 24px;
+    color: #6ec8ff;
+    text-align: center;
+  }
+  #nameEntry {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+  #nameEntry input {
+    width: 90px;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px;
+    border-radius: 4px;
+    border: none;
+  }
+  #nameEntry button {
+    padding: 6px 18px;
+    font-size: 13px;
+    border: none;
+    border-radius: 20px;
+    background: #6ec8ff;
+    color: #072235;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #restartBtn {
+    margin-top: 6px;
+    padding: 8px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 20px;
+    background: #3a5fd6;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+  }
+  #hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #8891c9;
+    text-align: center;
+    max-width: 500px;
+  }
+</style>
+</head>
+<body>
+  <h1>のりくんのスカイストライカー</h1>
+  <div id="leaderboard">
+    <div class="lb-title">🏆 総合スコアランキング</div>
+    <ol id="lbList">
+      <li class="lb-empty">まだ記録がありません</li>
+    </ol>
+  </div>
+
+  <div id="info">
+    <div>ステージ: <span id="stageNum">1</span> / 5</div>
+    <div>ステージスコア: <span id="stageScore">0</span></div>
+    <div>累計スコア: <span id="totalScore">0</span></div>
+    <div>残機: <span id="lives">3</span></div>
+    <div>予備機体: <span id="shipStockCount">0</span>/5</div>
+  </div>
+
+  <div id="mainArea">
+    <div id="canvasWrap">
+      <canvas id="gameCanvas" width="420" height="680"></canvas>
+    </div>
+    <div id="controlPanel">
+      <div id="shipSelect">
+        <h2>機体を選択</h2>
+        <div id="shipCards"></div>
+      </div>
+      <button id="startBtn">▶ ゲーム開始</button>
+      <button id="pauseBtn">⏸ 一時停止</button>
+      <button id="resumeBtn">▶ 再開</button>
+      <button id="endBtn">■ ゲーム終了</button>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div class="legend-item">🔵 ①空中弾強化（全5段階。3段階目からレーザー砲になる）</div>
+    <div class="legend-item">🟠 ②地上弾強化（全5段階。3段階目から広範囲攻撃、4・5段階目でさらに強化）</div>
+    <div class="legend-item">⭐ ③無敵スター（敵弾に5回あたると解除、被弾すると強化は全て初期化）</div>
+    <div class="legend-item">👾 空中の敵＝空中弾／🚚 地上の敵＝地上弾</div>
+    <div class="legend-item">🐲 最終ボスは拡散ビーム（無敵中でも2発で撃墜）とミサイル（無敵中でも2発で撃墜）を使用、弱点は7箇所</div>
+    <div class="legend-item">🚀 ステージ4のボスは他のボスよりミサイルを多く発射します</div>
+    <div class="legend-item">⏱️ ステージ4は通常の1.5倍、ステージ5は2倍の長さ。敵のサイズもステージ4は1.5倍、ステージ5は2倍に拡大</div>
+    <div class="legend-item">⚪ 自機の弾は白／🟡 敵の弾・ミサイル・ビームは黄色</div>
+    <div class="legend-item">🎵 BGMは選んだ機体ごとに変化（赤＝軽快、青＝神秘的なシンセサウンド、緑＝ポップ）／ステージ5だけは機体に関わらず専用の恐怖BGMに</div>
+    <div class="legend-item">🏆 ボス撃破ボーナス：ステージ1=1,000／2=3,000／3=5,000／4=8,000／5=30,000、全クリアで+50,000</div>
+    <div class="legend-item">🎖️ クリア時、残機ボーナス（1機=1,000／2機=5,000／3機=15,000）と予備機ボーナス（0=100〜5機=15,000）も加算。残機3・予備機5/5のパーフェクトならさらに+30,000</div>
+    <div class="legend-item">🥇🥈🥉 ランキングは3位まで金・銀・銅で表示され履歴に残ります。合計50,000点以上でクリアすると🏆表彰マークが付きます</div>
+    <div class="legend-item">🚀 予備機体アイテム（3機体からランダム、出現率は他のラッキーアイテムより低め）を取ると機体ストックが増加（最大5機）。被弾時はストックを優先消費し、その機体は初期状態でスタート</div>
+    <div class="legend-item">🚀 ミサイルアイテム：全3段階。1段階目2発／2段階目4発／3段階目6発、段階が上がるほど連射も速く（緑は最初からLv1）</div>
+    <div class="legend-item">⚡ レーザー砲アイテム：①のグレード3〜5がそのままレーザー砲の1〜3段階に。青のみさらに本アイテムで4・5段階目まで強化可能</div>
+    <div class="legend-item">💀 どくろ（アンラッキー）アイテムがステージごとにランダムなタイミングで複数出現（ステージ1=2個／2=3個／3=4個／4=5個／5=7個）。取るとラッキーアイテムの蓄積が全て初期化。ただし無敵中に取った場合は無敵だけが消える</div>
+    <div class="legend-item">✨ 超激レア：黄金に輝く機体アイテム（1プレイに出るかどうかも運、出現率は非常に低い）を取ると10秒間、敵の弾・ミサイル・レーザーを含むあらゆる攻撃を無効化し、触れた敵やボスを破壊できる無敵状態に。どくろも無効化され、専用の勇者テーマBGMが最優先で流れます</div>
+    <div class="legend-item">👑 全ステージクリアで表彰ファンファーレが流れます</div>
+  </div>
+
+  <div id="message"></div>
+  <div id="nameEntry">
+    <div>最終累計スコア: <span id="finalScoreText"></span></div>
+    <input id="nameInput" maxlength="4" placeholder="なまえ">
+    <button id="submitScoreBtn">ランキングに登録</button>
+  </div>
+  <button id="restartBtn">もう一度プレイ</button>
+  <div id="hint">タッチ／マウスのドラッグ、または矢印キーで機体を操作。弾は自動発射されます。空中の敵には①強化の空中弾、地上の敵には②強化の地上弾が有効です。①②はともに全5段階まで強化可能。各ステージ最後にボスが出現し、弱点をすべて破壊すると撃破できます。機体ごとに特色があります：赤＝空中弾の連射速度・弾数が他の機体の2倍／青＝レーザー砲アイテムで最大5段階まで強化でき迫力満点のビームに／緑＝最初からミサイルLv1を保有。ステージごとに💀どくろのアンラッキーアイテムが1つ出現し、取ると強化が全て初期化されます（無敵中なら無敵だけが消えます）。被弾すると爆発演出とともに、ストックしている予備機体があればその機体に切り替わって続行できます。</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const stageNumEl = document.getElementById('stageNum');
+  const stageScoreEl = document.getElementById('stageScore');
+  const totalScoreEl = document.getElementById('totalScore');
+  const livesEl = document.getElementById('lives');
+  const shipStockCountEl = document.getElementById('shipStockCount');
+  const messageEl = document.getElementById('message');
+  const restartBtn = document.getElementById('restartBtn');
+  const nameEntryEl = document.getElementById('nameEntry');
+  const finalScoreTextEl = document.getElementById('finalScoreText');
+  const nameInputEl = document.getElementById('nameInput');
+  const submitScoreBtn = document.getElementById('submitScoreBtn');
+  const lbListEl = document.getElementById('lbList');
+  const shipCardsEl = document.getElementById('shipCards');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const endBtn = document.getElementById('endBtn');
+
+  // ---------- 定数 ----------
+  const STAGE_COUNT = 5;
+  const BOSS_BONUS_BY_STAGE = [1000, 3000, 5000, 8000, 30000];
+  const COMPLETE_BONUS = 50000;
+  const LIVES_BONUS = { 1: 1000, 2: 5000, 3: 15000 };
+  const STOCK_BONUS = { 0: 100, 1: 500, 2: 1500, 3: 5000, 4: 5000, 5: 15000 };
+  const PERFECT_BONUS = 30000;
+  const AWARD_SCORE_THRESHOLD = 50000;
+  const BOSS_MISSILE_CONFIG = {
+    4: { count: 6, interval: 3800 }, // ステージ4ボスは他のボスよりミサイルを多く発射
+    5: { count: 3, interval: 3600 }  // ステージ5は従来(2発)の1.5倍
+  };
+  // ステージ進行の長さ（撃破数・経過時間のしきい値）。ステージ4は1.5倍、ステージ5は2倍
+  const STAGE_PROGRESS_CONFIG = {
+    1: { kills: 22, time: 58 },
+    2: { kills: 22, time: 58 },
+    3: { kills: 22, time: 58 },
+    4: { kills: 33, time: 87 },
+    5: { kills: 44, time: 116 }
+  };
+  // 敵サイズの倍率。ステージ4は1.5倍、ステージ5は2倍
+  const STAGE_ENEMY_SIZE_MULT = { 1: 1, 2: 1, 3: 1, 4: 1.5, 5: 2 };
+  // どくろ（アンラッキー）アイテムのステージ毎の出現数
+  const UNLUCKY_COUNT_BY_STAGE = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 7 };
+  const PLAYER_R = 15;
+  const PLAYER_SPEED = 6;
+  const MAX_LEADERBOARD = 3;
+
+  const AIR_BASE_SPEED = 9, AIR_BASE_INTERVAL = 200;
+  const GROUND_BASE_SPEED = 6, GROUND_BASE_INTERVAL = 340;
+
+  const STAGE_THEMES = [
+    {
+      name: 'ステージ1：戦場平原', bossName: '巨大戦車', bossType: 'ground',
+      sky: ['#5b9bd5', '#2f6a99'],
+      hillColors: ['#3a5c2c', '#4a7038', '#5c8a44'], hillAlpha: 0.65,
+      cloudColor: '#ffffff', cloudAlpha: 0.6
+    },
+    {
+      name: 'ステージ2：大空', bossName: '巨大旅客戦闘機', bossType: 'air',
+      sky: ['#6ec8ff', '#2a5a9c'],
+      hillColors: ['#7a94b0', '#8aa0b8', '#9cb0c4'], hillAlpha: 0.18,
+      cloudColor: '#ffffff', cloudAlpha: 0.75
+    },
+    {
+      name: 'ステージ3：要塞地帯', bossName: '巨大要塞', bossType: 'ground',
+      sky: ['#c98a4a', '#6a3d1e'],
+      hillColors: ['#7a5a3a', '#8a6a44', '#6a4a2c'], hillAlpha: 0.7,
+      cloudColor: '#f0e0c8', cloudAlpha: 0.35
+    },
+    {
+      name: 'ステージ4：夕焼け空域', bossName: 'ブーメラン戦闘機', bossType: 'air',
+      sky: ['#e08a5a', '#3a1c4a'],
+      hillColors: ['#3a2440', '#4a2c50', '#5a3460'], hillAlpha: 0.55,
+      cloudColor: '#ffb98a', cloudAlpha: 0.5
+    },
+    {
+      name: 'ステージ5：業火の山脈', bossName: '漆黒の宇宙船', bossType: 'air',
+      sky: ['#3a0a05', '#0a0000'],
+      volcanic: true
+    }
+  ];
+
+  const SHIPS = [
+    { id: 'red', name: 'レッドインターセプター', color: '#ff4d4d', accent: '#ffb3b3',
+      trait: '空中弾+2発（常時）／連射速度・弾数が2倍／機体速度アップ',
+      airCountBonus: 2, groundCountBonus: 0, laserWidthMult: 1, laserDamageMult: 1,
+      speedMult: 1.18, flameMult: 1.5, airFireRateMult: 2, airCountMult: 2 },
+    { id: 'blue', name: 'ブルーウィング', color: '#4d94ff', accent: '#b3d4ff',
+      trait: 'レーザー幅4倍・高威力＋稲妻／砲アイテムで最大Lv5',
+      airCountBonus: 0, groundCountBonus: 0, laserWidthMult: 4, laserDamageMult: 1.8,
+      speedMult: 1, flameMult: 1, airFireRateMult: 1, airCountMult: 1 },
+    { id: 'green', name: 'グリーンホーク', color: '#4dbb63', accent: '#bff2c8',
+      trait: '地上弾+2発（常時）／ミサイルLv1から開始',
+      airCountBonus: 0, groundCountBonus: 2, laserWidthMult: 1, laserDamageMult: 1,
+      speedMult: 1, flameMult: 1, airFireRateMult: 1, airCountMult: 1 }
+  ];
+
+  function currentShipDef() {
+    return SHIPS.find(s => s.id === activeShipId) || SHIPS[0];
+  }
+
+  // グリーンホークは最初からミサイルLv1を持つのが特色
+  function baselineMissileLevel(shipId) {
+    return shipId === 'green' ? 1 : 0;
+  }
+
+  // ---------- 状態 ----------
+  let selectedShipId = 'red'; // 機体選択画面で選んだ機体
+  let activeShipId = 'red';   // 現在プレイ中に実際に使っている機体（予備機体消費で変わる）
+  let shipStock = []; // 予備機体のストック（機体IDの配列、最大5）
+  const MAX_SHIP_STOCK = 5;
+  let gameStarted = false;
+  let running = false;
+  let paused = false;
+  let appEnded = false; // gameOver / gameClear 状態
+
+  let stage = 1;
+  let totalScore = 0;
+  let stageStartScore = 0;
+  let lives = 3;
+
+  let player, airBullets, groundBullets, enemyBullets, enemies, items, particles;
+  let boss = null;
+  let bossActive = false;
+  let stageEnemyKills = 0;
+  let stageStartTime = 0;
+  let scrollY = 0;
+  let terrainPatches = [], cloudPuffs = [], emberParticles = [];
+  let lastAirFire = 0, lastGroundFire = 0;
+  let hitFlashUntil = 0;
+  let screenFlashUntil = 0;
+  let invincibleHitsLeft = 0; // 無敵スター：敵弾に5回あたると解除
+  let missileHitsTaken = 0; // 無敵中でもミサイルは2回で撃墜される
+  let laserHitsTaken = 0; // 無敵中でもラスボスのビームは2回で撃墜される
+  let missileLevel = 0; // ミサイルのアップグレード段階（0〜3。グリーンホークは初期値1）
+  let unluckySpawnQueue = []; // このステージ内でどくろアイテムを出現させる予定時刻の一覧
+  let goldenItemEligibleThisGame = false; // このプレイで超ラッキーアイテムが出現しうるか（抽選済み）
+  let goldenItemSpawned = false; // 超ラッキーアイテムを既に出現させたか（1プレイ1個まで）
+  let goldenShipActive = false; // 黄金の機体状態が発動中か
+  let goldenShipUntil = 0; // 黄金の機体状態が終了する時刻
+  let laserUpgradeLevel = 0; // レーザー砲のアップグレード段階（0〜3、ブルーウィングのみ最大5）
+  let bossLasers = []; // ステージ5ボスの拡散ビーム
+  let bossMissiles = []; // ボスのミサイル（ステージ4・5が使用）
+  let playerMissiles = []; // グリーンホーク専用ミサイル
+  let lastMissileFire = 0;
+  let airLevel = 0, groundLevel = 0;
+
+  let pointerActive = false;
+  let pointerX = W / 2, pointerY = H - 100;
+  let leftKey=false,rightKey=false,upKey=false,downKey=false;
+
+  let leaderboard = []; // { name, score }
+  let sessionId = 0; // initGame()のたびに増やし、古いsetTimeoutの誤作動を防ぐ
+  let pendingFinalScore = null;
+  let pendingIsAward = false;
+  let pendingClearShipId = null;
+
+  function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function dist(x1,y1,x2,y2){ const dx=x1-x2, dy=y1-y2; return Math.sqrt(dx*dx+dy*dy); }
+
+  // ================= サウンド（効果音・BGM） =================
+  let audioCtx = null, bgmGain = null, sfxGain = null;
+  let bgmTimer = null, bgmStepIndex = 0;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      bgmGain = audioCtx.createGain();
+      bgmGain.gain.value = 0.32;
+      bgmGain.connect(audioCtx.destination);
+      sfxGain = audioCtx.createGain();
+      sfxGain.gain.value = 0.7;
+      sfxGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  // 爆発音（size: 'small' | 'medium' | 'big'）
+  function playExplosion(size) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const dur = size==='big' ? 1.2 : size==='medium' ? 0.55 : 0.3;
+    const vol = size==='big' ? 1.0 : size==='medium' ? 0.7 : 0.45;
+
+    const bufferSize = Math.floor(audioCtx.sampleRate * dur);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * Math.pow(1-i/bufferSize, 1.6);
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(size==='big'?2200:1400, t);
+    filter.frequency.exponentialRampToValueAtTime(70, t+dur);
+    const ng = audioCtx.createGain();
+    ng.gain.setValueAtTime(vol, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    noise.connect(filter); filter.connect(ng); ng.connect(sfxGain);
+    noise.start(t); noise.stop(t+dur);
+
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(size==='big'?80:130, t);
+    osc.frequency.exponentialRampToValueAtTime(28, t+dur*0.85);
+    const og = audioCtx.createGain();
+    og.gain.setValueAtTime(vol*0.9, t);
+    og.gain.exponentialRampToValueAtTime(0.001, t+dur*0.9);
+    osc.connect(og); og.connect(sfxGain);
+    osc.start(t); osc.stop(t+dur);
+  }
+
+  function playThunder() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const dur = 0.9;
+    const bufferSize = Math.floor(audioCtx.sampleRate*dur);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * Math.pow(1-i/bufferSize,1.2);
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(500, t);
+    filter.frequency.exponentialRampToValueAtTime(50, t+dur);
+    const ng = audioCtx.createGain();
+    ng.gain.setValueAtTime(0.5, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    noise.connect(filter); filter.connect(ng); ng.connect(bgmGain);
+    noise.start(t); noise.stop(t+dur);
+  }
+
+  // ブルーウィング専用：神秘的なきらめきのチャイム
+  function playMysticalChime() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const notes = [1046.5, 1318.5, 1568.0]; // 高音の澄んだ和音
+    notes.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.09, t + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 2.2 + i*0.15);
+      osc.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + 2.3 + i*0.15);
+    });
+  }
+
+  const BGM_PATTERNS = {
+    red:   { tempo: 132, waveLead: 'square',   bassNote: 55,  bassVol: 0.20,
+             leadScale: [440,523,587,659,587,523,494,440] },
+    blue:  { tempo: 78,  waveLead: 'triangle', bassNote: 55,  bassVol: 0.22,
+             leadScale: [440,493.88,587.33,659.25,587.33,523.25,493.88,440] },
+    green: { tempo: 136, waveLead: 'triangle', bassNote: 65,  bassVol: 0.18,
+             leadScale: [523,659,784,659,587,659,784,880] }
+  };
+
+  const STAGE5_CHAOS_SCALE = [130.81, 116.54, 138.59, 110.00, 123.47, 98.00, 116.54, 103.83];
+
+  function scheduleBgmStep() {
+    if (!audioCtx) return;
+    if (goldenShipActive) {
+      scheduleGoldenBgmStep();
+      return;
+    }
+    if (stage === 5) {
+      scheduleStage5BgmStep();
+      return;
+    }
+    const shipDef = currentShipDef();
+    const pattern = BGM_PATTERNS[shipDef.id] || BGM_PATTERNS.red;
+    const t = audioCtx.currentTime;
+    const stepDur = 60 / pattern.tempo / 2;
+
+    const bassOsc = audioCtx.createOscillator();
+    bassOsc.type = shipDef.id==='blue' ? 'sine' : 'square';
+    bassOsc.frequency.setValueAtTime(pattern.bassNote, t);
+    const bassGain = audioCtx.createGain();
+    bassGain.gain.setValueAtTime(pattern.bassVol, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, t+stepDur*(shipDef.id==='blue' ? 1.8 : 0.9));
+    bassOsc.connect(bassGain); bassGain.connect(bgmGain);
+    bassOsc.start(t); bassOsc.stop(t+stepDur*(shipDef.id==='blue' ? 1.8 : 0.9));
+
+    const note = pattern.leadScale[bgmStepIndex % pattern.leadScale.length];
+    const leadOsc = audioCtx.createOscillator();
+    leadOsc.type = pattern.waveLead;
+    leadOsc.frequency.setValueAtTime(note, t);
+    const leadGain = audioCtx.createGain();
+    leadGain.gain.setValueAtTime(0.13, t);
+    leadGain.gain.exponentialRampToValueAtTime(0.001, t+stepDur*0.85);
+    leadOsc.connect(leadGain); leadGain.connect(bgmGain);
+    leadOsc.start(t); leadOsc.stop(t+stepDur);
+
+    if (shipDef.id === 'blue') {
+      // 神秘的な広がりを出すため、わずかにデチューンした重ね音（コーラス効果）
+      const detuneOsc = audioCtx.createOscillator();
+      detuneOsc.type = 'sine';
+      detuneOsc.frequency.setValueAtTime(note, t);
+      detuneOsc.detune.setValueAtTime(9, t);
+      const detuneGain = audioCtx.createGain();
+      detuneGain.gain.setValueAtTime(0.08, t);
+      detuneGain.gain.exponentialRampToValueAtTime(0.001, t+stepDur*1.4);
+      detuneOsc.connect(detuneGain); detuneGain.connect(bgmGain);
+      detuneOsc.start(t); detuneOsc.stop(t+stepDur*1.4);
+
+      if (bgmStepIndex % 6 === 0) {
+        playMysticalChime();
+      }
+    }
+
+    bgmStepIndex++;
+    bgmTimer = setTimeout(scheduleBgmStep, stepDur*1000);
+  }
+
+  // ステージ5専用：重低音の太鼓＋不協和シンセで恐怖感を演出するBGM（機体に関わらず共通）
+  function scheduleStage5BgmStep() {
+    const t = audioCtx.currentTime;
+    const tempo = 74;
+    const stepDur = 60 / tempo; // 4分音符でどっしりと
+
+    const strong = bgmStepIndex % 2 === 0;
+
+    // 太鼓のドン
+    const drumOsc = audioCtx.createOscillator();
+    drumOsc.type = 'sine';
+    drumOsc.frequency.setValueAtTime(strong?68:52, t);
+    drumOsc.frequency.exponentialRampToValueAtTime(28, t+0.35);
+    const drumGain = audioCtx.createGain();
+    drumGain.gain.setValueAtTime(strong?0.8:0.42, t);
+    drumGain.gain.exponentialRampToValueAtTime(0.001, t+0.4);
+    drumOsc.connect(drumGain); drumGain.connect(bgmGain);
+    drumOsc.start(t); drumOsc.stop(t+0.4);
+
+    // アタック感のノイズ
+    const bufferSize = Math.floor(audioCtx.sampleRate*0.15);
+    const buffer = audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i=0;i<bufferSize;i++) data[i]=(Math.random()*2-1)*Math.pow(1-i/bufferSize,2);
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const nf = audioCtx.createBiquadFilter();
+    nf.type = 'lowpass';
+    nf.frequency.setValueAtTime(420, t);
+    const ng = audioCtx.createGain();
+    ng.gain.setValueAtTime(strong?0.4:0.18, t);
+    ng.gain.exponentialRampToValueAtTime(0.001, t+0.15);
+    noise.connect(nf); nf.connect(ng); ng.connect(bgmGain);
+    noise.start(t); noise.stop(t+0.15);
+
+    // 混沌としたシンセの唸り（不協和音のクラスタ、デチューンした2音）
+    if (bgmStepIndex % 4 === 0) {
+      const note = STAGE5_CHAOS_SCALE[Math.floor(bgmStepIndex/4) % STAGE5_CHAOS_SCALE.length];
+      [0, 9].forEach(detune => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(note, t);
+        osc.detune.setValueAtTime(detune, t);
+        const og = audioCtx.createGain();
+        og.gain.setValueAtTime(0.1, t);
+        og.gain.exponentialRampToValueAtTime(0.001, t+stepDur*3.5);
+        osc.connect(og); og.connect(bgmGain);
+        osc.start(t); osc.stop(t+stepDur*3.5);
+      });
+    }
+
+    bgmStepIndex++;
+    bgmTimer = setTimeout(scheduleBgmStep, stepDur*1000);
+  }
+
+  // 超ラッキーアイテム（黄金の機体）発動中：軽快でリズミカルな勇者のテーマ。何よりも最優先で流れる
+  const GOLDEN_LEAD_SCALE = [523.25, 659.25, 783.99, 1046.5, 783.99, 659.25, 523.25, 392.0];
+  function scheduleGoldenBgmStep() {
+    const t = audioCtx.currentTime;
+    const tempo = 150;
+    const stepDur = 60 / tempo / 2;
+
+    // 弾むベース
+    const bassOsc = audioCtx.createOscillator();
+    bassOsc.type = 'square';
+    bassOsc.frequency.setValueAtTime(bgmStepIndex % 4 === 0 ? 130.81 : 196.0, t);
+    const bassGain = audioCtx.createGain();
+    bassGain.gain.setValueAtTime(0.22, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, t+stepDur*0.85);
+    bassOsc.connect(bassGain); bassGain.connect(bgmGain);
+    bassOsc.start(t); bassOsc.stop(t+stepDur*0.9);
+
+    // 明るいリード（勇者らしいファンファーレ調のアルペジオ）
+    const note = GOLDEN_LEAD_SCALE[bgmStepIndex % GOLDEN_LEAD_SCALE.length];
+    const leadOsc = audioCtx.createOscillator();
+    leadOsc.type = 'square';
+    leadOsc.frequency.setValueAtTime(note, t);
+    const leadGain = audioCtx.createGain();
+    leadGain.gain.setValueAtTime(0.16, t);
+    leadGain.gain.exponentialRampToValueAtTime(0.001, t+stepDur*0.8);
+    leadOsc.connect(leadGain); leadGain.connect(bgmGain);
+    leadOsc.start(t); leadOsc.stop(t+stepDur);
+
+    // 拍の頭で軽快なパーカッション（ノイズの短いアクセント）
+    if (bgmStepIndex % 2 === 0) {
+      const bufferSize = Math.floor(audioCtx.sampleRate*0.06);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * Math.pow(1-i/bufferSize,2);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const nf = audioCtx.createBiquadFilter();
+      nf.type = 'highpass';
+      nf.frequency.setValueAtTime(1500, t);
+      const ng = audioCtx.createGain();
+      ng.gain.setValueAtTime(0.18, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t+0.06);
+      noise.connect(nf); nf.connect(ng); ng.connect(bgmGain);
+      noise.start(t); noise.stop(t+0.06);
+    }
+
+    bgmStepIndex++;
+    if (goldenShipActive) {
+      bgmTimer = setTimeout(scheduleBgmStep, stepDur*1000);
+    }
+  }
+
+  function startBgm() {
+    ensureAudio();
+    stopBgm();
+    bgmStepIndex = 0;
+    scheduleBgmStep();
+  }
+  function stopBgm() {
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  }
+
+  // 全ステージクリア時に流す表彰ファンファーレ
+  function playVictoryFanfare() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51];
+    const durs  = [0.16, 0.16, 0.16, 0.32, 0.16, 0.16, 0.9];
+    let t = t0;
+    notes.forEach((freq, i) => {
+      [0, 0.02].forEach(detuneRatio => {
+        const osc = audioCtx.createOscillator();
+        osc.type = i === notes.length-1 ? 'sawtooth' : 'square';
+        osc.frequency.setValueAtTime(freq * (1+detuneRatio), t);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + durs[i]*0.95);
+        osc.connect(g); g.connect(sfxGain);
+        osc.start(t); osc.stop(t + durs[i]);
+      });
+      t += durs[i];
+    });
+    const bass = audioCtx.createOscillator();
+    bass.type = 'triangle';
+    bass.frequency.setValueAtTime(130.81, t0);
+    const bg = audioCtx.createGain();
+    bg.gain.setValueAtTime(0.28, t0);
+    bg.gain.exponentialRampToValueAtTime(0.001, t0+1.9);
+    bass.connect(bg); bg.connect(sfxGain);
+    bass.start(t0); bass.stop(t0+1.9);
+  }
+
+  // ================= 機体描画 =================
+  function drawShip(ctx, shipId, cx, cy, scale, invincible, tPhase) {
+    const ship = SHIPS.find(s => s.id === shipId);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    if (invincible) {
+      ctx.save();
+      ctx.globalAlpha = 0.35 + 0.25*Math.sin(tPhase/80);
+      ctx.strokeStyle = '#ffd35c';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(0, 0, 26, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // エンジン炎（機体ごとの倍率を適用。赤は1.5倍で大きく）
+    const flameMult = ship.flameMult || 1;
+    ctx.fillStyle = 'rgba(255,180,80,0.85)';
+    ctx.beginPath();
+    ctx.moveTo(-6*flameMult, 16);
+    ctx.lineTo(0, 16 + (10 + Math.sin(tPhase/40)*3)*flameMult);
+    ctx.lineTo(6*flameMult, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    if (shipId === 'red') {
+      // 鋭い矢型
+      ctx.fillStyle = ship.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.lineTo(6, 4);
+      ctx.lineTo(20, 14);
+      ctx.lineTo(10, 16);
+      ctx.lineTo(4, 10);
+      ctx.lineTo(3, 18);
+      ctx.lineTo(-3, 18);
+      ctx.lineTo(-4, 10);
+      ctx.lineTo(-10, 16);
+      ctx.lineTo(-20, 14);
+      ctx.lineTo(-6, 4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = ship.accent;
+      ctx.beginPath();
+      ctx.ellipse(0, -4, 3, 7, 0, 0, Math.PI*2);
+      ctx.fill();
+    } else if (shipId === 'blue') {
+      // デルタ翼で幅広
+      ctx.fillStyle = ship.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -18);
+      ctx.lineTo(5, 6);
+      ctx.lineTo(24, 16);
+      ctx.lineTo(24, 20);
+      ctx.lineTo(6, 14);
+      ctx.lineTo(4, 18);
+      ctx.lineTo(-4, 18);
+      ctx.lineTo(-6, 14);
+      ctx.lineTo(-24, 20);
+      ctx.lineTo(-24, 16);
+      ctx.lineTo(-5, 6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = ship.accent;
+      ctx.beginPath();
+      ctx.ellipse(0, -2, 4, 8, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#274a8a';
+      ctx.fillRect(-19, 12, 6, 6);
+      ctx.fillRect(13, 12, 6, 6);
+    } else {
+      // グリーン：カナード翼つきスレンダー機
+      ctx.fillStyle = ship.color;
+      ctx.beginPath();
+      ctx.moveTo(0, -24);
+      ctx.lineTo(4, 0);
+      ctx.lineTo(16, 8);
+      ctx.lineTo(6, 8);
+      ctx.lineTo(3, 16);
+      ctx.lineTo(9, 18);
+      ctx.lineTo(-9, 18);
+      ctx.lineTo(-3, 16);
+      ctx.lineTo(-6, 8);
+      ctx.lineTo(-16, 8);
+      ctx.lineTo(-4, 0);
+      ctx.closePath();
+      ctx.fill();
+      // カナード（前部小翼）
+      ctx.beginPath();
+      ctx.moveTo(-3, -6);
+      ctx.lineTo(-14, -2);
+      ctx.lineTo(-3, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(3, -6);
+      ctx.lineTo(14, -2);
+      ctx.lineTo(3, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = ship.accent;
+      ctx.beginPath();
+      ctx.ellipse(0, -8, 3, 7, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // 超ラッキーアイテム専用：黄金に輝く機体（レッドインターセプターの形をベースにした特別仕様）
+  function drawGoldenShip(ctx, cx, cy, scale, tPhase) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+
+    // 高速に点滅する円形シールドバリア
+    const blink = 0.5 + 0.5*Math.sin(tPhase/60);
+    ctx.save();
+    ctx.globalAlpha = 0.5 + 0.4*blink;
+    ctx.strokeStyle = '#fff4c2';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#ffe066';
+    ctx.shadowBlur = 16;
+    ctx.beginPath();
+    ctx.arc(0, 0, 27, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 32, 0, Math.PI*2);
+    ctx.globalAlpha = 0.25 + 0.25*blink;
+    ctx.stroke();
+    ctx.restore();
+
+    // エンジン炎（金色に発光）
+    ctx.fillStyle = 'rgba(255,220,120,0.9)';
+    ctx.beginPath();
+    ctx.moveTo(-7, 16);
+    ctx.lineTo(0, 16 + 12 + Math.sin(tPhase/40)*3);
+    ctx.lineTo(7, 16);
+    ctx.closePath();
+    ctx.fill();
+
+    // 機体本体（レッドインターセプターの形状をベースに黄金色で描画）
+    ctx.save();
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 14;
+    const goldGrad = ctx.createLinearGradient(0,-22,0,18);
+    goldGrad.addColorStop(0, '#fff3b0');
+    goldGrad.addColorStop(0.5, '#ffd700');
+    goldGrad.addColorStop(1, '#c99a2e');
+    ctx.fillStyle = goldGrad;
+    ctx.beginPath();
+    ctx.moveTo(0, -22);
+    ctx.lineTo(6, 4);
+    ctx.lineTo(20, 14);
+    ctx.lineTo(10, 16);
+    ctx.lineTo(4, 10);
+    ctx.lineTo(3, 18);
+    ctx.lineTo(-3, 18);
+    ctx.lineTo(-4, 10);
+    ctx.lineTo(-10, 16);
+    ctx.lineTo(-20, 14);
+    ctx.lineTo(-6, 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#fffbe6';
+    ctx.beginPath();
+    ctx.ellipse(0, -4, 3, 7, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function renderShipCards() {
+    shipCardsEl.innerHTML = '';
+    SHIPS.forEach(ship => {
+      const card = document.createElement('div');
+      card.className = 'ship-card' + (ship.id === selectedShipId ? ' selected' : '');
+      const c = document.createElement('canvas');
+      c.width = 64; c.height = 64;
+      const cctx = c.getContext('2d');
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'ship-name';
+      nameDiv.textContent = ship.name;
+      const traitDiv = document.createElement('div');
+      traitDiv.className = 'ship-trait';
+      traitDiv.textContent = ship.trait;
+      card.appendChild(c);
+      card.appendChild(nameDiv);
+      card.appendChild(traitDiv);
+      card.addEventListener('click', () => {
+        selectedShipId = ship.id;
+        renderShipCards();
+      });
+      shipCardsEl.appendChild(card);
+
+      drawShip(cctx, ship.id, 32, 38, 0.9, false, 0);
+    });
+  }
+
+  // ================= プレイヤー初期化 =================
+  function initPlayer() {
+    player = { x: W/2, y: H - 110, r: PLAYER_R };
+    pointerX = player.x; pointerY = player.y;
+  }
+
+  // ================= 敵生成 =================
+  function spawnEnemy() {
+    if (bossActive) return;
+    const sizeMult = STAGE_ENEMY_SIZE_MULT[stage] || 1;
+    const isGround = Math.random() < 0.5;
+    const baseR = isGround ? 32 : 28;
+    const r = baseR * sizeMult;
+    const margin = r + 12;
+    const x = rand(margin, W-margin);
+    if (isGround) {
+      enemies.push({
+        type: 'ground', x, y: -50-r, r,
+        hp: 3 + Math.floor(stage/2), maxHp: 3 + Math.floor(stage/2),
+        vy: 1.1 + stage*0.08, vx: 0,
+        fireAt: performance.now() + rand(900,2200),
+        score: 60
+      });
+    } else {
+      enemies.push({
+        type: 'air', x, y: -50-r, r,
+        hp: 2 + Math.floor(stage/3), maxHp: 2 + Math.floor(stage/3),
+        vy: 1.7 + stage*0.12, vx: rand(-0.6,0.6),
+        phase: rand(0, Math.PI*2),
+        fireAt: performance.now() + rand(1000,2400),
+        score: 50
+      });
+    }
+  }
+
+  // ================= ボス定義 =================
+  function bossWeakPointOffsets(stageIdx) {
+    // 弱点オフセット（ボス中心からの相対座標比率）
+    switch (stageIdx) {
+      case 1: return [ {dx:0, dy:-38}, {dx:-70, dy:10}, {dx:70, dy:10}, {dx:-30,dy:30}, {dx:30,dy:30} ]; // 戦車:砲塔/左右キャタピラ/車体
+      case 2: return [ {dx:0, dy:-46}, {dx:-90, dy:6}, {dx:90, dy:6}, {dx:-30,dy:20}, {dx:30,dy:20} ]; // 旅客戦闘機:機首/翼端/胴体
+      case 3: return [ {dx:-70, dy:-30}, {dx:0, dy:-46}, {dx:70, dy:-30}, {dx:-40,dy:20}, {dx:40,dy:20} ]; // 要塞:3つの塔+左右壁
+      case 4: return [ {dx:-90, dy:0}, {dx:90, dy:0}, {dx:0, dy:0}, {dx:-45,dy:14}, {dx:45,dy:14} ]; // ブーメラン:翼端/中心/エンジン
+      case 5: return [ // 宇宙船（7箇所）:コア/左右ポッド/前後/左右上部
+        {dx:0, dy:0}, {dx:-95, dy:12}, {dx:95, dy:12},
+        {dx:0, dy:-46}, {dx:0, dy:46},
+        {dx:-55, dy:-24}, {dx:55, dy:-24}
+      ];
+      default: return [ {dx:0,dy:0},{dx:-50,dy:0},{dx:50,dy:0},{dx:0,dy:-30},{dx:0,dy:30} ];
+    }
+  }
+
+  function spawnBoss() {
+    const theme = STAGE_THEMES[stage-1];
+    const wpHp = 9 + stage*5;
+    const offsets = bossWeakPointOffsets(stage);
+    boss = {
+      x: W/2, y: -160, targetY: 150,
+      vx: 1.4,
+      type: theme.bossType,
+      name: theme.bossName,
+      weakPoints: offsets.map(o => ({ ...o, hp: wpHp, maxHp: wpHp, alive: true })),
+      fireAt: performance.now() + 1500,
+      nextLaserAt: performance.now() + 3500,
+      nextMissileAt: performance.now() + 2200,
+      entering: true,
+      blinkPhase: 0
+    };
+    bossLasers = [];
+    bossMissiles = [];
+    bossActive = true;
+  }
+
+  function allWeakPointsDead() {
+    return boss && boss.weakPoints.every(w => !w.alive);
+  }
+
+  // ================= アイテム =================
+  // ステージ中に1個だけ出現する、どくろ（アンラッキー）アイテム
+  function spawnUnluckyItem() {
+    items.push({ x: rand(40, W-40), y: -20, dy: 1.8, kind: 'unlucky' });
+  }
+
+  function maybeDropItem(x, y) {
+    if (Math.random() > 0.25) return;
+    // 重み付き抽選：自機アイテムは他のラッキーアイテムより出現率を低くする
+    const pool = ['air','air','ground','ground','star','star','missile','missile','extraShip'];
+    if (currentShipDef().id === 'blue') pool.push('laserUpgrade','laserUpgrade');
+    const kind = pool[Math.floor(Math.random()*pool.length)];
+    if (kind === 'extraShip') {
+      const shipId = SHIPS[Math.floor(Math.random()*SHIPS.length)].id;
+      items.push({ x, y, dy: 1.6, kind, shipId });
+    } else {
+      items.push({ x, y, dy: 1.6, kind });
+    }
+  }
+
+  // 超ラッキーアイテム（黄金の機体）：抽選で今回のプレイで出現しうる場合のみ、極めて低確率で出現する
+  function maybeDropGoldenItem(x, y) {
+    if (!goldenItemEligibleThisGame || goldenItemSpawned) return;
+    if (Math.random() < 0.03) {
+      items.push({ x, y, dy: 1.5, kind: 'goldenShip' });
+      goldenItemSpawned = true;
+    }
+  }
+
+  function applyItem(kind, item) {
+    if (kind === 'air') {
+      airLevel = Math.min(5, airLevel+1);
+    } else if (kind === 'ground') {
+      groundLevel = Math.min(5, groundLevel+1);
+    } else if (kind === 'star') {
+      invincibleHitsLeft = 5;
+    } else if (kind === 'extraShip') {
+      if (shipStock.length < MAX_SHIP_STOCK) {
+        shipStock.push(item.shipId);
+        updateHUD();
+      }
+    } else if (kind === 'missile') {
+      missileLevel = Math.min(3, missileLevel+1);
+    } else if (kind === 'laserUpgrade') {
+      laserUpgradeLevel = Math.min(laserUpgradeMaxExtra(), laserUpgradeLevel+1);
+    } else if (kind === 'unlucky') {
+      if (goldenShipActive) {
+        // 黄金の機体状態の間は、どくろの効果を完全に無効化する
+      } else if (invincibleHitsLeft > 0) {
+        // 無敵中は、どくろの効果は無敵だけを消し去る
+        invincibleHitsLeft = 0;
+      } else {
+        // それ以外は、蓄積したラッキーアイテムの効果を全て初期化する
+        airLevel = 0;
+        groundLevel = 0;
+        laserUpgradeLevel = 0;
+        missileLevel = baselineMissileLevel(activeShipId);
+      }
+      updateHUD();
+    } else if (kind === 'goldenShip') {
+      // 超ラッキーアイテム：10秒間、黄金の機体となりあらゆる攻撃を無効化する
+      goldenShipActive = true;
+      goldenShipUntil = performance.now() + 10000;
+      startBgm(); // 専用の勇者テーマに即座に切り替える
+    }
+  }
+
+  // ================= 発射 =================
+  function fireAirWeapon(now) {
+    const shipDef = currentShipDef();
+    let interval = AIR_BASE_INTERVAL;
+    if (airLevel >= 1) interval *= 0.85;
+    if (airLevel >= 2) interval *= 0.85;
+    interval /= (shipDef.airFireRateMult || 1);
+    if (now - lastAirFire < interval) return;
+    lastAirFire = now;
+
+    if (airLevel >= 3) return; // レーザーは常時ダメージのため個別弾は撃たない
+
+    const speed = AIR_BASE_SPEED * Math.pow(2, airLevel);
+    const count = (Math.pow(2, airLevel) + shipDef.airCountBonus) * (shipDef.airCountMult || 1); // 1,2,4 + 機体ボーナス、機体倍率
+    const spread = count > 1 ? 10 : 0;
+    for (let i=0;i<count;i++) {
+      const off = count===1 ? 0 : (i - (count-1)/2) * spread;
+      airBullets.push({ x: player.x+off, y: player.y-18, vx:0, vy:-speed, w:4, h:12 });
+    }
+  }
+
+  function fireGroundWeapon(now) {
+    let interval = GROUND_BASE_INTERVAL;
+    if (groundLevel >= 1) interval *= 0.85;
+    if (groundLevel >= 2) interval *= 0.85;
+    if (groundLevel >= 4) interval *= 0.85;
+    if (groundLevel >= 5) interval *= 0.85;
+    if (now - lastGroundFire < interval) return;
+    lastGroundFire = now;
+
+    const speed = GROUND_BASE_SPEED * Math.pow(2, Math.min(groundLevel,2));
+    const shipDef = currentShipDef();
+    if (groundLevel >= 3) {
+      // 広範囲攻撃：扇状に発射（グレード4・5でさらに弾数と範囲が拡大）
+      const n = 7 + (groundLevel-3)*3 + shipDef.groundCountBonus;
+      const spreadAngle = 0.16 + (groundLevel-3)*0.03;
+      for (let i=0;i<n;i++) {
+        const angle = -Math.PI/2 + (i-(n-1)/2) * spreadAngle;
+        groundBullets.push({
+          x: player.x, y: player.y-10,
+          vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
+          w:7, h:7, wide:true
+        });
+      }
+    } else {
+      const count = Math.pow(2, groundLevel) + shipDef.groundCountBonus; // 1,2,4 + 機体ボーナス
+      const spread = count>1 ? 14 : 0;
+      for (let i=0;i<count;i++) {
+        const off = count===1 ? 0 : (i - (count-1)/2) * spread;
+        groundBullets.push({ x: player.x+off, y: player.y-10, vx:0, vy:-speed, w:7, h:7 });
+      }
+    }
+  }
+
+  // グリーンホーク専用：追尾ミサイル（空中・地上どちらの敵にも命中する）
+  const MISSILE_LEVEL_STATS = {
+    1: { count: 2, dmg: 2,   interval: 750 },
+    2: { count: 4, dmg: 2.3, interval: 580 },
+    3: { count: 6, dmg: 2.6, interval: 430 }
+  };
+
+  function fireMissileWeapon(now) {
+    if (missileLevel <= 0) return;
+    const stats = MISSILE_LEVEL_STATS[missileLevel];
+    if (now - lastMissileFire < stats.interval) return;
+    lastMissileFire = now;
+    const spread = stats.count > 1 ? 16 : 0;
+    for (let i=0;i<stats.count;i++) {
+      const off = stats.count===1 ? 0 : (i - (stats.count-1)/2) * spread;
+      playerMissiles.push({ x: player.x+off, y: player.y-16, vx:0, vy:-4, r:6, trail:[], dmg: stats.dmg });
+    }
+  }
+
+  function findNearestEnemyOrBoss(x, y) {
+    let best = null, bestD = Infinity;
+    enemies.forEach(e => {
+      const d = dist(x,y,e.x,e.y);
+      if (d < bestD) { bestD = d; best = { x:e.x, y:e.y }; }
+    });
+    if (boss && !boss.entering) {
+      boss.weakPoints.forEach(wp => {
+        if (!wp.alive) return;
+        const wx = boss.x+wp.dx, wy = boss.y+wp.dy;
+        const d = dist(x,y,wx,wy);
+        if (d < bestD) { bestD = d; best = { x:wx, y:wy }; }
+      });
+    }
+    return best;
+  }
+
+  function updatePlayerMissiles(now) {
+    for (let i=playerMissiles.length-1;i>=0;i--) {
+      const m = playerMissiles[i];
+      const target = findNearestEnemyOrBoss(m.x, m.y);
+      if (target) {
+        const angle = Math.atan2(target.y-m.y, target.x-m.x);
+        m.vx += Math.cos(angle)*0.35;
+        m.vy += Math.sin(angle)*0.35;
+        const spd = Math.min(7, Math.hypot(m.vx,m.vy));
+        const curAngle = Math.atan2(m.vy,m.vx);
+        m.vx = Math.cos(curAngle)*spd;
+        m.vy = Math.sin(curAngle)*spd;
+      }
+      m.x += m.vx; m.y += m.vy;
+      m.trail.push({x:m.x,y:m.y});
+      if (m.trail.length>8) m.trail.shift();
+      if (m.y < -30 || m.y > H+30 || m.x < -30 || m.x > W+30) { playerMissiles.splice(i,1); continue; }
+
+      let hit = false;
+      for (let j=enemies.length-1;j>=0;j--) {
+        const e = enemies[j];
+        if (circleHit(m.x,m.y,4,e.x,e.y,e.r)) { e.hp -= (m.dmg || 2); hit = true; break; }
+      }
+      if (!hit && boss && !boss.entering) {
+        for (const wp of boss.weakPoints) {
+          if (!wp.alive) continue;
+          const wx=boss.x+wp.dx, wy=boss.y+wp.dy;
+          if (circleHit(m.x,m.y,4,wx,wy,20)) {
+            wp.hp -= (m.dmg || 2);
+            if (wp.hp<=0){ destroyWeakPoint(wp, wx, wy); }
+            hit = true;
+            break;
+          }
+        }
+      }
+      if (hit) playerMissiles.splice(i,1);
+    }
+  }
+
+  // ================= 更新 =================
+  function updatePlayer(dt) {
+    const speedMult = currentShipDef().speedMult || 1;
+    if (leftKey) pointerX -= PLAYER_SPEED*2*dt*speedMult;
+    if (rightKey) pointerX += PLAYER_SPEED*2*dt*speedMult;
+    if (upKey) pointerY -= PLAYER_SPEED*2*dt*speedMult;
+    if (downKey) pointerY += PLAYER_SPEED*2*dt*speedMult;
+    pointerX = Math.max(PLAYER_R+4, Math.min(W-PLAYER_R-4, pointerX));
+    pointerY = Math.max(PLAYER_R+4, Math.min(H-PLAYER_R-4, pointerY));
+    const followRate = Math.min(0.9, 0.32*speedMult);
+    player.x += (pointerX - player.x) * followRate;
+    player.y += (pointerY - player.y) * followRate;
+  }
+
+  function updateBullets() {
+    for (let i=airBullets.length-1;i>=0;i--) {
+      const b = airBullets[i];
+      b.x += b.vx; b.y += b.vy;
+      if (b.y < -20) airBullets.splice(i,1);
+    }
+    for (let i=groundBullets.length-1;i>=0;i--) {
+      const b = groundBullets[i];
+      b.x += b.vx; b.y += b.vy;
+      if (b.y < -20 || b.x < -20 || b.x > W+20) groundBullets.splice(i,1);
+    }
+    for (let i=enemyBullets.length-1;i>=0;i--) {
+      const b = enemyBullets[i];
+      b.x += b.vx; b.y += b.vy;
+      if (b.y > H+20) enemyBullets.splice(i,1);
+    }
+  }
+
+  function laserActive() { return airLevel >= 3; }
+  const LASER_HALF_WIDTH_BASE = 4.5;  // 幅を従来の約半分に調整
+  const LASER_DAMAGE_BASE = 0.26;     // 威力を従来の約3/4に調整
+  const LASER_LEVEL_WIDTH_STEP = 0.35;  // レーザー砲を1段階強化するごとに+35%
+  const LASER_LEVEL_DAMAGE_STEP = 0.3;  // レーザー砲を1段階強化するごとに+30%
+
+  // ①空中弾強化グレード3〜5がレーザー砲の基本段階1〜3（赤・緑はここまで）
+  function laserBaseStage() {
+    return Math.max(0, Math.min(3, airLevel - 2));
+  }
+  // ブルーウィングのみ、⚡レーザー砲強化アイテムでさらに+2段階（最大5）まで伸ばせる
+  function laserUpgradeMaxExtra() {
+    return currentShipDef().id === 'blue' ? 2 : 0;
+  }
+  function laserUpgradeMaxLevel() {
+    return currentShipDef().id === 'blue' ? 5 : 3;
+  }
+  function laserTotalStage() {
+    const extra = Math.min(laserUpgradeLevel, laserUpgradeMaxExtra());
+    return Math.min(laserUpgradeMaxLevel(), laserBaseStage() + extra);
+  }
+  function laserHalfWidth() {
+    return LASER_HALF_WIDTH_BASE * currentShipDef().laserWidthMult * (1 + LASER_LEVEL_WIDTH_STEP * laserTotalStage());
+  }
+  function laserDamage() {
+    return LASER_DAMAGE_BASE * currentShipDef().laserDamageMult * (1 + LASER_LEVEL_DAMAGE_STEP * laserTotalStage());
+  }
+  function laserCanHitGround() {
+    return laserTotalStage() >= 3;
+  }
+
+  function updateEnemies(now) {
+    for (let i=enemies.length-1;i>=0;i--) {
+      const e = enemies[i];
+      e.y += e.vy;
+      if (e.type === 'air') {
+        e.phase += 0.05;
+        e.x += Math.sin(e.phase)*0.8 + e.vx;
+      }
+      if (now >= e.fireAt && e.y > 0 && e.y < H-60) {
+        const angle = Math.atan2(player.y-e.y, player.x-e.x);
+        enemyBullets.push({ x:e.x, y:e.y, vx:Math.cos(angle)*3.2, vy:Math.sin(angle)*3.2, r:4 });
+        e.fireAt = now + rand(1400,2600);
+      }
+      if (e.y > H+40) { enemies.splice(i,1); continue; }
+
+      // レーザー(空中Lv3)によるダメージ：空中の敵は常に対象、地上の敵はレーザー砲③段階以降で対象
+      if (laserActive() && (e.type === 'air' || (e.type === 'ground' && laserCanHitGround()))) {
+        if (Math.abs(e.x - player.x) < laserHalfWidth() + e.r && e.y < player.y) {
+          e.hp -= laserDamage();
+        }
+      }
+      if (e.hp <= 0) {
+        totalScore += e.score;
+        stageEnemyKills += 1;
+        spawnFirework(e.x, e.y, e.type==='ground' ? '#ffb85c' : '#7ec8ff');
+        playExplosion('small');
+        maybeDropItem(e.x, e.y);
+        maybeDropGoldenItem(e.x, e.y);
+        enemies.splice(i,1);
+      }
+    }
+  }
+
+  function updateBoss(now, dt) {
+    if (!boss) return;
+    if (boss.entering) {
+      boss.y += 2.2;
+      if (boss.y >= boss.targetY) { boss.y = boss.targetY; boss.entering = false; }
+      return;
+    }
+    boss.blinkPhase += dt;
+    boss.x += boss.vx;
+    const patrolMargin = stage === 5 ? 130 : 90;
+    if (boss.x < patrolMargin || boss.x > W-patrolMargin) boss.vx *= -1;
+
+    if (now >= boss.fireAt) {
+      const n = (4 + Math.floor(stage/2)) * (stage === 5 ? 2 : 1);
+      for (let i=0;i<n;i++) {
+        const angle = Math.atan2(player.y-boss.y, player.x-boss.x) + (i-(n-1)/2)*0.18;
+        enemyBullets.push({ x:boss.x, y:boss.y, vx:Math.cos(angle)*3.4, vy:Math.sin(angle)*3.4, r:5 });
+      }
+      boss.fireAt = now + Math.max(700, 1400 - stage*80);
+    }
+
+    // レーザー(空中Lv3)がボス弱点にダメージ：airタイプは常に対象、groundタイプはレーザー砲③段階以降で対象
+    if (laserActive() && (boss.type === 'air' || (boss.type === 'ground' && laserCanHitGround()))) {
+      const hw = laserHalfWidth();
+      boss.weakPoints.forEach(wp => {
+        if (!wp.alive) return;
+        const wx = boss.x+wp.dx, wy = boss.y+wp.dy;
+        if (Math.abs(wx-player.x) < hw + 7 && wy < player.y) {
+          wp.hp -= laserDamage();
+          if (wp.hp <= 0) { destroyWeakPoint(wp, wx, wy); }
+        }
+      });
+    }
+
+    // ステージ5ラスボス専用：拡散ビーム
+    if (stage === 5) {
+      if (now >= boss.nextLaserAt) {
+        const n = 4;
+        for (let i=0;i<n;i++) {
+          const angle = Math.PI/2 + (i-(n-1)/2)*0.34; // 下方向に扇状
+          bossLasers.push({
+            x: boss.x, y: boss.y, angle,
+            phase: 'warning', createdAt: now,
+            warnUntil: now + 550, activeUntil: now + 550 + 220
+          });
+        }
+        boss.nextLaserAt = now + 5000;
+      }
+    }
+
+    // ミサイル：ステージ4・5のボスが使用（ステージ4はステージ5より多く発射する）
+    const missileCfg = BOSS_MISSILE_CONFIG[stage];
+    if (missileCfg && now >= boss.nextMissileAt) {
+      const count = missileCfg.count;
+      for (let i=0;i<count;i++) {
+        const t = count===1 ? 0.5 : i/(count-1);
+        const mx = boss.x - 70 + 140*t;
+        bossMissiles.push({ x: mx, y: boss.y+10, vx:0, vy:2.2, r:8, trail:[] });
+      }
+      boss.nextMissileAt = now + missileCfg.interval;
+    }
+  }
+
+  const LASER_FADE_DURATION = 900; // 発射後、回転しながら消えるまでの時間(ms)
+
+  function updateBossLasers(now) {
+    for (let i=bossLasers.length-1;i>=0;i--) {
+      const l = bossLasers[i];
+      if (l.phase === 'warning' && now >= l.warnUntil) l.phase = 'active';
+      if (l.phase === 'active' && now >= l.activeUntil) {
+        // 発射終了後は円を描くように回転しながら広がって消えていく段階へ
+        l.phase = 'fading';
+        l.fadeStart = now;
+        l.fadeCenterX = boss ? boss.x : l.x;
+        l.fadeCenterY = boss ? boss.y : l.y;
+      }
+      if (l.phase === 'fading') {
+        if (now - l.fadeStart >= LASER_FADE_DURATION) { bossLasers.splice(i,1); }
+        continue;
+      }
+      if (l.phase === 'active') {
+        // プレイヤーとビーム直線の距離判定
+        const dx = Math.cos(l.angle), dy = Math.sin(l.angle);
+        const px = player.x - l.x, py = player.y - l.y;
+        const proj = px*dx + py*dy;
+        if (proj > 0 && proj < 700) {
+          const closestX = l.x + dx*proj, closestY = l.y + dy*proj;
+          if (dist(closestX,closestY,player.x,player.y) < player.r + 6) {
+            handleLaserHit(now);
+          }
+        }
+      }
+    }
+  }
+
+  // ラスボスのビーム被弾：無敵中は2回で撃墜、通常時は即撃墜
+  function handleLaserHit(now) {
+    if (appEnded || now <= hitFlashUntil) return;
+    if (goldenShipActive) return; // 黄金の機体はビームも完全に無効化する
+    const invincible = invincibleHitsLeft > 0;
+    if (!invincible) {
+      playerHit(now);
+      return;
+    }
+    laserHitsTaken += 1;
+    spawnFirework(player.x, player.y, '#ffe066');
+    if (laserHitsTaken >= 2) {
+      forcePlayerDown(now);
+    }
+  }
+
+  function updateBossMissiles(now) {
+    for (let i=bossMissiles.length-1;i>=0;i--) {
+      const m = bossMissiles[i];
+      const angle = Math.atan2(player.y-m.y, player.x-m.x);
+      m.vx += (Math.cos(angle)*0.15);
+      m.vy += (Math.sin(angle)*0.15 + 0.02);
+      const spd = Math.min(4.2, Math.hypot(m.vx,m.vy));
+      const curAngle = Math.atan2(m.vy,m.vx);
+      m.vx = Math.cos(curAngle)*spd;
+      m.vy = Math.sin(curAngle)*spd;
+      m.x += m.vx; m.y += m.vy;
+      m.trail.push({x:m.x,y:m.y});
+      if (m.trail.length>8) m.trail.shift();
+
+      if (m.y > H+30 || m.y < -30 || m.x < -30 || m.x > W+30) { bossMissiles.splice(i,1); continue; }
+      if (circleHit(m.x,m.y,m.r,player.x,player.y,player.r)) {
+        bossMissiles.splice(i,1);
+        handleMissileHit(now);
+      }
+    }
+  }
+
+  // ミサイル被弾：無敵中でも2回で撃墜、通常時は即撃墜
+  function handleMissileHit(now) {
+    if (appEnded || now <= hitFlashUntil) return;
+    if (goldenShipActive) return; // 黄金の機体はミサイルも完全に無効化する
+    const invincible = invincibleHitsLeft > 0;
+    if (!invincible) {
+      playerHit(now);
+      return;
+    }
+    missileHitsTaken += 1;
+    spawnFirework(player.x, player.y, '#ff9d4d');
+    if (missileHitsTaken >= 2) {
+      forcePlayerDown(now);
+    }
+  }
+
+  // レーザー等、無敵を無視して確実にダメージを与える処理
+  function forcePlayerDown(now) {
+    if (appEnded || now <= hitFlashUntil) return;
+    invincibleHitsLeft = 0;
+    missileHitsTaken = 0;
+    laserHitsTaken = 0;
+    playerHit(now);
+  }
+
+  function circleHit(ax,ay,ar,bx,by,br) { return dist(ax,ay,bx,by) < ar+br; }
+
+  function handleCollisions(now) {
+    // 空中弾 vs 空中敵
+    for (let i=airBullets.length-1;i>=0;i--) {
+      const b = airBullets[i];
+      let used=false;
+      for (let j=enemies.length-1;j>=0;j--) {
+        const e = enemies[j];
+        if (e.type!=='air') continue;
+        if (circleHit(b.x,b.y,3,e.x,e.y,e.r)) { e.hp-=1; used=true; break; }
+      }
+      if (!used && boss && boss.type==='air' && !boss.entering) {
+        for (const wp of boss.weakPoints) {
+          if (!wp.alive) continue;
+          const wx=boss.x+wp.dx, wy=boss.y+wp.dy;
+          if (circleHit(b.x,b.y,3,wx,wy,20)) {
+            wp.hp-=1; used=true;
+            if (wp.hp<=0){ destroyWeakPoint(wp, wx, wy); }
+            break;
+          }
+        }
+      }
+      if (used) airBullets.splice(i,1);
+    }
+
+    // 地上弾 vs 地上敵
+    for (let i=groundBullets.length-1;i>=0;i--) {
+      const b = groundBullets[i];
+      let used=false;
+      for (let j=enemies.length-1;j>=0;j--) {
+        const e = enemies[j];
+        if (e.type!=='ground') continue;
+        if (circleHit(b.x,b.y,4,e.x,e.y,e.r)) {
+          e.hp-=1;
+          if (!b.wide) { used=true; break; }
+        }
+      }
+      if (!used && boss && boss.type==='ground' && !boss.entering) {
+        for (const wp of boss.weakPoints) {
+          if (!wp.alive) continue;
+          const wx=boss.x+wp.dx, wy=boss.y+wp.dy;
+          if (circleHit(b.x,b.y,4,wx,wy,20)) {
+            wp.hp-=1;
+            if (wp.hp<=0){ destroyWeakPoint(wp, wx, wy); }
+            if (!b.wide) { used=true; break; }
+          }
+        }
+      }
+      if (used) groundBullets.splice(i,1);
+    }
+
+    // 敵弾 vs プレイヤー
+    if (now > hitFlashUntil && !appEnded) {
+      const invincible = invincibleHitsLeft > 0;
+      for (let i=enemyBullets.length-1;i>=0;i--) {
+        const b = enemyBullets[i];
+        if (circleHit(b.x,b.y,b.r||4,player.x,player.y,player.r)) {
+          enemyBullets.splice(i,1);
+          if (goldenShipActive) {
+            // 黄金の機体はあらゆる敵弾を無効化する
+          } else if (invincible) {
+            invincibleHitsLeft -= 1;
+            spawnFirework(player.x, player.y, '#ffd35c');
+          } else {
+            playerHit(now);
+          }
+          break;
+        }
+      }
+      if (!appEnded && goldenShipActive) {
+        // 黄金の機体：触れた敵は破壊される
+        for (let j=enemies.length-1;j>=0;j--) {
+          const e = enemies[j];
+          if (circleHit(e.x,e.y,e.r,player.x,player.y,player.r)) {
+            totalScore += e.score;
+            stageEnemyKills += 1;
+            spawnFirework(e.x, e.y, '#ffd700');
+            playExplosion('small');
+            enemies.splice(j,1);
+          }
+        }
+      } else if (!appEnded && !invincible) {
+        for (const e of enemies) {
+          if (circleHit(e.x,e.y,e.r,player.x,player.y,player.r)) { playerHit(now); break; }
+        }
+      }
+      if (!appEnded && boss && !boss.entering && circleHit(boss.x,boss.y,60,player.x,player.y,player.r)) {
+        if (goldenShipActive) {
+          // 黄金の機体：ボスに触れると弱点を一気に全て破壊する
+          boss.weakPoints.forEach(wp => {
+            if (wp.alive) destroyWeakPoint(wp, boss.x+wp.dx, boss.y+wp.dy);
+          });
+        } else if (!invincible) {
+          playerHit(now);
+        }
+      }
+    }
+
+    // アイテム取得
+    for (let i=items.length-1;i>=0;i--) {
+      const it = items[i];
+      it.y += it.dy;
+      if (it.y > H+20) { items.splice(i,1); continue; }
+      const pickupR = it.kind === 'extraShip' ? 24 : (it.kind === 'goldenShip' ? 16 : 13);
+      if (circleHit(it.x,it.y,pickupR,player.x,player.y,player.r+6)) {
+        applyItem(it.kind, it);
+        items.splice(i,1);
+      }
+    }
+  }
+
+  function playerHit(now) {
+    // 被弾したらラッキーアイテムの効果は全て初期化する
+    airLevel = 0;
+    groundLevel = 0;
+    laserUpgradeLevel = 0;
+    invincibleHitsLeft = 0;
+    missileHitsTaken = 0;
+    laserHitsTaken = 0;
+
+    // 予備機体のストックがあれば、残機を減らす代わりにそちらを消費して続行
+    let usedSpare = false;
+    if (shipStock.length > 0) {
+      activeShipId = shipStock.shift();
+      usedSpare = true;
+    } else {
+      lives -= 1;
+    }
+    missileLevel = baselineMissileLevel(activeShipId);
+
+    updateHUD();
+    hitFlashUntil = now + 1500;
+    spawnPlayerExplosion(!usedSpare && lives <= 0);
+    if (!usedSpare && lives <= 0) {
+      endGame('gameOver');
+    }
+  }
+
+  // 自機破壊の演出（花火＋爆発音。最終撃墜時はより大きく）
+  function spawnPlayerExplosion(final) {
+    if (final) {
+      spawnBigExplosion(player.x, player.y);
+      playExplosion('big');
+    } else {
+      spawnFirework(player.x, player.y, '#ff5c7a');
+      spawnFirework(player.x, player.y, '#ffe066');
+      playExplosion('medium');
+    }
+  }
+
+  // ================= パーティクル =================
+  function spawnFirework(x,y,color) {
+    for (let i=0;i<16;i++) {
+      const angle = Math.random()*Math.PI*2;
+      const speed = 1+Math.random()*3.5;
+      particles.push({ x,y, vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed, life:26+Math.random()*14, maxLife:40, color, size:1.5+Math.random()*2 });
+    }
+  }
+
+  // ボス撃破時の大花火（多層・多色・長寿命）
+  function spawnBigExplosion(x,y) {
+    const colors = ['#ffe066','#ff9d4d','#ff5c7a','#ffffff','#ffd35c'];
+    for (let ring=0; ring<3; ring++) {
+      for (let i=0;i<26;i++) {
+        const angle = Math.random()*Math.PI*2;
+        const speed = (2+ring*2) + Math.random()*4;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
+          life: 40+Math.random()*30, maxLife: 70,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          size: 2+Math.random()*3.5
+        });
+      }
+    }
+    screenFlashUntil = performance.now() + 260;
+  }
+
+  // ボス弱点1箇所の破壊処理（共通化）
+  function destroyWeakPoint(wp, wx, wy) {
+    wp.alive = false;
+    totalScore += 200;
+    spawnFirework(wx, wy, '#fff3b0');
+    playExplosion('small');
+  }
+
+  function updateParticles() {
+    for (let i=particles.length-1;i>=0;i--) {
+      const p = particles[i];
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.04; p.life-=1;
+      if (p.life<=0) particles.splice(i,1);
+    }
+  }
+
+  // ================= ステージ進行 =================
+  function startStage(n) {
+    stage = n;
+    stageStartScore = totalScore;
+    stageEnemyKills = 0;
+    stageStartTime = performance.now();
+    boss = null; bossActive = false;
+    enemies = []; enemyBullets = []; items = [];
+    bossLasers = []; bossMissiles = [];
+    initBackgroundLayers();
+
+    // ステージの長さに応じて、どくろの出現予定時刻をランダムに複数用意する
+    const progressCfg = STAGE_PROGRESS_CONFIG[n] || STAGE_PROGRESS_CONFIG[1];
+    const unluckyCount = UNLUCKY_COUNT_BY_STAGE[n] || 2;
+    const windowMs = progressCfg.time * 1000 * 0.85;
+    unluckySpawnQueue = [];
+    for (let i=0;i<unluckyCount;i++) {
+      unluckySpawnQueue.push(stageStartTime + rand(5000, Math.max(6000, windowMs)));
+    }
+    unluckySpawnQueue.sort((a,b) => a-b);
+
+    messageEl.textContent = '';
+    updateHUD();
+  }
+
+  function checkStageProgress(now) {
+    if (bossActive) return;
+    const elapsed = (now - stageStartTime) / 1000;
+    const cfg = STAGE_PROGRESS_CONFIG[stage] || STAGE_PROGRESS_CONFIG[1];
+    if (stageEnemyKills >= cfg.kills || elapsed >= cfg.time) {
+      spawnBoss();
+    }
+  }
+
+  function checkBossDefeat() {
+    if (boss && !boss.entering && allWeakPointsDead()) {
+      const bonus = BOSS_BONUS_BY_STAGE[stage-1] || 1000;
+      totalScore += bonus;
+      spawnBigExplosion(boss.x, boss.y);
+      playExplosion('big');
+      boss = null; bossActive = false;
+      if (stage >= STAGE_COUNT) {
+        totalScore += COMPLETE_BONUS;
+        endGame('gameClear');
+      } else {
+        messageEl.textContent = '💥 ' + STAGE_THEMES[stage-1].bossName + ' 撃破！（+' + formatScore(bonus) + '点） ' + STAGE_THEMES[stage-1].name + ' クリア！';
+        running = false;
+        const mySession = sessionId;
+        setTimeout(() => {
+          if (appEnded || mySession !== sessionId) return;
+          startStage(stage+1);
+          running = true;
+        }, 1800);
+      }
+    }
+  }
+
+  // ================= HUD =================
+  function formatScore(n) {
+    return Math.round(n).toLocaleString('en-US');
+  }
+
+  function updateHUD() {
+    stageNumEl.textContent = stage;
+    stageScoreEl.textContent = formatScore(totalScore - stageStartScore);
+    totalScoreEl.textContent = formatScore(totalScore);
+    livesEl.textContent = Math.max(0, lives);
+    shipStockCountEl.textContent = shipStock.length;
+  }
+
+  // ================= 描画 =================
+  function initBackgroundLayers() {
+    terrainPatches = [];
+    for (let i=0;i<16;i++) {
+      terrainPatches.push({ x: rand(0,W), y: rand(0,H), r: rand(30,70), shadeIdx: Math.floor(Math.random()*3) });
+    }
+    cloudPuffs = [];
+    for (let i=0;i<9;i++) {
+      cloudPuffs.push({ x: rand(0,W), y: rand(0,H), r: rand(24,50) });
+    }
+    emberParticles = [];
+    for (let i=0;i<22;i++) {
+      emberParticles.push({ x: rand(0,W), y: rand(0,H), r: rand(1,3), speed: rand(0.3,1.2) });
+    }
+  }
+
+  function updateBackgroundLayers() {
+    const theme = STAGE_THEMES[stage-1] || STAGE_THEMES[0];
+    terrainPatches.forEach(p => {
+      p.y += 1.1;
+      if (p.y - p.r > H) { p.y = -p.r; p.x = rand(0,W); }
+    });
+    cloudPuffs.forEach(c => {
+      c.y += 1.6;
+      if (c.y - c.r > H) { c.y = -c.r; c.x = rand(0,W); }
+    });
+    if (theme.volcanic) {
+      emberParticles.forEach(e => {
+        e.y -= e.speed;
+        if (e.y < -5) { e.y = H+5; e.x = rand(0,W); }
+      });
+    }
+  }
+
+  function drawHillTerrain(theme) {
+    terrainPatches.forEach(p => {
+      const base = theme.hillColors[p.shadeIdx % theme.hillColors.length];
+      const highlight = theme.hillColors[(p.shadeIdx+1) % theme.hillColors.length];
+      ctx.globalAlpha = theme.hillAlpha;
+      ctx.fillStyle = base;
+      ctx.beginPath();
+      ctx.ellipse(p.x, p.y, p.r, p.r*0.62, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = theme.hillAlpha * 0.7;
+      ctx.fillStyle = highlight;
+      ctx.beginPath();
+      ctx.ellipse(p.x-p.r*0.15, p.y-p.r*0.18, p.r*0.68, p.r*0.4, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function drawClouds(theme) {
+    cloudPuffs.forEach(c => {
+      ctx.globalAlpha = theme.cloudAlpha;
+      ctx.fillStyle = theme.cloudColor;
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.r, c.r*0.55, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(c.x+c.r*0.55, c.y+4, c.r*0.7, c.r*0.4, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(c.x-c.r*0.55, c.y+5, c.r*0.6, c.r*0.36, 0, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function drawVolcanicScene(now) {
+    // 遠景の火山
+    ctx.fillStyle = '#150d0c';
+    ctx.beginPath();
+    ctx.moveTo(0, H*0.32);
+    ctx.lineTo(W*0.22, H*0.06);
+    ctx.lineTo(W*0.42, H*0.26);
+    ctx.lineTo(W*0.62, H*0.02);
+    ctx.lineTo(W*0.82, H*0.24);
+    ctx.lineTo(W, H*0.16);
+    ctx.lineTo(W, H);
+    ctx.lineTo(0, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // 火口の赤い光
+    ctx.fillStyle = 'rgba(255,120,40,0.55)';
+    ctx.beginPath();
+    ctx.ellipse(W*0.62, H*0.05, 26, 10, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // 噴煙のもや
+    ctx.fillStyle = 'rgba(30,25,25,0.3)';
+    for (let i=0;i<3;i++) {
+      ctx.beginPath();
+      ctx.ellipse(W*(0.18+i*0.32), H*(0.1+i*0.03), 65, 26, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // 灰・火の粉
+    emberParticles.forEach(e => {
+      ctx.fillStyle = 'rgba(255,170,70,0.85)';
+      ctx.beginPath();
+      ctx.arc(e.x, e.y, e.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+
+  function drawStageBackground(now) {
+    const theme = STAGE_THEMES[stage-1] || STAGE_THEMES[0];
+    const grad = ctx.createLinearGradient(0,0,0,H);
+    grad.addColorStop(0, theme.sky[0]);
+    grad.addColorStop(1, theme.sky[1]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0,0,W,H);
+
+    if (theme.volcanic) {
+      drawVolcanicScene(now);
+    } else {
+      drawHillTerrain(theme);
+      drawClouds(theme);
+    }
+  }
+
+  function drawPlayer(now) {
+    if (goldenShipActive) {
+      drawGoldenShip(ctx, player.x, player.y, 1, now);
+      return;
+    }
+    const inv = invincibleHitsLeft > 0;
+    const flashing = now < hitFlashUntil && Math.floor(now/100)%2===0;
+    if (flashing) return;
+    drawShip(ctx, activeShipId, player.x, player.y, 1, inv, now);
+  }
+
+  function drawEnemies() {
+    enemies.forEach(e => {
+      if (e.type === 'ground') {
+        // 戦車（キャタピラ・車体・回転砲塔・長い主砲）
+        ctx.save();
+        ctx.translate(e.x, e.y);
+        ctx.scale(e.r/32, e.r/32);
+        ctx.fillStyle = '#2f2b22';
+        ctx.fillRect(-26, 10, 52, 12);
+        ctx.fillStyle = '#5c4d30';
+        ctx.fillRect(-24, -8, 48, 22);
+        ctx.fillStyle = '#4a3e26';
+        ctx.beginPath();
+        ctx.ellipse(0, -12, 16, 12, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#332a18';
+        ctx.fillRect(-4, -34, 8, 26);
+        ctx.beginPath();
+        ctx.arc(0, -34, 4, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      } else {
+        // 敵戦闘機（機首・主翼・尾翼）
+        ctx.save();
+        ctx.translate(e.x, e.y);
+        ctx.scale(e.r/28, e.r/28);
+        ctx.fillStyle = '#7c3aed';
+        ctx.beginPath();
+        ctx.moveTo(0, -30);
+        ctx.lineTo(10, 6);
+        ctx.lineTo(34, 20);
+        ctx.lineTo(10, 16);
+        ctx.lineTo(6, 26);
+        ctx.lineTo(-6, 26);
+        ctx.lineTo(-10, 16);
+        ctx.lineTo(-34, 20);
+        ctx.lineTo(-10, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#c4b5fd';
+        ctx.beginPath();
+        ctx.ellipse(0, -6, 4, 10, 0, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
+      // HPバー
+      if (e.hp < e.maxHp) {
+        const barW = e.r*1.8;
+        ctx.fillStyle='rgba(0,0,0,0.4)';
+        ctx.fillRect(e.x-barW/2, e.y-e.r-14, barW, 5);
+        ctx.fillStyle='#7ef29a';
+        ctx.fillRect(e.x-barW/2, e.y-e.r-14, barW*(e.hp/e.maxHp), 5);
+      }
+    });
+  }
+
+  function drawBossShape() {
+    if (!boss) return;
+    const { x, y } = boss;
+    ctx.save();
+    if (stage === 1) {
+      ctx.fillStyle = '#4a5240';
+      ctx.fillRect(x-80, y-10, 160, 40);
+      ctx.fillStyle = '#333c2a';
+      ctx.fillRect(x-90, y+22, 180, 14);
+      ctx.fillStyle = '#5c6650';
+      ctx.fillRect(x-30, y-34, 60, 26);
+      ctx.fillStyle = '#333c2a';
+      ctx.fillRect(x-4, y-58, 8, 30);
+    } else if (stage === 2) {
+      ctx.fillStyle = '#c7ccd6';
+      ctx.beginPath();
+      ctx.moveTo(x, y-50);
+      ctx.lineTo(x+22, y+16);
+      ctx.lineTo(x+100, y+30);
+      ctx.lineTo(x+18, y+26);
+      ctx.lineTo(x, y+40);
+      ctx.lineTo(x-18, y+26);
+      ctx.lineTo(x-100, y+30);
+      ctx.lineTo(x-22, y+16);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#8a93a8';
+      ctx.fillRect(x-6, y-10, 12, 24);
+    } else if (stage === 3) {
+      ctx.fillStyle = '#5a3a2a';
+      ctx.fillRect(x-90, y-6, 180, 46);
+      ctx.fillStyle = '#7a5238';
+      ctx.fillRect(x-80, y-40, 30, 36);
+      ctx.fillRect(x-15, y-52, 30, 48);
+      ctx.fillRect(x+50, y-40, 30, 36);
+    } else if (stage === 4) {
+      ctx.fillStyle = '#8a5fbf';
+      ctx.beginPath();
+      ctx.moveTo(x-100, y-6);
+      ctx.lineTo(x-20, y+18);
+      ctx.lineTo(x, y-2);
+      ctx.lineTo(x+20, y+18);
+      ctx.lineTo(x+100, y-6);
+      ctx.lineTo(x+30, y-16);
+      ctx.lineTo(x, y+6);
+      ctx.lineTo(x-30, y-16);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.fillStyle = '#15151f';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 130, 52, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#20202e';
+      ctx.beginPath();
+      ctx.ellipse(x-55, y-24, 22, 12, -0.3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.ellipse(x+55, y-24, 22, 12, 0.3, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#2a2a3a';
+      ctx.beginPath();
+      ctx.ellipse(x, y, 78, 31, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle = '#7ec8ff';
+      ctx.globalAlpha = 0.7 + 0.3*Math.sin(boss.blinkPhase*3);
+      ctx.beginPath();
+      ctx.arc(x, y, 18, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+
+    // 弱点
+    boss.weakPoints.forEach(wp => {
+      if (!wp.alive) return;
+      const wx = x+wp.dx, wy = y+wp.dy;
+      const blink = 0.5 + 0.5*Math.sin(boss.blinkPhase*6 + wp.dx);
+      ctx.fillStyle = `rgba(255,80,80,${0.5+0.4*blink})`;
+      ctx.beginPath();
+      ctx.arc(wx, wy, 11, 0, Math.PI*2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.fillRect(wx-14, wy-20, 28, 4);
+      ctx.fillStyle='#ff7e7e';
+      ctx.fillRect(wx-14, wy-20, 28*(wp.hp/wp.maxHp), 4);
+    });
+
+    if (boss.name) {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(boss.name, x, y-70);
+    }
+  }
+
+  function drawBullets(now) {
+    ctx.fillStyle = '#ffffff';
+    airBullets.forEach(b => ctx.fillRect(b.x-b.w/2, b.y-b.h/2, b.w, b.h));
+    ctx.fillStyle = '#ffffff';
+    groundBullets.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.w/2, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.fillStyle = '#ffe066';
+    enemyBullets.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r||4, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    // グリーンホーク専用ミサイル
+    playerMissiles.forEach(m => {
+      m.trail.forEach((t,i) => {
+        ctx.globalAlpha = (i/m.trail.length) * 0.5;
+        ctx.fillStyle = '#4dbb63';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 3, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.ellipse(m.x, m.y, 4, 8, Math.atan2(m.vy,m.vx)+Math.PI/2, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    // ステージ5ボスのミサイル
+    bossMissiles.forEach(m => {
+      m.trail.forEach((t,i) => {
+        ctx.globalAlpha = (i/m.trail.length) * 0.5;
+        ctx.fillStyle = '#ffd93d';
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, 3, 0, Math.PI*2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#ffe066';
+      ctx.beginPath();
+      ctx.ellipse(m.x, m.y, 5, 9, Math.atan2(m.vy,m.vx)+Math.PI/2, 0, Math.PI*2);
+      ctx.fill();
+    });
+
+    // ステージ5ボスの拡散ビーム
+    bossLasers.forEach(l => {
+      if (l.phase === 'fading') {
+        const cx = boss ? boss.x : l.fadeCenterX;
+        const cy = boss ? boss.y : l.fadeCenterY;
+        const fp = Math.min(1, (now - l.fadeStart) / LASER_FADE_DURATION);
+        const startRadius = 40, endRadius = 160;
+        const radius = startRadius + (endRadius - startRadius) * fp;
+        const alpha = (1 - fp) * 0.85;
+        const sweep = fp * Math.PI * 1.3; // ゆっくり回転しながら広がる
+        const startAngle = l.angle + sweep;
+        const arcSpan = 0.9;
+        ctx.strokeStyle = `rgba(255,230,120,${alpha})`;
+        ctx.lineWidth = 8 * (1 - fp) + 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, startAngle, startAngle + arcSpan);
+        ctx.stroke();
+        return;
+      }
+      const len = 700;
+      const ex = l.x + Math.cos(l.angle)*len, ey = l.y + Math.sin(l.angle)*len;
+      if (l.phase === 'warning') {
+        ctx.strokeStyle = 'rgba(255,224,102,0.5)';
+        ctx.lineWidth = 2;
+      } else {
+        ctx.strokeStyle = 'rgba(255,230,120,0.95)';
+        ctx.lineWidth = 15;
+      }
+      ctx.beginPath();
+      ctx.moveTo(l.x, l.y);
+      ctx.lineTo(ex, ey);
+      ctx.stroke();
+    });
+
+    if (laserActive()) {
+      const hw = laserHalfWidth();
+      const grad = ctx.createLinearGradient(player.x-hw,0,player.x+hw,0);
+      grad.addColorStop(0,'rgba(126,200,255,0)');
+      grad.addColorStop(0.5,'rgba(160,220,255,0.9)');
+      grad.addColorStop(1,'rgba(126,200,255,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(player.x-hw, 0, hw*2, player.y-16);
+
+      const stage = laserTotalStage();
+
+      // レーザー砲の段階が進むほど中心が白熱して太くなる
+      if (stage > 0) {
+        const coreHw = hw * (0.25 + 0.1*stage);
+        const pulse = 0.75 + 0.25*Math.sin(performance.now()/90 + stage);
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(player.x-coreHw, 0, coreHw*2, player.y-16);
+        ctx.restore();
+      }
+
+      // ブルーウィング専用：左右に走る稲妻エフェクト（レーザー砲の段階で本数・迫力アップ）
+      if (currentShipDef().id === 'blue') {
+        const boltPairs = 1 + Math.floor(stage/2); // 段階1-2:1組 3-4:2組 5:3組
+        ctx.save();
+        ctx.strokeStyle = 'rgba(225,245,255,0.95)';
+        ctx.lineWidth = 2.5 + stage*0.5;
+        ctx.shadowColor = '#bfe6ff';
+        ctx.shadowBlur = 10 + stage*3;
+        for (let p=0; p<boltPairs; p++) {
+          const gap = 8 + p*14;
+          drawLightningBolt(player.x - hw - gap, player.y-16, 16 + stage*2);
+          drawLightningBolt(player.x + hw + gap, player.y-16, 16 + stage*2);
+        }
+        ctx.restore();
+
+        // 最終段階(5)は自機全体を紫電がまとうド派手な演出
+        if (stage >= 5) {
+          ctx.save();
+          ctx.strokeStyle = `hsla(${(performance.now()/4)%360},100%,80%,0.8)`;
+          ctx.lineWidth = 2;
+          ctx.shadowColor = '#e0d0ff';
+          ctx.shadowBlur = 14;
+          drawLightningBolt(player.x, player.y-40, 22);
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  function drawLightningBolt(x, yTop, jitterAmount) {
+    ctx.beginPath();
+    ctx.moveTo(x, yTop);
+    const steps = 9;
+    for (let i=1;i<=steps;i++) {
+      const y = yTop * (1 - i/steps);
+      const jx = x + (Math.random()-0.5)*jitterAmount;
+      ctx.lineTo(jx, y);
+    }
+    ctx.stroke();
+  }
+
+  function drawItems() {
+    items.forEach(it => {
+      if (it.kind === 'air') {
+        ctx.fillStyle = '#7ec8ff';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 13, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#06263d';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('①', it.x, it.y+1);
+      } else if (it.kind === 'ground') {
+        ctx.fillStyle = '#ffb85c';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 13, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#3d2506';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('②', it.x, it.y+1);
+      } else if (it.kind === 'missile') {
+        ctx.fillStyle = '#4dbb63';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 13, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#0d2b12';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('🚀', it.x, it.y+1);
+      } else if (it.kind === 'laserUpgrade') {
+        const now2 = performance.now();
+        const tw = 0.65+0.35*Math.sin(now2/130);
+        ctx.save();
+        ctx.shadowColor = '#bfe6ff';
+        ctx.shadowBlur = 15*tw;
+        ctx.fillStyle = '#7ec8ff';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 13, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = '#06263d';
+        ctx.font = 'bold 15px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('⚡', it.x, it.y+1);
+      } else if (it.kind === 'star') {
+        const now2 = performance.now();
+        const tw = 0.6+0.4*Math.sin(now2/150);
+        const hue = (now2/6) % 360;
+        const rainbow = `hsl(${hue}, 100%, 65%)`;
+        ctx.save();
+        ctx.shadowColor = rainbow;
+        ctx.shadowBlur = 18*tw;
+        ctx.fillStyle = rainbow;
+        drawStar(it.x, it.y, 15, 7, 5);
+        ctx.fill();
+        ctx.restore();
+        // 周囲にきらめく光の線（虹色）
+        ctx.strokeStyle = `hsla(${(hue+120)%360}, 100%, 75%, ${0.5+0.5*tw})`;
+        ctx.lineWidth = 1.6;
+        [0, Math.PI/2, Math.PI, Math.PI*1.5].forEach((baseAngle, i) => {
+          const angle = baseAngle + now2/700;
+          const r1 = 18, r2 = 24;
+          ctx.beginPath();
+          ctx.moveTo(it.x+Math.cos(angle)*r1, it.y+Math.sin(angle)*r1);
+          ctx.lineTo(it.x+Math.cos(angle)*r2, it.y+Math.sin(angle)*r2);
+          ctx.stroke();
+        });
+      } else if (it.kind === 'extraShip') {
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,0.12)';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 30, 0, Math.PI*2);
+        ctx.fill();
+        drawShip(ctx, it.shipId, it.x, it.y+4, 1.0, false, performance.now());
+        ctx.restore();
+        ctx.fillStyle = '#ffd35c';
+        ctx.beginPath();
+        ctx.arc(it.x+20, it.y-20, 10, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = '#2a2200';
+        ctx.font = 'bold 14px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('+', it.x+20, it.y-19);
+      } else if (it.kind === 'goldenShip') {
+        const now2 = performance.now();
+        const tw = 0.6+0.4*Math.sin(now2/120);
+        ctx.save();
+        ctx.shadowColor = '#ffe066';
+        ctx.shadowBlur = 22*tw;
+        ctx.fillStyle = 'rgba(255,230,140,0.18)';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y, 22, 0, Math.PI*2);
+        ctx.fill();
+        drawGoldenShip(ctx, it.x, it.y+3, 0.85, now2);
+        ctx.restore();
+        // 周囲にきらめく金の光線
+        ctx.strokeStyle = `rgba(255,240,180,${0.5+0.5*tw})`;
+        ctx.lineWidth = 1.6;
+        [0, Math.PI/2, Math.PI, Math.PI*1.5].forEach((baseAngle) => {
+          const angle = baseAngle + now2/500;
+          const r1 = 24, r2 = 31;
+          ctx.beginPath();
+          ctx.moveTo(it.x+Math.cos(angle)*r1, it.y+Math.sin(angle)*r1);
+          ctx.lineTo(it.x+Math.cos(angle)*r2, it.y+Math.sin(angle)*r2);
+          ctx.stroke();
+        });
+      } else if (it.kind === 'unlucky') {
+        const now2 = performance.now();
+        const bob = Math.sin(now2/220) * 2;
+        ctx.save();
+        ctx.shadowColor = 'rgba(200,60,60,0.8)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#2b2b33';
+        ctx.beginPath();
+        ctx.arc(it.x, it.y+bob, 14, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+        ctx.strokeStyle = '#c83c3c';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(it.x, it.y+bob, 14, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.font = 'bold 17px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('💀', it.x, it.y+bob+1);
+      }
+    });
+  }
+
+  function drawStar(cx,cy,outerR,innerR,spikes) {
+    ctx.beginPath();
+    let rot = Math.PI/2*3;
+    const step = Math.PI/spikes;
+    ctx.moveTo(cx, cy-outerR);
+    for (let i=0;i<spikes;i++) {
+      let x=cx+Math.cos(rot)*outerR, y=cy+Math.sin(rot)*outerR;
+      ctx.lineTo(x,y); rot+=step;
+      x=cx+Math.cos(rot)*innerR; y=cy+Math.sin(rot)*innerR;
+      ctx.lineTo(x,y); rot+=step;
+    }
+    ctx.lineTo(cx, cy-outerR);
+    ctx.closePath();
+  }
+
+  function drawParticles() {
+    particles.forEach(p => {
+      ctx.globalAlpha = Math.max(0, p.life/p.maxLife);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  function drawWeaponBadges() {
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'left';
+    const lines = [
+      { text: '①空中 Lv' + airLevel + '/5', color: '#7ec8ff' },
+      { text: '②地上 Lv' + groundLevel + '/5', color: '#ffb85c' }
+    ];
+    if (missileLevel > 0) lines.push({ text: '🚀ミサイル Lv' + missileLevel + '/3', color: '#4dbb63' });
+    if (laserTotalStage() > 0) lines.push({ text: '⚡レーザー砲 Lv' + laserTotalStage() + '/' + laserUpgradeMaxLevel(), color: '#bfe6ff' });
+    if (invincibleHitsLeft > 0) lines.push({ text: '⭐無敵 残り' + invincibleHitsLeft, color: '#ffd35c' });
+    if (goldenShipActive) {
+      const remainSec = Math.max(0, (goldenShipUntil - performance.now())/1000).toFixed(1);
+      lines.push({ text: '✨黄金の機体 残り' + remainSec + 's', color: '#ffe066' });
+    }
+
+    const boxH = 10 + lines.length*18;
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    const boxW = goldenShipActive ? 150 : 110;
+    ctx.fillRect(6,6,boxW,boxH);
+    lines.forEach((line,i) => {
+      ctx.fillStyle = line.color;
+      ctx.fillText(line.text, 12, 22 + i*18);
+    });
+  }
+
+  function drawIdle() {
+    ctx.clearRect(0,0,W,H);
+    drawStageBackground(performance.now());
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('機体を選んで「ゲーム開始」を押してね', W/2, H/2);
+  }
+
+  function draw(now) {
+    ctx.clearRect(0,0,W,H);
+    drawStageBackground(now);
+    drawItems();
+    drawEnemies();
+    if (boss) drawBossShape();
+    drawBullets(now);
+    drawPlayer(now);
+    drawParticles();
+    drawWeaponBadges();
+    if (now < screenFlashUntil) {
+      const remain = (screenFlashUntil - now) / 260;
+      ctx.fillStyle = `rgba(255,240,200,${0.55*remain})`;
+      ctx.fillRect(0,0,W,H);
+    }
+    if (paused) {
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#7ec8ff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('一時停止中', W/2, H/2);
+    }
+  }
+
+  // ================= ゲーム全体制御 =================
+  let enemySpawnTimer = 0;
+
+  function initGame() {
+    sessionId += 1;
+    activeShipId = selectedShipId;
+    shipStock = [];
+    initPlayer();
+    airBullets = []; groundBullets = []; enemyBullets = [];
+    enemies = []; items = []; particles = [];
+    bossLasers = []; bossMissiles = []; playerMissiles = [];
+    boss = null; bossActive = false;
+    totalScore = 0; lives = 3;
+    airLevel = 0; groundLevel = 0;
+    missileLevel = baselineMissileLevel(activeShipId);
+    laserUpgradeLevel = 0;
+    invincibleHitsLeft = 0; missileHitsTaken = 0; laserHitsTaken = 0; hitFlashUntil = 0;
+    // 超ラッキーアイテム（黄金の機体）：約3回に1回のさらに50%、合計およそ6回に1回だけ出現しうる
+    goldenItemEligibleThisGame = (Math.random() < (1/3)) && (Math.random() < 0.5);
+    goldenItemSpawned = false;
+    goldenShipActive = false;
+    goldenShipUntil = 0;
+    lastAirFire = 0; lastGroundFire = 0; lastMissileFire = 0;
+    enemySpawnTimer = 0;
+    scrollY = 0;
+    appEnded = false;
+    paused = false;
+    pendingFinalScore = null;
+    pendingIsAward = false;
+    pendingClearShipId = null;
+    messageEl.textContent = '';
+    restartBtn.style.display = 'none';
+    nameEntryEl.style.display = 'none';
+    nameInputEl.value = '';
+    startStage(1);
+    running = true;
+  }
+
+  function endGame(status) {
+    running = false;
+    appEnded = true;
+    stopBgm();
+    if (status === 'gameClear') {
+      const livesBonus = LIVES_BONUS[lives] || 0;
+      const stockBonus = STOCK_BONUS[shipStock.length] || 0;
+      totalScore += livesBonus + stockBonus;
+      const isPerfect = (lives === 3 && shipStock.length === 5);
+      if (isPerfect) {
+        totalScore += PERFECT_BONUS;
+      }
+
+      let bonusNote = 'コンプリート+' + formatScore(COMPLETE_BONUS)
+        + '／残機ボーナス+' + formatScore(livesBonus)
+        + '／予備機ボーナス+' + formatScore(stockBonus);
+      if (isPerfect) bonusNote += '／パーフェクトボーナス+' + formatScore(PERFECT_BONUS);
+
+      const isAward = totalScore >= AWARD_SCORE_THRESHOLD;
+      const awardNote = isAward ? ' 🏆表彰スコア達成！' : '';
+
+      messageEl.textContent = '🎉 全ステージクリア！おめでとうございます！英雄の証を手にしました！' + awardNote + '（' + bonusNote + '）';
+      pendingFinalScore = totalScore;
+      pendingClearShipId = activeShipId;
+      pendingIsAward = isAward;
+      finalScoreTextEl.textContent = formatScore(totalScore) + '点' + (isAward ? ' 🏆' : '');
+      nameEntryEl.style.display = 'flex';
+      nameInputEl.focus();
+      playVictoryFanfare();
+    } else {
+      messageEl.textContent = '💥 ゲームオーバー（ステージ' + stage + '）';
+    }
+    restartBtn.style.display = 'inline-block';
+  }
+
+  function submitScore() {
+    if (pendingFinalScore === null) return;
+    let name = nameInputEl.value.trim().toUpperCase();
+    if (!name) name = 'NAME';
+    name = name.slice(0,4);
+    leaderboard.push({ name, score: pendingFinalScore, award: pendingIsAward, shipId: pendingClearShipId });
+    leaderboard.sort((a,b) => b.score - a.score);
+    leaderboard = leaderboard.slice(0, MAX_LEADERBOARD);
+    renderLeaderboard();
+    nameEntryEl.style.display = 'none';
+    pendingFinalScore = null;
+    pendingIsAward = false;
+    pendingClearShipId = null;
+  }
+
+  function renderLeaderboard() {
+    lbListEl.innerHTML = '';
+    if (leaderboard.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'lb-empty';
+      li.textContent = 'まだ記録がありません';
+      lbListEl.appendChild(li);
+      return;
+    }
+    const medals = ['🥇','🥈','🥉'];
+    leaderboard.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.className = i===0?'rank1':i===1?'rank2':i===2?'rank3':'';
+
+      const rankSpan = document.createElement('span');
+      rankSpan.className = 'lb-rank';
+      rankSpan.textContent = medals[i] || (i+1);
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'lb-name';
+
+      const shipDef = SHIPS.find(s => s.id === e.shipId);
+      if (shipDef) {
+        const shipCanvas = document.createElement('canvas');
+        shipCanvas.width = 24; shipCanvas.height = 24;
+        shipCanvas.className = 'lb-ship-icon';
+        shipCanvas.title = shipDef.name;
+        const sctx = shipCanvas.getContext('2d');
+        drawShip(sctx, shipDef.id, 12, 15, 0.42, false, 0);
+        nameSpan.appendChild(shipCanvas);
+      }
+      nameSpan.appendChild(document.createTextNode(e.name + (e.award ? ' 🏆' : '')));
+
+      const scoreSpan = document.createElement('span');
+      scoreSpan.className = 'lb-score';
+      scoreSpan.textContent = formatScore(e.score) + '点';
+
+      li.appendChild(rankSpan);
+      li.appendChild(nameSpan);
+      li.appendChild(scoreSpan);
+      lbListEl.appendChild(li);
+    });
+  }
+
+  function loop(now) {
+    if (!gameStarted) {
+      drawIdle();
+      requestAnimationFrame(loop);
+      return;
+    }
+    if (running && !paused) {
+      if (goldenShipActive && now >= goldenShipUntil) {
+        goldenShipActive = false;
+        startBgm(); // 通常のBGMに戻す
+      }
+      updatePlayer(1);
+      fireAirWeapon(now);
+      fireGroundWeapon(now);
+      fireMissileWeapon(now);
+      updateBullets();
+      updateEnemies(now);
+      updateBoss(now, 1);
+      updateBossLasers(now);
+      updateBossMissiles(now);
+      updatePlayerMissiles(now);
+      handleCollisions(now);
+      checkStageProgress(now);
+      checkBossDefeat();
+      updateParticles();
+      scrollY += 1.5;
+      updateBackgroundLayers();
+
+      enemySpawnTimer -= 1;
+      if (enemySpawnTimer <= 0 && !bossActive) {
+        spawnEnemy();
+        enemySpawnTimer = Math.max(16, 36 - stage*3);
+      }
+
+      while (unluckySpawnQueue.length && !bossActive && now >= unluckySpawnQueue[0]) {
+        spawnUnluckyItem();
+        unluckySpawnQueue.shift();
+      }
+
+      updateHUD();
+    }
+    draw(now);
+    requestAnimationFrame(loop);
+  }
+
+  // ================= 操作 =================
+  function pointerToCanvas(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    return { x: (clientX-rect.left)*scaleX, y: (clientY-rect.top)*scaleY };
+  }
+
+  canvas.addEventListener('mousedown', e => {
+    if (!gameStarted || paused) return;
+    pointerActive = true;
+    const p = pointerToCanvas(e.clientX, e.clientY);
+    pointerX = p.x; pointerY = p.y;
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!gameStarted || paused || !pointerActive) return;
+    const p = pointerToCanvas(e.clientX, e.clientY);
+    pointerX = p.x; pointerY = p.y;
+  });
+  window.addEventListener('mouseup', () => { pointerActive = false; });
+
+  canvas.addEventListener('touchstart', e => {
+    if (!gameStarted || paused) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const p = pointerToCanvas(t.clientX, t.clientY);
+    pointerX = p.x; pointerY = p.y;
+  }, { passive:false });
+  canvas.addEventListener('touchmove', e => {
+    if (!gameStarted || paused) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    const p = pointerToCanvas(t.clientX, t.clientY);
+    pointerX = p.x; pointerY = p.y;
+  }, { passive:false });
+
+  document.addEventListener('keydown', e => {
+    if (!gameStarted || paused) return;
+    if (e.key === 'ArrowLeft') leftKey = true;
+    if (e.key === 'ArrowRight') rightKey = true;
+    if (e.key === 'ArrowUp') upKey = true;
+    if (e.key === 'ArrowDown') downKey = true;
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft') leftKey = false;
+    if (e.key === 'ArrowRight') rightKey = false;
+    if (e.key === 'ArrowUp') upKey = false;
+    if (e.key === 'ArrowDown') downKey = false;
+  });
+
+  startBtn.addEventListener('click', () => {
+    gameStarted = true;
+    initGame();
+    startBgm();
+  });
+  pauseBtn.addEventListener('click', () => {
+    if (!gameStarted || !running) return;
+    paused = true;
+    stopBgm();
+  });
+  resumeBtn.addEventListener('click', () => {
+    if (!gameStarted || !running) return;
+    paused = false;
+    startBgm();
+  });
+  endBtn.addEventListener('click', () => {
+    if (!gameStarted) return;
+    initGame();
+    gameStarted = false;
+    paused = false;
+    running = false;
+    stopBgm();
+  });
+  restartBtn.addEventListener('click', () => {
+    initGame();
+    startBgm();
+  });
+  submitScoreBtn.addEventListener('click', submitScore);
+  nameInputEl.addEventListener('keydown', e => { if (e.key==='Enter') submitScore(); });
+
+  renderShipCards();
+  renderLeaderboard();
+  initBackgroundLayers();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

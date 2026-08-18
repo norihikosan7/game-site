@@ -1,0 +1,3147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b1a2a">
+<title>grand-strategy</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: radial-gradient(circle at top, #16324a, #060d16);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 20px);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  h1 { margin: 10px 0 6px; font-size: 19px; letter-spacing: 1px; text-align: center; }
+
+  /* ===== シーン・国選択 ===== */
+  #sceneSelect, #countrySelect {
+    width: 100%;
+    min-width: 420px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin-bottom: 6px;
+  }
+  #sceneSelect h2, #countrySelect h2 { font-size: 11px; margin: 0 0 4px; text-align: center; color: #7ec8ff; }
+  #sceneCards, #countryCards { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .scene-card, .country-card {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 7px;
+    padding: 4px 6px;
+    display: flex; flex-direction: row; align-items: center; gap: 5px;
+    cursor: pointer; width: auto;
+  }
+  .scene-card.disabled { opacity: 0.35; cursor: not-allowed; }
+  .scene-card.selected, .country-card.selected { border-color: #ffd35c; background: rgba(255,211,92,0.14); }
+  .scene-card .scene-emoji { font-size: 15px; }
+  .scene-card .scene-name, .country-card .country-name { font-size: 9.5px; font-weight: bold; text-align: center; }
+  .country-card .flag-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.6); }
+
+  /* ===== HUD ===== */
+  .side-hud {
+    display: flex; gap: 10px; font-size: 12.5px; flex-wrap: wrap; justify-content: center; align-items: center;
+    width: 100%; max-width: 640px;
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+  .side-hud .hud-item { background: rgba(255,255,255,0.06); border-radius: 6px; padding: 5px 10px; font-weight: bold; }
+  .hud-flag { border-radius: 3px; border: 1.5px solid rgba(255,255,255,0.6); box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+  #enemyHud { border: 2px solid rgba(255,110,90,0.5); margin-bottom: 6px; }
+  #enemyHud .enemy-item { color: #ff8a7e; }
+  #playerHud { border: 2px solid rgba(126,200,255,0.5); margin-top: 6px; }
+  #playerHud .player-item { color: #7ec8ff; }
+  #turnBannerEnemy.active-turn, #turnBanner.active-turn {
+    background: rgba(255,211,92,0.25) !important;
+    box-shadow: 0 0 8px rgba(255,211,92,0.6);
+  }
+
+  /* ===== メインエリア ===== */
+  #topPanel {
+    display: flex; flex-direction: row; gap: 10px; align-items: flex-start;
+    flex-wrap: wrap; justify-content: flex-start; width: 100%; max-width: 1200px;
+  }
+  #topPanelLeft { display: flex; flex-direction: column; gap: 6px; flex: 1 1 420px; width: auto; margin-left: 60px; }
+  #mainArea { display: flex; flex-direction: column; gap: 8px; align-items: center; width: 100%; }
+  #mapWrap { position: relative; width: 100%; max-width: 900px; overflow: hidden; border-radius: 8px; touch-action: none; }
+  #mapCanvas {
+    background: #0a1826;
+    border: 3px solid #234a66;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(35, 74, 102, 0.5);
+    touch-action: none;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+    will-change: transform;
+  }
+  #mapZoomHint {
+    position: absolute; top: 6px; right: 6px; z-index: 5;
+    background: rgba(10,24,38,0.75); color: #fff; font-size: 11px;
+    padding: 5px 9px; border-radius: 8px; pointer-events: none; opacity: 0;
+    transition: opacity 0.25s;
+  }
+  #mapZoomHint.show { opacity: 1; }
+  #mapResetZoomBtn {
+    position: absolute; bottom: 6px; right: 6px; z-index: 5;
+    background: rgba(10,24,38,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    font-size: 16px; border-radius: 50%; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; cursor: pointer;
+  }
+
+  /* ===== 情報パネル・生産メニュー ===== */
+  #infoControlRow {
+    display: flex; flex-direction: row; align-items: stretch; gap: 8px;
+    width: 100%; max-width: 900px; flex-wrap: nowrap;
+  }
+  #infoPanel {
+    flex: 0 1 50%; min-width: 0;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 16px;
+    display: flex; align-items: center;
+  }
+  #actionBar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 6px;
+    width: 100%;
+    max-width: 900px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+  .action-btn {
+    padding: 14px 8px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+    background: #4a6a8a;
+    color: #fff;
+    min-height: 52px;
+    flex: 1 0 auto;
+    min-width: 84px;
+    white-space: nowrap;
+    touch-action: manipulation;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .action-btn:active { background: #5c80a4; transform: scale(0.96); }
+  .action-btn.danger { background: #8a4a4a; }
+  .action-btn.danger:active { background: #a45c5c; }
+  .action-btn.endturn { background: #2f6a45; }
+  .action-btn.endturn:active { background: #3c8a58; }
+  .action-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+
+  #buildMenu {
+    display: none;
+    position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 20;
+    align-items: center; justify-content: center;
+  }
+  #buildMenu .panel {
+    background: #142838; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px;
+    padding: 14px; max-width: 420px; width: 92%; max-height: 80vh; overflow-y: auto;
+  }
+  #buildMenu h3 { margin: 0 0 8px; font-size: 14px; color: #ffd35c; text-align: center; }
+  .build-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px; margin-bottom: 4px; background: rgba(255,255,255,0.05);
+    cursor: pointer;
+  }
+  .build-item:hover { background: rgba(255,255,255,0.12); }
+  .build-item.unaffordable { opacity: 0.4; cursor: not-allowed; }
+  .build-item .bi-name { font-size: 12.5px; font-weight: bold; }
+  .build-item .bi-desc { font-size: 10px; color: #9fb6cc; }
+  .build-item .bi-cost { font-size: 12px; color: #ffd35c; font-weight: bold; white-space: nowrap; }
+
+  #controlPanel { display: flex; flex-direction: row; flex-wrap: nowrap; gap: 6px; flex: 1 1 auto; }
+  #bgmPanel {
+    display: flex; flex-direction: column; gap: 4px; align-items: flex-start;
+    flex: 0 0 auto; width: fit-content;
+    background: rgba(255,255,255,0.06); border-radius: 7px; padding: 6px 9px;
+  }
+  .bgm-row { display: flex; flex-direction: column; gap: 4px; flex-wrap: wrap; justify-content: flex-start; font-size: 10.5px; }
+  .bgm-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.18); margin: 1px 0; }
+  .bgm-label { font-weight: bold; color: #ffd35c; font-size: 11px; }
+  .bgm-opt { display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
+  .bgm-opt input[type="radio"] { width: 11px; height: 11px; }
+  #startBtn, #endBtn, #pauseBtn, #resumeBtn {
+    padding: 6px 8px; font-size: 12px; font-weight: bold; border: none; border-radius: 10px;
+    cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+    min-height: 40px; white-space: nowrap; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    flex: 1 1 0; min-width: 0;
+  }
+  #startBtn { background: #7ec8ff; color: #06283d; }
+  #pauseBtn { background: #6b8bd6; color: #fff; }
+  #resumeBtn { background: #4dbb7a; color: #fff; }
+  #endBtn { background: #4a4f6b; color: #fff; }
+
+  #legend { display: flex; gap: 10px; margin-top: 8px; font-size: 11px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+
+  #message { margin-top: 8px; font-size: 16px; min-height: 22px; color: #7ec8ff; text-align: center; }
+  #restartBtn {
+    margin-top: 6px; padding: 8px 20px; font-size: 14px; border: none; border-radius: 20px;
+    background: #234a66; color: #fff; cursor: pointer; display: none;
+  }
+  #hint { margin-top: 4px; font-size: 11.5px; color: #8fa8c0; text-align: center; max-width: 860px; }
+</style>
+</head>
+<body>
+  <h1>grand-strategy</h1>
+
+  <div id="topPanel">
+    <div id="topPanelLeft">
+      <div id="sceneSelect">
+        <h2>シーンを選んでください</h2>
+        <div id="sceneCards"></div>
+      </div>
+
+      <div id="countrySelect">
+        <h2>国を選んでください</h2>
+        <div id="countryCards"></div>
+      </div>
+    </div>
+
+    <div id="bgmPanel">
+      <div class="bgm-row">
+        <span class="bgm-label">🎵 BGM:</span>
+        <label class="bgm-opt"><input type="radio" name="bgmOnOff" id="bgmOffRadio"> なし</label>
+        <label class="bgm-opt"><input type="radio" name="bgmOnOff" id="bgmOnRadio" checked> あり</label>
+      </div>
+      <div class="bgm-divider"></div>
+      <div class="bgm-row" id="bgmTrackRow">
+        <label class="bgm-opt"><input type="radio" name="bgmTrack" value="light" checked> 軽快なテーマ</label>
+        <label class="bgm-opt"><input type="radio" name="bgmTrack" value="musicbox1"> オルゴール1</label>
+        <label class="bgm-opt"><input type="radio" name="bgmTrack" value="musicbox2"> オルゴール2</label>
+        <label class="bgm-opt"><input type="radio" name="bgmTrack" value="dancepop"> ダンスポップ</label>
+        <label class="bgm-opt"><input type="radio" name="bgmTrack" value="cool"> クール</label>
+        <label class="bgm-opt" id="bgmEpicOpt" style="display:none;"><input type="radio" name="bgmTrack" value="epic"> 荘厳な行進曲</label>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainArea">
+    <div id="enemyHud" class="side-hud">
+      <canvas id="enemyFlagCanvas" class="hud-flag" width="30" height="20"></canvas>
+      <div class="hud-item enemy-item">敵資金: <span id="hudEnemyGold">0</span>G</div>
+      <div class="hud-item enemy-item" id="turnBannerEnemy">相手のターン中</div>
+    </div>
+    <div id="mapWrap">
+      <canvas id="mapCanvas" width="640" height="920"></canvas>
+      <div id="mapZoomHint">2本指でズーム・パン</div>
+      <button id="mapResetZoomBtn" title="表示をリセット">⤢</button>
+    </div>
+    <div id="playerHud" class="side-hud">
+      <canvas id="playerFlagCanvas" class="hud-flag" width="30" height="20"></canvas>
+      <div class="hud-item player-item">シーン: <span id="hudScene">1</span></div>
+      <div class="hud-item player-item" id="turnBanner">ターン 1</div>
+      <div class="hud-item player-item">行動: <span id="hudActed">0</span>/<span id="hudMaxActed">7</span>ユニット</div>
+      <div class="hud-item player-item">資金: <span id="hudGold">0</span>G</div>
+    </div>
+    <div id="actionBar">
+      <button class="action-btn" id="moveBtn" disabled>🚶 移動</button>
+      <button class="action-btn" id="waitBtn" disabled>⏱ 待機</button>
+      <button class="action-btn" id="attackBtn" disabled>⚔️ 攻撃</button>
+      <button class="action-btn" id="buildBtn" disabled>🏭 生産</button>
+      <button class="action-btn danger" id="cancelBtn" disabled>✕ 選択解除</button>
+      <button class="action-btn endturn" id="endTurnBtn">▶▶ ターン終了</button>
+    </div>
+    <div id="infoControlRow">
+      <div id="infoPanel">ヘックスをタップ/クリックして選択してください。</div>
+      <div id="controlPanel">
+        <button id="startBtn">▶ 開始</button>
+        <button id="pauseBtn">⏸ 停止</button>
+        <button id="resumeBtn">▶ 再開</button>
+        <button id="endBtn">■ 終了</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div class="legend-item">🟩平地 🟫山 🟦海 🌊川 🟨砂漠 🏙️都市</div>
+    <div class="legend-item">歩兵/装甲車/戦車は海に進入不可（川は可）。艦艇は水系のみ。ヘリ・戦闘機は全地形移動可</div>
+    <div class="legend-item">🏆 敵の全滅、または本拠地(国旗マーク)の占領で勝利。周りの普通の基地(★)を奪われても敗北にはなりません</div>
+    <div class="legend-item">🚩本拠地を占領できるのは歩兵・装甲車・戦車・ヘリ・戦闘機のみ。砲台・ドローン・艦艇は本拠地を占領できません(普通の基地・都市・港はこれまでどおり占領可能)</div>
+    <div class="legend-item">⚔️ 攻撃で敵を撃破した後、そのマスへ進軍できるのは歩兵・装甲車・戦車のみです。砲台・ヘリ・戦闘機・ドローン・艦艇は、撃破してもその場から動かず、常にその場からの攻撃となります</div>
+    <div class="legend-item">💰 開始資金は国によって異なります(アメリカ10,000G／ロシア3,000G／イタリア・スペイン・ポルトガル800G／その他1,000G)</div>
+    <div class="legend-item">💥🦇 日本・中国・北朝鮮・アメリカ・ロシアは「重砲台」(射程20)、日本・中国・アメリカ・ロシアは「超攻撃戦闘機(ステルス)」(移動10／HP100／攻40／防20／射程10)を追加で生産できます</div>
+    <div class="legend-item">🤖 中国専用の「ロボット兵器」(移動3／HP60／攻20／防18／射程1)は、全ての地形を同じ条件で移動・進入でき、相手を選ばず攻撃・被攻撃できますが、都市・港・基地・本拠地は占領できません(移動・配置は可能)</div>
+    <div class="legend-item">🔫 日本専用の「レールガン」(移動1／HP20／攻30／防5／射程15)も同様に占領はできません。巡洋艦に搭載でき、搭載中は巡洋艦を選択した際に通常攻撃かレーザー攻撃かを選んで攻撃できます</div>
+    <div class="legend-item">🎖️ 日本専用の「戦艦ヤマト」(移動3／HP150／攻35／防30／射程6／3000G)は、1ゲームにつき1隻だけ生産できます。撃破されると同じゲーム内では再生産できません</div>
+    <div class="legend-item">🗾 シーン「日本・アメリカ・ヨーロッパ」を選ぶと、アジアより上下に計8行・左右に計4列広いマップでプレイできます</div>
+    <div class="legend-item">🛡️ シーン「日本・アメリカ・ヨーロッパ」では、イギリス・フランス・ドイツ・イタリア・スペイン・ポルトガルの代わりに「NATO」を選ぶと、6か国が連合したことになります。開始資金は6か国の合計(5,400G)、初期兵器も6か国ぶん(18ユニット)で始まります。プレイヤー・コンピュータのどちらでも選択できます</div>
+    <div class="legend-item">🛰️ シーン「宇宙 対 地球」は、アジアまたは日本・アメリカ・ヨーロッパで一度でも勝利すると解禁されます。自軍は必ず「地球防衛軍」、相手は必ず「宇宙人」。地球防衛軍はこれまでの全ての国の開始資金を合算(23,400G)し、他国全ての専用兵器(重砲台・ステルス戦闘機・ロボット兵器・レールガン・戦艦ヤマトなど)に加え専用の「🚀スペース船」(移動30／HP500／攻700／防500／射程30／15,000G)も生産できます</div>
+    <div class="legend-item">🎧 シーン「宇宙 対 地球」ではBGMのオン/オフ・曲選択はできません。代わりに専用の宇宙空間アンビエントBGM(オリジナル曲)がゲーム開始と同時に自動的に流れます</div>
+    <div class="legend-item">🛸 宇宙人の開始資金はわずか100Gで、最初はUFOを1機だけ持ってスタートします。UFO(移動100／HP1000／攻1000／防1000／射程100／100万G)を生産するには資金を貯める必要があり、さらに1機生産すると次のUFOを生産できるまで5ターンの間隔が必要です。UFO・スペース船はどちらも都市・港・基地・本拠地を占領できません(移動・配置は可能)</div>
+    <div class="legend-item">🎵 日本を選んでいるときだけ、BGMに「荘厳な行進曲」(オリジナル曲)を選べます</div>
+    <div class="legend-item">🛸 ドローンは歩兵・潜水艦以外の全兵器に強いが、歩兵・潜水艦には弱い。歩兵に攻撃されると一撃で撃破、ドローンは歩兵・潜水艦のHPを半分までしか削れない。潜水艦の攻撃はドローンに歩兵の6割ほどの威力(即撃破とは限らない)。単価は歩兵より安いが、資金50,000G以上にならないと生産できない(相手も同条件)。移動距離は無限、射程4マス。指令不要で自動的に敵を見つけて移動・攻撃する(攻撃は1ターン1回)</div>
+    <div class="legend-item">🚢 空母を選択すると、空母自体の移動・待機に加えて、搭載中の戦闘機・ヘリを選んで出動(移動)または空母に留める(待機)ことができます。搭載機は攻撃はできません</div>
+    <div class="legend-item">⚓ 空母・巡洋艦・潜水艦を本拠地・普通の基地(港以外)で生産すると、次のターンに周囲3マス以内の海・川マスを1度だけ選んで配置できます。配置後は水系のみ移動でき、港も占領できます</div>
+    <div class="legend-item">🚙🚁 装甲車・ヘリも歩兵を1名ずつ搭載できます。搭載中も装甲車・ヘリ自体は自分の移動・攻撃範囲でそのまま移動・攻撃・待機が可能。搭載した歩兵は選んで出動(移動)・待機ができますが、攻撃はできません</div>
+    <div class="legend-item">⚓港は水系に隣接してランダムに配置され、空母・巡洋艦・潜水艦だけが占領・生産・入港回復できます。都市は陸(歩兵・装甲車・戦車・砲台)と空(ヘリ・戦闘機・ドローン)が占領可能。どちらも占領するまでは自軍の生産はできません</div>
+    <div class="legend-item">⭐シールド(ラッキーアイテム)は5〜6ターンに一度、マップ上のランダムな場所に1個だけ出現します。取得すると、そのユニットは自分の3ターンの間、攻撃を受けてもダメージを受けない無敵状態になります</div>
+    <div class="legend-item">⛰️🏜️ 歩兵・装甲車・戦車・砲台は砂漠に進めます。装甲車・戦車は山にも進めます。歩兵も山に進めますが、進んだ次の1ターンは自動的に足止め(待機)扱いになり、その次のターンから再び動けます</div>
+    <div class="legend-item">💚 本拠地・普通の基地・占領した都市にいるユニットはターン終了後に体力が全回復します</div>
+  </div>
+
+  <div id="message"></div>
+  <button id="restartBtn">もう一度プレイ</button>
+  <div id="hint">ヘックスをクリック/タップして自軍ユニットを選択→移動可能な範囲（青く光るマス）を直接タップすると、そのまま移動します（「移動」ボタンは押さなくてもOK）。移動先に敵がいれば隣接マスまで進んで自動的に戦闘が始まります。既に隣接している特定の敵だけを狙いたい時は「攻撃」を押してから対象をタップ。「待機」でその場に留まれます。都市(自軍所有)を選ぶと「生産」でユニットを作れます。1ターンに行動できるのは、5ターン目までは最大7ユニット、6ターン目以降は保有ユニット数まで(ただし最低7ユニットは保証)。行動が終わったら「ターン終了」を押してください。</div>
+
+  <div id="buildMenu">
+    <div class="panel">
+      <h3>ユニットを生産</h3>
+      <div id="buildList"></div>
+      <div style="text-align:center; margin-top:10px;">
+        <button class="action-btn danger" id="closeBuildMenu">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('mapCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width, H = canvas.height;
+
+  // ================= ヘックス座標系（offset座標、odd-q flat-top） =================
+  const HEX_SIZE = 24; // 中心から頂点までの距離
+  const HEX_W = HEX_SIZE * 2;
+  const HEX_H = Math.sqrt(3) * HEX_SIZE;
+  const BASE_MAP_COLS = 9, BASE_MAP_ROWS = 12; // 元々のマス数（この範囲は既存の地形配置ロジックを使う）
+  const SCENE1_MAP_COLS = BASE_MAP_COLS + 6, SCENE1_MAP_ROWS = BASE_MAP_ROWS + 6; // アジア：横に計6列、縦に計6行拡大
+  // 日本・アメリカ・ヨーロッパ：アジアの広さに、さらに上下計8行・左右計4列を追加
+  const SCENE2_MAP_COLS = SCENE1_MAP_COLS + 4, SCENE2_MAP_ROWS = SCENE1_MAP_ROWS + 8;
+  let MAP_COLS = SCENE1_MAP_COLS, MAP_ROWS = SCENE1_MAP_ROWS;
+  let MAP_ORIGIN_X = 68, MAP_ORIGIN_Y = 96.3; // マス全体が枠の上下左右中央にくるよう計算した値
+
+  // 指定したマス数のマップが、外周に余白を保ちつつ中央にくるようなキャンバスサイズ・原点を計算する
+  function computeMapLayout(cols, rows) {
+    const marginX = 44, marginY = 76; // 既存の見た目に合わせた余白
+    const spanX = (cols - 1) * HEX_W * 0.75;
+    const spanY = (rows - 1) * HEX_H + HEX_H / 2;
+    const canvasW = Math.round(spanX + HEX_SIZE * 2 + marginX * 2);
+    const canvasH = Math.round(spanY + HEX_H + marginY * 2);
+    const originX = (canvasW - spanX) / 2;
+    const originY = (canvasH - spanY) / 2;
+    return { canvasW, canvasH, originX, originY };
+  }
+
+  // 選択中のシーンに応じてマップの広さ・キャンバスサイズ・原点を切り替える
+  function applyMapDimensionsForScene(scene) {
+    MAP_COLS = scene === 2 ? SCENE2_MAP_COLS : SCENE1_MAP_COLS;
+    MAP_ROWS = scene === 2 ? SCENE2_MAP_ROWS : SCENE1_MAP_ROWS;
+    const layout = computeMapLayout(MAP_COLS, MAP_ROWS);
+    MAP_ORIGIN_X = layout.originX;
+    MAP_ORIGIN_Y = layout.originY;
+    if (canvas) { canvas.width = layout.canvasW; canvas.height = layout.canvasH; W = layout.canvasW; H = layout.canvasH; }
+    HQ_CENTER_COL = Math.floor(MAP_COLS / 2);
+    PLAYER_HQ_ANCHOR.col = HQ_CENTER_COL; PLAYER_HQ_ANCHOR.row = MAP_ROWS - 2;
+    ENEMY_HQ_ANCHOR.col = HQ_CENTER_COL; ENEMY_HQ_ANCHOR.row = 1;
+  }
+
+  function hexToPixel(col, row) {
+    const x = MAP_ORIGIN_X + col * (HEX_W * 0.75);
+    const y = MAP_ORIGIN_Y + row * HEX_H + (col % 2 === 1 ? HEX_H / 2 : 0);
+    return { x, y };
+  }
+  function hexKey(col, row) { return col + ',' + row; }
+  function hexNeighbors(col, row) {
+    const evenOffsets = [[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[0,1]];
+    const oddOffsets  = [[1,1],[1,0],[0,-1],[-1,0],[-1,1],[0,1]];
+    const offs = (col % 2 === 0) ? evenOffsets : oddOffsets;
+    return offs.map(([dc,dr]) => [col+dc, row+dr]).filter(([c,r]) => c>=0 && c<MAP_COLS && r>=0 && r<MAP_ROWS);
+  }
+  function hexDistance(c1,r1,c2,r2) {
+    // offsetをcube座標に変換して距離を出す
+    function toCube(col,row) {
+      const x = col;
+      const z = row - (col - (col & 1)) / 2;
+      const y = -x - z;
+      return [x,y,z];
+    }
+    const [x1,y1,z1] = toCube(c1,r1), [x2,y2,z2] = toCube(c2,r2);
+    return Math.max(Math.abs(x1-x2), Math.abs(y1-y2), Math.abs(z1-z2));
+  }
+
+  // ================= 地形定義 =================
+  const TERRAIN = {
+    plain:   { name: '平地', color: '#5a8f4f', landOk: true,  navalOk: false, moveCostLand: 1, defenseBonus: 0 },
+    mountain:{ name: '山',   color: '#7a6a56', landOk: true,  navalOk: false, moveCostLand: 3, defenseBonus: 2 },
+    sea:     { name: '海',   color: '#1e5a8a', landOk: false, navalOk: true,  moveCostLand: 99, defenseBonus: 0 },
+    river:   { name: '川',   color: '#3a7fc0', landOk: true,  navalOk: true,  moveCostLand: 1, defenseBonus: -1 },
+    desert:  { name: '砂漠', color: '#c9a35a', landOk: true,  navalOk: false, moveCostLand: 2, defenseBonus: -1 },
+    city:    { name: '都市', color: '#8a8f9a', landOk: true,  navalOk: false, moveCostLand: 1, defenseBonus: 2, isCity: true },
+    port:    { name: '港',   color: '#3a6a8a', landOk: false, navalOk: true,  moveCostLand: 99, defenseBonus: 1, isCity: true, isPort: true },
+  };
+
+  // ================= ユニット定義 =================
+  // strongVs: このユニット種に対して攻撃力ボーナスを持つ相手
+  // domain: 'land'（陸上）, 'air'（空。全地形移動可）, 'naval'（海上・水系のみ）
+  const UNIT_TYPES = {
+    infantry:  { name: '歩兵',   emoji: '🪖', domain: 'land', move: 1, cost: 100, hp: 50, atk: 14, def: 12, range: 1,  strongVs: [] },
+    armored:   { name: '装甲車', emoji: '🚙', domain: 'land', move: 2, cost: 150, hp: 55, atk: 16, def: 14, range: 1,  strongVs: ['infantry'], cargoKinds: ['infantry'] },
+    tank:      { name: '戦車',   emoji: '🛡️', domain: 'land', move: 2, cost: 300, hp: 70, atk: 26, def: 20, range: 1,  strongVs: ['armored','infantry','artillery'] },
+    artillery: { name: '砲台',   emoji: '💣', domain: 'land', move: 1, cost: 250, hp: 45, atk: 24, def: 10, range: 10, strongVs: ['infantry','armored'] },
+    heli:      { name: 'ヘリ',   emoji: '🚁', domain: 'air',  move: 3, cost: 400, hp: 55, atk: 28, def: 16, range: 2,  strongVs: ['tank','armored','infantry','artillery'], cargoKinds: ['infantry'] },
+    fighter:   { name: '戦闘機', emoji: '✈️', domain: 'air',  move: 5, cost: 600, hp: 60, atk: 30, def: 18, range: 3,  strongVs: ['heli','tank','armored','infantry','artillery','carrier','cruiser'] },
+    carrier:   { name: '空母',   emoji: '🚢', domain: 'naval',move: 2, cost: 900, hp: 110,atk: 18, def: 24, range: 0,  strongVs: [], canAttack: false, cargoKinds: ['fighter', 'heli'] },
+    cruiser:   { name: '巡洋艦', emoji: '⚓', domain: 'naval',move: 2, cost: 800, hp: 100,atk: 28, def: 26, range: 5,  strongVs: ['infantry','armored','tank','artillery','heli','fighter','submarine'], cargoKinds: ['laserGun'] },
+    submarine: { name: '潜水艦', emoji: '🐋', domain: 'naval',move: 2, cost: 500, hp: 60, atk: 26, def: 14, range: 3,  strongVs: ['fighter','carrier','cruiser'] },
+    drone:     { name: 'ドローン', emoji: '🛸', domain: 'air', move: 999, cost: 70, hp: 50, atk: 26, def: 14, range: 4, strongVs: ['armored','tank','artillery','heli','fighter','carrier','cruiser'], autoTargetAll: true, autoRoam: true },
+    // 特定の国だけが生産できる特殊兵器
+    artillery2: { name: '重砲台', emoji: '💥', domain: 'land', move: 1, cost: 400, hp: 45, atk: 24, def: 10, range: 20, strongVs: ['infantry','armored'] },
+    fighter2:  { name: '超攻撃戦闘機(ステルス)', emoji: '🦇', domain: 'air', move: 10, cost: 1200, hp: 100, atk: 40, def: 20, range: 10, strongVs: ['heli','tank','armored','infantry','artillery','carrier','cruiser','submarine','fighter'] },
+    // 中国専用：全地形を同条件で移動できるロボット兵器。都市・港・基地・本拠地は占領できない
+    robot:     { name: 'ロボット兵器', emoji: '🤖', domain: 'universal', move: 3, cost: 500, hp: 60, atk: 20, def: 18, range: 1, strongVs: [], noCapture: true },
+    // 日本専用：巡洋艦に搭載できるレールガン。都市・港・基地・本拠地は占領できない
+    laserGun:  { name: 'レールガン', emoji: '🔫', domain: 'land', move: 1, cost: 700, hp: 20, atk: 30, def: 5, range: 15, strongVs: [], noCapture: true, permanentMount: true },
+    // 日本専用：1ゲームに1隻だけ生産できる戦艦ヤマト（撃破後は再生産不可）
+    yamato:    { name: '戦艦ヤマト', emoji: '🎖️', domain: 'naval', move: 3, cost: 3000, hp: 150, atk: 35, def: 30, range: 6, strongVs: ['infantry','armored','tank','artillery','heli','fighter','carrier','cruiser','submarine'], onceOnly: true },
+    // 宇宙人専用：桁違いの性能を持つUFO。都市・港・基地・本拠地は占領できない（何度でも生産可能）
+    ufo:       { name: 'UFO', emoji: '🛸', domain: 'universal', move: 100, cost: 1000000, hp: 1000, atk: 1000, def: 1000, range: 100, strongVs: [], noCapture: true },
+    // 地球防衛軍専用：宇宙人に対抗する切り札。都市・港・基地・本拠地は占領できない
+    spaceship: { name: 'スペース船', emoji: '🚀', domain: 'universal', move: 30, cost: 15000, hp: 500, atk: 700, def: 500, range: 30, strongVs: ['ufo'], noCapture: true },
+  };
+  // 全国共通で生産できる基本ユニット
+  const UNIT_KIND_LIST = ['infantry','armored','tank','artillery','heli','fighter','carrier','cruiser','submarine','drone'];
+  // 特定の国だけが追加で生産できるユニット
+  const COUNTRY_EXTRA_UNITS = {
+    jp: ['artillery2', 'fighter2', 'laserGun', 'yamato'],
+    cn: ['artillery2', 'fighter2', 'robot'],
+    kp: ['artillery2'],
+    us: ['artillery2', 'fighter2'],
+    ru: ['artillery2', 'fighter2'],
+    space: ['ufo'],
+    earth: ['spaceship'],
+  };
+  const NO_CAPTURE_KINDS = ['robot', 'laserGun', 'ufo', 'spaceship']; // これらのユニットは都市・港・基地・本拠地を占領できない（移動・配置は可能）
+  // 国ごとの開始資金（記載のない国は既定の1000G）
+  const STARTING_GOLD_BY_COUNTRY = {
+    us: 10000,
+    ru: 3000,
+    it: 800, es: 800, pt: 800,
+  };
+  function getStartingGold(countryId) {
+    if (countryId === 'nato') {
+      return NATO_MEMBERS.reduce((sum, id) => sum + (STARTING_GOLD_BY_COUNTRY[id] || 1000), 0);
+    }
+    if (countryId === 'earth') {
+      // 地球防衛軍：これまで戦ってきた全ての国の開始資金を合算した経済力でスタートする
+      const allRealCountryIds = ['jp','cn','au','kr','kp','us','gb','fr','de','it','ru','es','pt'];
+      return allRealCountryIds.reduce((sum, id) => sum + (STARTING_GOLD_BY_COUNTRY[id] || 1000), 0);
+    }
+    if (countryId === 'space') return 100; // 宇宙人：開始資金はわずか100G
+    return STARTING_GOLD_BY_COUNTRY[countryId] || 1000;
+  }
+  // その国が生産できる基本ユニット一覧を返す（地球防衛軍は全国の兵器を合算して扱える。宇宙人はUFOのみ）
+  function resolveKindPool(countryId) {
+    if (countryId === 'space') return ['ufo'];
+    if (countryId === 'earth') {
+      const allExtras = new Set();
+      Object.values(COUNTRY_EXTRA_UNITS).forEach(list => list.forEach(k => { if (k !== 'ufo') allExtras.add(k); }));
+      return UNIT_KIND_LIST.concat(Array.from(allExtras));
+    }
+    return UNIT_KIND_LIST.concat(COUNTRY_EXTRA_UNITS[countryId] || []);
+  }
+  const DRONE_UNLOCK_GOLD = 50000; // ドローンは資金がこの額以上になって初めて生産できる
+
+  // ================= シーン（地域）定義 =================
+  const SCENES = [
+    { id: 1, name: 'アジア', emoji: '🌏', available: true },
+    { id: 2, name: '日本・アメリカ・ヨーロッパ', emoji: '🏰', available: true },
+    { id: 3, name: '宇宙 対 地球', emoji: '🛰️', available: false },
+  ];
+
+  // シーン1（アジア）で選べる国：性能は共通、旗の色と開始位置のみ異なる
+  const COUNTRIES_SCENE1 = [
+    { id: 'jp', name: '日本',     color: '#e63946' },
+    { id: 'cn', name: '中国',     color: '#f4c542' },
+    { id: 'au', name: 'オーストラリア', color: '#1a3a6b' },
+    { id: 'kr', name: '韓国',     color: '#4d94ff' },
+    { id: 'kp', name: '北朝鮮',   color: '#4d8f4a' },
+  ];
+
+  // シーン2（日本・アメリカ・ヨーロッパ）で選べる国：性能は共通、旗の色と開始位置のみ異なる
+  const COUNTRIES_SCENE2 = [
+    { id: 'jp', name: '日本',       color: '#e63946' },
+    { id: 'us', name: 'アメリカ',   color: '#3c5aa6' },
+    { id: 'gb', name: 'イギリス',   color: '#6a4c93' },
+    { id: 'fr', name: 'フランス',   color: '#4d94ff' },
+    { id: 'de', name: 'ドイツ',     color: '#f4c542' },
+    { id: 'it', name: 'イタリア',   color: '#4d8f4a' },
+    { id: 'ru', name: 'ロシア',     color: '#ff8a3d' },
+    { id: 'es', name: 'スペイン',   color: '#c9302c' },
+    { id: 'pt', name: 'ポルトガル', color: '#2e8b57' },
+    { id: 'nato', name: 'NATO',    color: '#1c3f94' },
+  ];
+  const SCENE_COUNTRIES = { 1: COUNTRIES_SCENE1, 2: COUNTRIES_SCENE2 };
+  const NATO_MEMBERS = ['gb', 'fr', 'de', 'it', 'es', 'pt']; // NATO連合を構成する6か国
+  // シーン3（宇宙対地球）：自軍は常に地球防衛軍、相手は常に宇宙人
+  const EARTH_COUNTRY = { id: 'earth', name: '地球防衛軍', color: '#2ec4b6' };
+  const SPACE_COUNTRY = { id: 'space', name: '宇宙人', color: '#7b2cbf' };
+  const COUNTRIES_SCENE3 = [EARTH_COUNTRY];
+  SCENE_COUNTRIES[3] = COUNTRIES_SCENE3;
+
+  // プレイヤーは常に南（マップ下側）、コンピュータは常に北（マップ上側）に配置される
+  let HQ_CENTER_COL = Math.floor(MAP_COLS / 2);
+  const PLAYER_HQ_ANCHOR = { col: HQ_CENTER_COL, row: MAP_ROWS - 2 };
+  const ENEMY_HQ_ANCHOR = { col: HQ_CENTER_COL, row: 1 };
+
+  let selectedScene = 1;
+  let hasEverWon = false; // アジアまたは日本・アメリカ・ヨーロッパで一度でも勝利したか（宇宙対地球の解禁条件）
+  let selectedCountry = COUNTRIES_SCENE1[0];
+  let enemyCountry = null; // 対戦相手（プレイヤーが選ばなかった国からランダム）
+
+  // ================= マップ生成（シーン1：アジア） =================
+  function generateAsiaMap() {
+    const grid = {};
+    for (let c = 0; c < MAP_COLS; c++) {
+      for (let r = 0; r < MAP_ROWS; r++) {
+        grid[hexKey(c,r)] = { col: c, row: r, terrain: 'plain', owner: null, unit: null, isHQ: false, hqSide: null };
+      }
+    }
+    function set(c, r, terrain) {
+      if (c < 0 || c >= MAP_COLS || r < 0 || r >= MAP_ROWS) return;
+      grid[hexKey(c,r)].terrain = terrain;
+    }
+    // 東西の端を海に（大陸を海で挟む）
+    for (let r = 0; r < MAP_ROWS; r++) {
+      set(0, r, 'sea');
+      set(MAP_COLS-1, r, 'sea');
+    }
+
+    // 山脈クラスター（中央付近、南北の間を隔てる）
+    const mountainSeeds = [[4,5],[3,6],[5,6],[4,7],[2,4],[6,4]];
+    mountainSeeds.forEach(([sc,sr]) => {
+      set(sc, sr, 'mountain');
+      hexNeighbors(sc,sr).forEach(([c,r]) => { if (Math.random() < 0.4) set(c,r,'mountain'); });
+    });
+
+    // 砂漠クラスター
+    const desertSeeds = [[2,8],[6,3]];
+    desertSeeds.forEach(([sc,sr]) => {
+      set(sc, sr, 'desert');
+      hexNeighbors(sc,sr).forEach(([c,r]) => { if (Math.random() < 0.4 && grid[hexKey(c,r)] && grid[hexKey(c,r)].terrain==='plain') set(c,r,'desert'); });
+    });
+
+    // 川（北から南へ1本流す）
+    let rc = 3, rr = 0;
+    while (rr < MAP_ROWS) {
+      set(rc, rr, 'river');
+      rr += 1;
+      rc += (Math.random() < 0.5 ? 0 : (Math.random()<0.5?1:-1));
+      rc = Math.max(2, Math.min(MAP_COLS-3, rc));
+    }
+
+    // 中立都市
+    const cityCoords = [[3,2],[5,2],[3,9],[5,9],[2,5],[6,8]];
+    cityCoords.forEach(([c,r]) => set(c,r,'city'));
+
+    // 横に増えた2列・縦に増えた3行の新しいマスには、それぞれランダムに地形を配置する
+    const RANDOM_TERRAIN_POOL = ['plain', 'plain', 'mountain', 'desert', 'sea'];
+    for (let c = 0; c < MAP_COLS; c++) {
+      for (let r = 0; r < MAP_ROWS; r++) {
+        const isNewArea = c >= BASE_MAP_COLS || r >= BASE_MAP_ROWS;
+        if (isNewArea && grid[hexKey(c, r)].terrain === 'plain') {
+          grid[hexKey(c, r)].terrain = RANDOM_TERRAIN_POOL[Math.floor(Math.random() * RANDOM_TERRAIN_POOL.length)];
+        }
+      }
+    }
+
+    // 港：必ず水系（海・川）に隣接するマスへランダムに配置する
+    const portCandidates = [];
+    for (let c = 0; c < MAP_COLS; c++) {
+      for (let r = 0; r < MAP_ROWS; r++) {
+        const h = grid[hexKey(c, r)];
+        if (h.terrain !== 'sea' && h.terrain !== 'river' && h.terrain !== 'city') {
+          const touchesWater = hexNeighbors(c, r).some(([nc, nr]) => {
+            const nh = grid[hexKey(nc, nr)];
+            return nh && (nh.terrain === 'sea' || nh.terrain === 'river');
+          });
+          if (touchesWater) portCandidates.push([c, r]);
+        }
+      }
+    }
+    shuffleArr(portCandidates);
+    const PORT_COUNT = Math.min(4, portCandidates.length);
+    for (let i = 0; i < PORT_COUNT; i++) {
+      const [pc, pr] = portCandidates[i];
+      grid[hexKey(pc, pr)].terrain = 'port';
+    }
+
+    return grid;
+  }
+
+  // 指定アンカーを中心に、隣接ヘックスを含めた6マスの本拠地クラスターを作る
+  function buildHQCluster(grid, anchorCol, anchorRow, side) {
+    // 中心マス＝本拠地（国旗マーク）
+    const hqHex = grid[hexKey(anchorCol, anchorRow)];
+    hqHex.terrain = 'city';
+    hqHex.isHQ = true;
+    hqHex.isHQAnchor = true;
+    hqHex.hqSide = side;
+    hqHex.owner = side;
+
+    // 周囲6マス全てを「普通の基地」（星マーク）にする
+    const neighbors = hexNeighbors(anchorCol, anchorRow);
+    neighbors.forEach(([c, r]) => {
+      const hex = grid[hexKey(c, r)];
+      if (!hex) return;
+      hex.terrain = 'city';
+      hex.isHQ = true;
+      hex.isHQAnchor = false;
+      hex.hqSide = side;
+      hex.owner = side;
+    });
+    return [[anchorCol, anchorRow], ...neighbors];
+  }
+
+  // ================= ゲーム状態 =================
+  let mapGrid = {};
+  let units = []; // {id, kind, side('player'|'enemy'), col, row, hp, maxHp, moved, attacked, cargo:[]}
+  let nextUnitId = 1;
+  let playerGold = 0, enemyGold = 0;
+  const onceOnlyBuiltThisGame = { player: {}, enemy: {} }; // 「1ゲームに1つだけ」生産できるユニット種の使用済みフラグ
+  const UFO_COOLDOWN_TURNS = 5; // UFOを生産してから次に生産できるようになるまでのターン数
+  const lastUfoBuiltTurn = { player: -Infinity, enemy: -Infinity };
+  let turnCount = 1;
+  let currentSide = 'player';
+  let selectedUnit = null;
+  let selectedCargo = null; // 空母から出動させる搭載機を選択中の場合、{ carrier, kind } を保持
+  let selectedWeaponMode = null; // 巡洋艦がレールガンを搭載している場合、'laserGun' なら射程15の攻撃に切り替える
+  let aiActingUnit = null; // 相手のターン中、AIが現在操作しているユニット（点滅ハイライト用）
+  let selectedCity = null;
+  let mode = null; // 'move' | 'attack' | null
+  const BASE_MAX_UNITS_PER_TURN = 7;
+  // 5ターンまでは7ユニットまで。6ターン目以降は保有ユニット数まで行動できる（ただし最低7は保証）
+  function getMaxUnitsPerTurn(side) {
+    if (turnCount <= 5) return BASE_MAX_UNITS_PER_TURN;
+    const aliveCount = units.filter(u => u.side === side && u.hp > 0).length;
+    return Math.max(aliveCount, BASE_MAX_UNITS_PER_TURN);
+  }
+  let playerActedUnitIds = new Set();
+  let enemyActedUnitIds = new Set();
+  let reachableHexes = [];
+  let attackableHexes = [];
+  let gameStarted = false, running = false, paused = false, appEnded = false;
+
+  function unitAt(col, row) {
+    return units.find(u => u.col === col && u.row === row && u.hp > 0);
+  }
+  // 戦闘機・ヘリを空母に積み込めるか判定する（各1機ずつ）
+  function canLoadOntoCarrier(transportUnit, kind) {
+    if (!transportUnit) return false;
+    const cargoKinds = UNIT_TYPES[transportUnit.kind].cargoKinds || [];
+    if (!cargoKinds.includes(kind)) return false;
+    if (!transportUnit.cargo) transportUnit.cargo = {};
+    return !transportUnit.cargo[kind];
+  }
+  // 戦闘機・ヘリを空母に積み込む（積んだ直後に体力が全回復する）
+  function loadUnitOntoCarrier(unit, carrierUnit) {
+    if (!carrierUnit.cargo) carrierUnit.cargo = {};
+    carrierUnit.cargo[unit.kind] = { hp: UNIT_TYPES[unit.kind].hp };
+    units = units.filter(u => u.id !== unit.id);
+  }
+  function cityOwnerColor(hex) {
+    if (!hex.owner) return null;
+    return hex.owner === 'player' ? selectedCountry.color : enemyCountry.color;
+  }
+
+  function makeUnit(kind, side, col, row) {
+    const def = UNIT_TYPES[kind];
+    const u = { id: nextUnitId++, kind, side, col, row, hp: def.hp, maxHp: def.hp, moved: false, attacked: false, cargo: {}, mountainStunned: false, shieldTurns: 0 };
+    units.push(u);
+    return u;
+  }
+
+  const SHIELD_TURNS = 3; // シールド（ラッキーアイテム）を取ると、自分の3ターンの間は無敵になる
+  // ユニットが移動・出動したマスにシールドの星があれば取得する
+  function maybePickupShield(unit, hex) {
+    if (hex && hex.hasShieldItem) {
+      hex.hasShieldItem = false;
+      unit.shieldTurns = SHIELD_TURNS;
+      playCaptureSound();
+    }
+  }
+
+  // シールド（ラッキーアイテム）は、5〜6ターンに1度の間隔でランダムな空きマスに1個だけ出現する
+  let nextShieldSpawnTurn = 0;
+  function scheduleNextShieldSpawn() {
+    nextShieldSpawnTurn = turnCount + (Math.random() < 0.5 ? 5 : 6);
+  }
+  function maybeSpawnShieldItem() {
+    if (turnCount < nextShieldSpawnTurn) return;
+    const candidates = [];
+    Object.values(mapGrid).forEach(h => {
+      if (!h.hasShieldItem && !h.isCity &&
+          (h.terrain === 'plain' || h.terrain === 'mountain' || h.terrain === 'desert') &&
+          !unitAt(h.col, h.row)) {
+        candidates.push(h);
+      }
+    });
+    if (candidates.length > 0) {
+      const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+      chosen.hasShieldItem = true;
+    }
+    scheduleNextShieldSpawn();
+  }
+
+  // 歩兵が山のマスへ移動したら、次の1ターンだけ自動的に足止め（待機扱い）にする
+  function applyMountainStun(unit, hex) {
+    if (unit.kind === 'infantry' && hex && hex.terrain === 'mountain') {
+      unit.mountainStunned = true;
+    }
+  }
+
+  function shuffleArr(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function deployStartingUnits(side, anchor, kinds) {
+    const candidates = [];
+    for (let c = 0; c < MAP_COLS; c++) {
+      for (let r = 0; r < MAP_ROWS; r++) {
+        if (hexDistance(anchor.col, anchor.row, c, r) <= 3) {
+          const hex = mapGrid[hexKey(c, r)];
+          if (hex && TERRAIN[hex.terrain].landOk) candidates.push([c, r]);
+        }
+      }
+    }
+    shuffleArr(candidates);
+    kinds.forEach(kind => {
+      const spot = candidates.find(([c, r]) => !unitAt(c, r)) || [anchor.col, anchor.row];
+      const newUnit = makeUnit(kind, side, spot[0], spot[1]);
+      markTerritory(mapGrid[hexKey(spot[0], spot[1])], side, newUnit);
+      maybePickupShield(newUnit, mapGrid[hexKey(spot[0], spot[1])]);
+    });
+  }
+
+  function setupGame() {
+    applyMapDimensionsForScene(selectedScene);
+    mapGrid = generateAsiaMap();
+    units = [];
+    nextUnitId = 1;
+    turnCount = 1;
+    currentSide = 'player';
+    scheduleNextShieldSpawn();
+    onceOnlyBuiltThisGame.player = {};
+    onceOnlyBuiltThisGame.enemy = {};
+    lastUfoBuiltTurn.player = -Infinity;
+    lastUfoBuiltTurn.enemy = -Infinity;
+
+    // 対戦相手の国を選ぶ（シーン3は常に自軍=地球防衛軍・相手=宇宙人。それ以外はプレイヤーが選んだ国以外からランダム）
+    if (selectedScene === 3) {
+      selectedCountry = EARTH_COUNTRY;
+      enemyCountry = SPACE_COUNTRY;
+    } else {
+      const others = (SCENE_COUNTRIES[selectedScene] || COUNTRIES_SCENE1).filter(c => c.id !== selectedCountry.id);
+      enemyCountry = others[Math.floor(Math.random() * others.length)];
+    }
+
+    // 本拠地（HQ）はそれぞれ6マスのクラスターで表す。プレイヤー＝南、コンピュータ＝北
+    buildHQCluster(mapGrid, PLAYER_HQ_ANCHOR.col, PLAYER_HQ_ANCHOR.row, 'player');
+    buildHQCluster(mapGrid, ENEMY_HQ_ANCHOR.col, ENEMY_HQ_ANCHOR.row, 'enemy');
+
+    playerGold = getStartingGold(selectedCountry.id);
+    enemyGold = getStartingGold(enemyCountry.id);
+
+    // 初期ユニットは、それぞれの本拠地周辺3マス以内にランダムに配置する
+    const STARTING_POOL = ['infantry', 'armored', 'tank', 'artillery', 'heli', 'fighter'];
+    function randomStartingKinds(countryId) {
+      // NATOは加盟6か国ぶんの兵力を合算してスタートする。宇宙人は通常兵器を持たずUFOのみで戦う
+      if (countryId === 'space') return ['ufo']; // 宇宙人はUFOを最初1機だけ配置
+      const count = countryId === 'nato' ? 3 * NATO_MEMBERS.length : 3;
+      return Array.from({ length: count }, () => STARTING_POOL[Math.floor(Math.random() * STARTING_POOL.length)]);
+    }
+    deployStartingUnits('player', PLAYER_HQ_ANCHOR, randomStartingKinds(selectedCountry.id));
+    deployStartingUnits('enemy', ENEMY_HQ_ANCHOR, randomStartingKinds(enemyCountry.id));
+  }
+
+  // ================= 移動可能範囲（BFS、地形コスト・domain考慮） =================
+  function canEnterTerrain(unitKind, terrainKey) {
+    const t = TERRAIN[terrainKey];
+    const domain = UNIT_TYPES[unitKind].domain;
+    if (domain === 'air' || domain === 'universal') return true;
+    if (domain === 'naval') return t.navalOk;
+    return t.landOk; // land
+  }
+  function moveCost(unitKind, terrainKey) {
+    const domain = UNIT_TYPES[unitKind].domain;
+    if (domain === 'air' || domain === 'universal') return 1;
+    if (domain === 'naval') return 1;
+    if (terrainKey === 'mountain') {
+      // 歩兵・装甲車・戦車は、自分の移動力をすべて使えば山に入れる
+      if (unitKind === 'infantry') return 1;
+      if (unitKind === 'armored' || unitKind === 'tank') return 2;
+    }
+    if (terrainKey === 'desert' && (unitKind === 'infantry' || unitKind === 'artillery' || unitKind === 'artillery2')) return 1; // 歩兵・砲台は砂漠も自分の移動力ぶんで進める
+    return TERRAIN[terrainKey].moveCostLand;
+  }
+
+  // BFSで、条件(predicate)を満たす最も近い空いているヘックスを探す
+  function findNearestMatchingHex(startCol, startRow, predicate, skipStart) {
+    const startKey = hexKey(startCol, startRow);
+    const visited = new Set([startKey]);
+    if (!skipStart) {
+      const startHex = mapGrid[startKey];
+      if (startHex && predicate(startHex)) return [startCol, startRow];
+    }
+    let frontier = [[startCol, startRow]];
+    let depth = 0;
+    while (frontier.length && depth < 30) {
+      const nextFrontier = [];
+      for (const [c, r] of frontier) {
+        for (const [nc, nr] of hexNeighbors(c, r)) {
+          const key = hexKey(nc, nr);
+          if (visited.has(key)) continue;
+          visited.add(key);
+          const hex = mapGrid[key];
+          if (!hex) continue;
+          if (predicate(hex)) return [nc, nr];
+          nextFrontier.push([nc, nr]);
+        }
+      }
+      frontier = nextFrontier;
+      depth++;
+    }
+    return [startCol, startRow]; // 見つからなければ元のマスにフォールバック
+  }
+
+  // 生産したユニットを、地形に応じた適切なマスへ配置する
+  // ・艦艇（空母/巡洋艦/潜水艦）は都市には配置できないので、最も近い海・川に配置する
+  // ・陸上ユニットは、拠点の周りが全て海に囲まれている（孤立した陸地の）場合、最も近い陸地に配置する
+  function resolveSpawnPosition(cityCol, cityRow, kind) {
+    const domain = UNIT_TYPES[kind].domain;
+
+    if (domain === 'naval') {
+      const cityHex = mapGrid[hexKey(cityCol, cityRow)];
+      if (cityHex && cityHex.isPort) {
+        // 港で生産した場合はそのまま最も近い水系マスへ配置する
+        return findNearestMatchingHex(cityCol, cityRow, hex => TERRAIN[hex.terrain].navalOk && !unitAt(hex.col, hex.row), true);
+      }
+      // 本拠地・普通の基地で生産した場合は、いったんその場に置く（次のターンに周囲3マス以内の水系へ1度だけ配置する）
+      return [cityCol, cityRow];
+    }
+
+    if (domain === 'land') {
+      const neighbors = hexNeighbors(cityCol, cityRow);
+      const isIsolated = neighbors.length > 0 && neighbors.every(([c, r]) => {
+        const h = mapGrid[hexKey(c, r)];
+        return h && !TERRAIN[h.terrain].landOk;
+      });
+      if (isIsolated) {
+        return findNearestMatchingHex(cityCol, cityRow, hex => TERRAIN[hex.terrain].landOk && !unitAt(hex.col, hex.row), true);
+      }
+    }
+
+    return [cityCol, cityRow];
+  }
+
+  // 艦艇が本拠地・基地で生産された直後に立っているマス（水系ではない）を基準に、
+  // 周囲3マス以内の海・川マスを一覧する（次のターンに1度だけ使える配置先）
+  function computeDeploymentHexes(unit) {
+    const result = [];
+    Object.values(mapGrid).forEach(hex => {
+      if (TERRAIN[hex.terrain].navalOk && hexDistance(unit.col, unit.row, hex.col, hex.row) <= 3 && !unitAt(hex.col, hex.row)) {
+        result.push([hex.col, hex.row]);
+      }
+    });
+    return result;
+  }
+
+  function computeReachable(unit) {
+    const def = UNIT_TYPES[unit.kind];
+    const start = hexKey(unit.col, unit.row);
+    const costSoFar = { [start]: 0 };
+    const frontier = [[unit.col, unit.row, 0]];
+    const result = [];
+    while (frontier.length) {
+      frontier.sort((a,b) => a[2]-b[2]);
+      const [col, row, cost] = frontier.shift();
+      hexNeighbors(col, row).forEach(([c, r]) => {
+        const key = hexKey(c, r);
+        const hex = mapGrid[key];
+        if (!hex) return;
+        const occ = unitAt(c, r);
+        // 戦闘機・ヘリは、空母に積める場合に限り、その空母のマスへ移動できる（積んだらそこで行動終了）
+        const canLoad = occ && occ.side === unit.side && occ.id !== unit.id && canLoadOntoCarrier(occ, unit.kind);
+        if (!canEnterTerrain(unit.kind, hex.terrain) && !canLoad) return;
+        if (occ && occ.side !== unit.side) return; // 敵がいるマスは通過不可（攻撃は別処理）
+        if (occ && occ.side === unit.side && occ.id !== unit.id && !canLoad) return; // 味方がいるマスも進入不可（空母への積載を除く）
+        const newCost = cost + moveCost(unit.kind, hex.terrain);
+        if (newCost > def.move) return;
+        if (costSoFar[key] !== undefined && costSoFar[key] <= newCost) return;
+        costSoFar[key] = newCost;
+        result.push([c, r]);
+        if (!canLoad) frontier.push([c, r, newCost]); // 空母の上からは、その先へさらに進むことはできない
+      });
+    }
+    return result;
+  }
+
+  function computeAttackable(unit) {
+    const def = UNIT_TYPES[unit.kind];
+    if (def.canAttack === false) return []; // 空母などは攻撃できない
+    const range = def.range || 1;
+    const targets = [];
+    Object.values(mapGrid).forEach(hex => {
+      const d = hexDistance(unit.col, unit.row, hex.col, hex.row);
+      if (d === 0 || d > range) return;
+      const occ = unitAt(hex.col, hex.row);
+      if (occ && occ.side !== unit.side) targets.push([hex.col, hex.row]);
+    });
+    return targets;
+  }
+
+  // ================= 戦闘解決 =================
+  function resolveCombat(attacker, defender) {
+    const atkDef = UNIT_TYPES[attacker.kind];
+    const defDef = UNIT_TYPES[defender.kind];
+    const defHex = mapGrid[hexKey(defender.col, defender.row)];
+    const terrainBonus = TERRAIN[defHex.terrain].defenseBonus;
+
+    // シールド（ラッキーアイテム）特殊ルール：防御側がシールド中なら一切ダメージを受けない
+    if (defender.shieldTurns > 0) {
+      let result = { damage: 0, defenderDestroyed: false, counterDamage: 0, attackerDestroyed: false };
+      // シールド中でも反撃はできる（攻撃側がシールド中なら反撃も無効）
+      if (attacker.shieldTurns > 0) return result;
+      const counterStrongBonus = defDef.strongVs.includes(attacker.kind) ? 1.6 : 1.0;
+      const counterPower = defDef.atk * counterStrongBonus * (0.7 + Math.random() * 0.25) * 0.6;
+      const counterDamage = Math.max(2, Math.round(counterPower - atkDef.def * 0.3));
+      attacker.hp -= counterDamage;
+      result.counterDamage = counterDamage;
+      if (attacker.hp <= 0) { attacker.hp = 0; result.attackerDestroyed = true; }
+      return result;
+    }
+
+    // ドローン特殊ルール：歩兵がドローンにダメージを与えると、ドローンは一撃で撃破される
+    if (attacker.kind === 'infantry' && defender.kind === 'drone') {
+      defender.hp = 0;
+      return { damage: defender.maxHp, defenderDestroyed: true, counterDamage: 0, attackerDestroyed: false };
+    }
+    // ドローン特殊ルール：潜水艦がドローンにダメージを与えると、歩兵の6割ほどの威力を与える（即撃破とは限らない）
+    if (attacker.kind === 'submarine' && defender.kind === 'drone') {
+      const dmg = Math.round(defender.maxHp * 0.6);
+      defender.hp = Math.max(0, defender.hp - dmg);
+      const result = { damage: dmg, defenderDestroyed: defender.hp <= 0, counterDamage: 0, attackerDestroyed: false };
+      if (defender.hp > 0) {
+        // ドローンが生き残った場合、反撃は「潜水艦への攻撃は半分までしか削れない」ルールが適用される
+        const floor = Math.ceil(attacker.maxHp / 2);
+        const newHp = Math.max(attacker.hp - Math.round(defDef.atk), floor);
+        result.counterDamage = attacker.hp - newHp;
+        attacker.hp = newHp;
+      }
+      return result;
+    }
+
+    const strongBonus = atkDef.strongVs.includes(defender.kind) ? 1.6 : 1.0;
+    const counterStrongBonus = defDef.strongVs.includes(attacker.kind) ? 1.6 : 1.0;
+
+    const atkPower = atkDef.atk * strongBonus * (0.85 + Math.random() * 0.3);
+    const defPower = (defDef.def + terrainBonus) ;
+
+    let damage = Math.max(4, Math.round(atkPower - defPower * 0.4));
+
+    // ドローン特殊ルール：ドローンが歩兵・潜水艦を攻撃しても、相手のHPは最大値の半分までしか減らせない
+    if (attacker.kind === 'drone' && (defender.kind === 'infantry' || defender.kind === 'submarine')) {
+      const floor = Math.ceil(defender.maxHp / 2);
+      const newHp = Math.max(defender.hp - damage, floor);
+      damage = defender.hp - newHp;
+      defender.hp = newHp;
+    } else {
+      defender.hp -= damage;
+    }
+
+    let result = { damage, defenderDestroyed: false, counterDamage: 0, attackerDestroyed: false };
+
+    if (defender.hp <= 0) {
+      defender.hp = 0;
+      result.defenderDestroyed = true;
+    } else if (defender.kind === 'infantry' && attacker.kind === 'drone') {
+      // ドローン特殊ルール：歩兵の反撃はドローンを一撃で撃破する
+      attacker.hp = 0;
+      result.counterDamage = attacker.maxHp;
+      result.attackerDestroyed = true;
+    } else if (defender.kind === 'submarine' && attacker.kind === 'drone') {
+      // ドローン特殊ルール：潜水艦の反撃はドローンに歩兵の6割ほどの威力を与える
+      const dmg = Math.round(attacker.maxHp * 0.6);
+      attacker.hp = Math.max(0, attacker.hp - dmg);
+      result.counterDamage = dmg;
+      result.attackerDestroyed = attacker.hp <= 0;
+    } else {
+      // 反撃（防御側が生存していれば反撃する。ただし相性で不利なら弱め）
+      const counterPower = defDef.atk * counterStrongBonus * (0.7 + Math.random() * 0.25) * 0.6;
+      const counterDamage = Math.max(2, Math.round(counterPower - atkDef.def * 0.3));
+      attacker.hp -= counterDamage;
+      result.counterDamage = counterDamage;
+      if (attacker.hp <= 0) { attacker.hp = 0; result.attackerDestroyed = true; }
+    }
+    return result;
+  }
+
+  function performAttack(attacker, defender) {
+    const result = resolveCombat(attacker, defender);
+    spawnBattleEffect(defender.col, defender.row, result.defenderDestroyed);
+    if (result.counterDamage > 0) spawnBattleEffect(attacker.col, attacker.row, result.attackerDestroyed);
+    playCombatSound(result.defenderDestroyed || result.attackerDestroyed);
+
+    if (result.defenderDestroyed) {
+      units = units.filter(u => u.id !== defender.id);
+      // 撃破した相手のマスへ進軍できるのは歩兵・装甲車・戦車だけ。それ以外の兵器はその場からの攻撃にとどまる
+      // また、本拠地（旗マークの中心マス）は歩兵・装甲車・戦車・ヘリ・戦闘機だけが占領できる
+      const defHex = mapGrid[hexKey(defender.col, defender.row)];
+      const hqBlocked = defHex.isHQAnchor && !HQ_CAPTURE_KINDS.includes(attacker.kind);
+      const canAdvance = ADVANCE_AFTER_KILL_KINDS.includes(attacker.kind);
+      if (!hqBlocked && canAdvance && canEnterTerrain(attacker.kind, defHex.terrain)) {
+        attacker.col = defender.col; attacker.row = defender.row;
+        if (defHex.isCity) captureCity(defHex, attacker.side);
+      }
+    }
+    if (result.attackerDestroyed) {
+      units = units.filter(u => u.id !== attacker.id);
+    }
+    attacker.attacked = true;
+    attacker.moved = true;
+    return result;
+  }
+
+  // 巡洋艦にレールガンを搭載している場合、攻撃時にどちらの性能を使うか選べるようにする
+  // （ユニットの実体はそのまま、攻撃計算の間だけ一時的にkindを差し替える）
+  function computeAttackableWithWeapon(unit, weaponKind) {
+    if (!weaponKind) return computeAttackable(unit);
+    const originalKind = unit.kind;
+    unit.kind = weaponKind;
+    const result = computeAttackable(unit);
+    unit.kind = originalKind;
+    return result;
+  }
+  function performAttackWithWeapon(attacker, defender, weaponKind) {
+    if (!weaponKind) return performAttack(attacker, defender);
+    const originalKind = attacker.kind;
+    attacker.kind = weaponKind;
+    const result = performAttack(attacker, defender);
+    attacker.kind = originalKind;
+    return result;
+  }
+
+  function captureCity(hex, side) {
+    hex.owner = side;
+    updateHUD();
+    checkWinCondition();
+  }
+
+  // ユニットが移動・待機したヘックスを、その陣営の占領領域として色分け表示する
+  const HQ_CAPTURE_KINDS = ['infantry', 'armored', 'tank', 'heli', 'fighter', 'fighter2'];
+  const ADVANCE_AFTER_KILL_KINDS = ['infantry', 'armored', 'tank']; // 撃破後に相手のマスへ進軍できるのはこの3種のみ
+  function markTerritory(hex, side, unit) {
+    if (!hex) return;
+    // ロボット兵器・レールガンなど「占領できない」ユニットは、都市・港・基地・本拠地を一切占領しない（移動・配置は可能）
+    if (unit && UNIT_TYPES[unit.kind].noCapture && TERRAIN[hex.terrain].isCity) return;
+    // 港は空母・巡洋艦・潜水艦（水系ドメイン）だけが占領できる。陸・空のユニットは港に乗り入れても占領はしない
+    if (hex.isPort && (!unit || UNIT_TYPES[unit.kind].domain !== 'naval')) return;
+    // 本拠地（旗マークの中心マス）は、歩兵・装甲車・戦車・ヘリ・戦闘機だけが占領できる
+    if (hex.isHQAnchor && (!unit || !HQ_CAPTURE_KINDS.includes(unit.kind))) return;
+    if (hex.owner !== side && TERRAIN[hex.terrain].isCity) {
+      captureCity(hex, side);
+    }
+    // 艦艇が自軍の港に入ると、陸の都市と同様に即座に体力が全回復する
+    if (hex.isPort && hex.owner === side && unit && UNIT_TYPES[unit.kind].domain === 'naval' && unit.hp < unit.maxHp) {
+      unit.hp = unit.maxHp;
+    }
+  }
+
+  // ターン終了時、自軍の本拠地・普通の基地にいるユニットは体力が全回復する
+  function healUnitsAtBase(side) {
+    units.forEach(u => {
+      if (u.side !== side || u.hp <= 0) return;
+      const hex = mapGrid[hexKey(u.col, u.row)];
+      // 本拠地・普通の基地に加えて、占領した都市に配置されているユニットも次のターンで全回復する
+      if (hex && TERRAIN[hex.terrain].isCity && hex.owner === side && u.hp < u.maxHp) {
+        u.hp = u.maxHp;
+      }
+    });
+  }
+
+  // ドローンは指令を受けなくても、ターンの始めに自動で相手を見つけて移動・攻撃する（移動距離は無限、攻撃は1ターン1回）
+  function autoRunDrones(side) {
+    const drones = units.filter(u => u.side === side && u.hp > 0 && UNIT_TYPES[u.kind].autoRoam && !u.attacked);
+    drones.forEach(drone => {
+      const enemies = units.filter(e => e.side !== side && e.hp > 0);
+      if (enemies.length === 0) { drone.moved = true; drone.attacked = true; return; }
+
+      // すでに射程内に敵がいれば、移動せずそのまま攻撃する
+      let atkTargets = computeAttackable(drone);
+      if (atkTargets.length === 0) {
+        // 最も近い敵に向かって、無制限の移動力で近づけるところまで進む（歩兵・潜水艦はなるべく避ける）
+        const preferredEnemies = enemies.filter(e => e.kind !== 'infantry' && e.kind !== 'submarine');
+        const enemyPool = preferredEnemies.length ? preferredEnemies : enemies;
+        const nearest = enemyPool.reduce((best, e) => {
+          const d = hexDistance(drone.col, drone.row, e.col, e.row);
+          return (!best || d < best.d) ? { e, d } : best;
+        }, null);
+        const reachable = computeReachable(drone);
+        if (reachable.length > 0 && nearest) {
+          reachable.sort((a, b) =>
+            hexDistance(a[0], a[1], nearest.e.col, nearest.e.row) - hexDistance(b[0], b[1], nearest.e.col, nearest.e.row));
+          const [nc, nr] = reachable[0];
+          drone.col = nc; drone.row = nr;
+          markTerritory(mapGrid[hexKey(nc, nr)], side, drone);
+          maybePickupShield(drone, mapGrid[hexKey(nc, nr)]);
+        }
+        atkTargets = computeAttackable(drone);
+      }
+
+      drone.moved = true;
+      if (atkTargets.length > 0) {
+        const targets = atkTargets.map(([c, r]) => unitAt(c, r)).filter(Boolean);
+        const preferred = targets.filter(t => t.kind !== 'infantry' && t.kind !== 'submarine');
+        const pool = preferred.length ? preferred : targets;
+        pool.sort((a, b) => hexDistance(drone.col, drone.row, a.col, a.row) - hexDistance(drone.col, drone.row, b.col, b.row));
+        performAttack(drone, pool[0]);
+        checkWinCondition();
+      }
+      drone.attacked = true;
+    });
+    if (drones.length > 0) updateHUD();
+  }
+
+  // ================= 収入・生産 =================
+  function collectIncome(side) {
+    let income = 0;
+    Object.values(mapGrid).forEach(hex => {
+      if (hex.owner === side && TERRAIN[hex.terrain].isCity) {
+        income += hex.isHQ ? 250 : 150;
+      }
+    });
+    if (side === 'player') playerGold += income;
+    else enemyGold += income;
+    return income;
+  }
+
+  function canAfford(side, kind) {
+    const cost = UNIT_TYPES[kind].cost;
+    return side === 'player' ? playerGold >= cost : enemyGold >= cost;
+  }
+  function spendGold(side, amount) {
+    if (side === 'player') playerGold -= amount; else enemyGold -= amount;
+  }
+
+  // ================= 勝敗判定 =================
+  function checkWinCondition() {
+    if (appEnded) return;
+    const playerUnits = units.filter(u => u.side==='player' && u.hp>0);
+    const enemyUnits = units.filter(u => u.side==='enemy' && u.hp>0);
+    // 本拠地（旗マークの中心マス）が奪われたら、その陣営の負け。周りの普通の基地（星）は奪われても敗北にはならない
+    const playerHQIntact = !Object.values(mapGrid).some(h => h.isHQAnchor && h.hqSide==='player' && h.owner!=='player');
+    const enemyHQIntact = !Object.values(mapGrid).some(h => h.isHQAnchor && h.hqSide==='enemy' && h.owner!=='enemy');
+
+    if (enemyUnits.length === 0 || !enemyHQIntact) { endGame('win'); return; }
+    if (playerUnits.length === 0 || !playerHQIntact) { endGame('lose'); return; }
+  }
+
+  // ================= 効果音 =================
+  let audioCtx = null, sfxGain = null, bgmGain = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sfxGain = audioCtx.createGain(); sfxGain.gain.value = 0.6; sfxGain.connect(audioCtx.destination);
+      bgmGain = audioCtx.createGain(); bgmGain.gain.value = 0.5; bgmGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function playTone(freq, type, duration, volume) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(volume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.connect(g); g.connect(sfxGain);
+    osc.start(t); osc.stop(t + duration);
+  }
+  function playNoiseBurst(duration, volume, filterFreq) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random()*2-1) * Math.pow(1-i/bufferSize,2);
+    const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter(); filter.type='lowpass'; filter.frequency.setValueAtTime(filterFreq,t);
+    filter.Q.setValueAtTime(0.4, t); // 共鳴を抑えてなめらかな音色にする
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(volume, t + 0.015); // 急な立ち上がりを避け、割れを防ぐ
+    g.gain.exponentialRampToValueAtTime(0.001, t+duration);
+    noise.connect(filter); filter.connect(g); g.connect(sfxGain);
+    noise.start(t); noise.stop(t+duration);
+  }
+  function playCombatSound(destroyed) {
+    if (destroyed) { playNoiseBurst(0.35, 0.22, 900); playTone(120,'sine',0.32,0.22); }
+    else { playTone(500,'sine',0.1,0.15); playNoiseBurst(0.12,0.09,1300); }
+  }
+  function playMoveSound() { playTone(300,'sine',0.08,0.12); }
+  function playBuildSound() { playTone(700,'triangle',0.15,0.2,); playTone(900,'triangle',0.12,0.15); }
+  function playCaptureSound() { playTone(880,'triangle',0.15,0.2); playTone(1100,'triangle',0.15,0.2); }
+  function playVictorySound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    [523.25,659.25,783.99,1046.5].forEach((f,i) => {
+      const t = t0 + i*0.16;
+      const osc = audioCtx.createOscillator(); osc.type='triangle'; osc.frequency.setValueAtTime(f,t);
+      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.22,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+      osc.connect(g); g.connect(sfxGain); osc.start(t); osc.stop(t+0.35);
+    });
+  }
+  function playDefeatSound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    [392,349.23,311.13,261.63].forEach((f,i) => {
+      const t = t0 + i*0.18;
+      const osc = audioCtx.createOscillator(); osc.type='sawtooth'; osc.frequency.setValueAtTime(f,t);
+      const g = audioCtx.createGain(); g.gain.setValueAtTime(0.24,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.4);
+      osc.connect(g); g.connect(sfxGain); osc.start(t); osc.stop(t+0.4);
+    });
+  }
+
+  // ================= バックミュージック（オン/オフ・3曲から選択可能） =================
+  let bgmTimer = null;
+  let bgmEnabled = true;
+  let selectedTrack = 'light'; // 'light' | 'musicbox1' | 'musicbox2'
+  let lightPhraseIndex = 0;
+  let lightStepIndex = 0;
+  let boxStepIndex1 = 0;
+  let boxStepIndex2 = 0;
+
+  // ------- トラック1：軽快でリズミカルなテーマ（既存） -------
+  const LIGHT_PHRASES = [
+    [392.00, 440.00, 493.88, 440.00, 523.25, 0, 493.88, 440.00],
+    [523.25, 493.88, 440.00, 392.00, 440.00, 0, 493.88, 523.25],
+    [440.00, 523.25, 587.33, 523.25, 493.88, 440.00, 0, 392.00],
+    [392.00, 493.88, 440.00, 523.25, 493.88, 440.00, 0, 0],
+  ];
+  const LIGHT_BASS_PATTERN = [130.81, 0, 196.00, 0];
+
+  function scheduleLightThemeStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.28;
+    const phrase = LIGHT_PHRASES[lightPhraseIndex % LIGHT_PHRASES.length];
+    const note = phrase[lightStepIndex % phrase.length];
+
+    if (note) {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(note, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.085, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.85);
+      osc.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + stepDur * 0.9);
+    }
+
+    const bassNote = LIGHT_BASS_PATTERN[lightStepIndex % LIGHT_BASS_PATTERN.length];
+    if (bassNote) {
+      const bosc = audioCtx.createOscillator();
+      bosc.type = 'triangle';
+      bosc.frequency.setValueAtTime(bassNote, t);
+      const bg = audioCtx.createGain();
+      bg.gain.setValueAtTime(0, t);
+      bg.gain.linearRampToValueAtTime(0.055, t + 0.015);
+      bg.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.7);
+      bosc.connect(bg); bg.connect(bgmGain);
+      bosc.start(t); bosc.stop(t + stepDur * 0.75);
+    }
+
+    lightStepIndex++;
+    if (lightStepIndex % phrase.length === 0) {
+      lightPhraseIndex = Math.floor(Math.random() * LIGHT_PHRASES.length);
+    }
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // 共通：オルゴール（ミュージックボックス）調の1音を鳴らす
+  function playMusicBoxNote(freq, t, dur, volume) {
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(volume, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(g); g.connect(bgmGain);
+    osc.start(t); osc.stop(t + dur + 0.05);
+    // 金属的な倍音をうっすら重ねてオルゴールらしい響きにする
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(freq * 2, t);
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0, t);
+    g2.gain.linearRampToValueAtTime(volume * 0.32, t + 0.008);
+    g2.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.55);
+    osc2.connect(g2); g2.connect(bgmGain);
+    osc2.start(t); osc2.stop(t + dur * 0.6 + 0.05);
+  }
+
+  // ------- トラック2：オリジナルのオルゴール調メロディー（少し神秘的・静か） -------
+  const MUSICBOX1_MELODY = [
+    440.00, 523.25, 587.33, 523.25, 440.00, 0, 392.00, 440.00,
+    493.88, 440.00, 392.00, 349.23, 0, 392.00, 440.00, 0,
+  ];
+  function scheduleMusicBox1Step() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.5;
+    const note = MUSICBOX1_MELODY[boxStepIndex1 % MUSICBOX1_MELODY.length];
+    if (note) playMusicBoxNote(note, t, stepDur * 1.6, 0.13);
+    boxStepIndex1++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- トラック3：オリジナルのオルゴール調メロディー（少し軽やか・動きのある旋律） -------
+  const MUSICBOX2_MELODY = [
+    293.66, 349.23, 392.00, 440.00, 392.00, 349.23, 293.66, 0,
+    349.23, 440.00, 466.16, 440.00, 349.23, 0, 293.66, 0,
+  ];
+  function scheduleMusicBox2Step() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.42;
+    const note = MUSICBOX2_MELODY[boxStepIndex2 % MUSICBOX2_MELODY.length];
+    if (note) playMusicBoxNote(note, t, stepDur * 1.6, 0.12);
+    boxStepIndex2++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- トラック4：オリジナルのアップテンポなダンスポップ調テーマ -------
+  let danceStepIndex = 0;
+  const DANCE_MELODY = [
+    659.25, 587.33, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33,
+    523.25, 587.33, 659.25, 523.25, 493.88, 0, 523.25, 0,
+  ];
+  function scheduleDancePopStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.235; // 約128BPMの16分刻み
+
+    // 四つ打ちのキック（サイン波のピッチ下降で表現）
+    if (danceStepIndex % 4 === 0) {
+      const kick = audioCtx.createOscillator();
+      kick.type = 'sine';
+      kick.frequency.setValueAtTime(120, t);
+      kick.frequency.exponentialRampToValueAtTime(45, t + 0.12);
+      const kg = audioCtx.createGain();
+      kg.gain.setValueAtTime(0.2, t);
+      kg.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      kick.connect(kg); kg.connect(bgmGain);
+      kick.start(t); kick.stop(t + 0.2);
+    }
+
+    // 明るく駆けるリードメロディ
+    const note = DANCE_MELODY[danceStepIndex % DANCE_MELODY.length];
+    if (note) {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(note, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.085, t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.9);
+      osc.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + stepDur * 0.95);
+    }
+
+    // オフビートで入るコードスタブ（ダンスポップらしい高揚感）
+    if (danceStepIndex % 8 === 4 && note) {
+      [note / 2, note / 2 * 1.26, note / 2 * 1.5].forEach(f => {
+        const c = audioCtx.createOscillator();
+        c.type = 'triangle';
+        c.frequency.setValueAtTime(f, t);
+        const cg = audioCtx.createGain();
+        cg.gain.setValueAtTime(0, t);
+        cg.gain.linearRampToValueAtTime(0.045, t + 0.02);
+        cg.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.8);
+        c.connect(cg); cg.connect(bgmGain);
+        c.start(t); c.stop(t + stepDur * 1.9);
+      });
+    }
+
+    danceStepIndex++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- トラック5：オリジナルのクールでかっこいいテーマ -------
+  let coolStepIndex = 0;
+  const COOL_MELODY = [
+    220.00, 246.94, 220.00, 196.00, 220.00, 261.63, 220.00, 0,
+    196.00, 220.00, 246.94, 220.00, 196.00, 174.61, 0, 0,
+  ];
+  function scheduleCoolStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.21; // タイトで少し速めのリズム
+
+    // パンチのある低音パルス
+    if (coolStepIndex % 2 === 0) {
+      const bass = audioCtx.createOscillator();
+      bass.type = 'sawtooth';
+      bass.frequency.setValueAtTime(73.42, t); // D2
+      const bassFilter = audioCtx.createBiquadFilter();
+      bassFilter.type = 'lowpass';
+      bassFilter.frequency.setValueAtTime(500, t);
+      const bg = audioCtx.createGain();
+      bg.gain.setValueAtTime(0.17, t);
+      bg.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.3);
+      bass.connect(bassFilter); bassFilter.connect(bg); bg.connect(bgmGain);
+      bass.start(t); bass.stop(t + stepDur * 1.4);
+    }
+
+    // クールなリードメロディ（のこぎり波にローパスをかけ、少し尖った質感に）
+    const note = COOL_MELODY[coolStepIndex % COOL_MELODY.length];
+    if (note) {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(note, t);
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1900, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.11, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.95);
+      osc.connect(filter); filter.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + stepDur);
+    }
+
+    coolStepIndex++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- トラック6：オリジナルの荘厳な行進曲調テーマ（日本選択時のみ選択可） -------
+  let epicStepIndex = 0;
+  const EPIC_MELODY = [
+    392.00, 392.00, 587.33, 783.99, 698.46, 587.33, 493.88, 440.00,
+    392.00, 0, 493.88, 587.33, 783.99, 880.00, 783.99, 0,
+  ];
+  function scheduleEpicStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.34; // 荘厳な行進曲風のテンポ
+
+    // 力強い低音の拍（行進曲のリズム）
+    if (epicStepIndex % 2 === 0) {
+      const bass = audioCtx.createOscillator();
+      bass.type = 'sine';
+      bass.frequency.setValueAtTime(98, t); // G2
+      bass.frequency.exponentialRampToValueAtTime(58, t + 0.15);
+      const bg = audioCtx.createGain();
+      bg.gain.setValueAtTime(0.2, t);
+      bg.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      bass.connect(bg); bg.connect(bgmGain);
+      bass.start(t); bass.stop(t + 0.25);
+    }
+
+    // 金管楽器のような、雄大で伸びやかなメロディ（2つのオシレーターをわずかにずらして厚みを出す）
+    const note = EPIC_MELODY[epicStepIndex % EPIC_MELODY.length];
+    if (note) {
+      const osc1 = audioCtx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(note, t);
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'sawtooth';
+      osc2.frequency.setValueAtTime(note * 1.003, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.1, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.7);
+      osc1.connect(g); osc2.connect(g); g.connect(bgmGain);
+      osc1.start(t); osc1.stop(t + stepDur * 1.8);
+      osc2.start(t); osc2.stop(t + stepDur * 1.8);
+    }
+
+    epicStepIndex++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- トラック7：オリジナルの宇宙空間アンビエントテーマ（宇宙対地球シーン専用・強制再生） -------
+  let spaceStepIndex = 0;
+  const SPACE_PAD_CHORDS = [
+    [110.00, 138.59, 164.81], // Aマイナー系
+    [130.81, 155.56, 196.00], // Cマイナー系
+    [98.00, 123.47, 146.83],  // Gメジャー系
+    [116.54, 146.83, 174.61], // Bbメジャー系
+  ];
+  function scheduleSpaceStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 3.2; // ゆったりと漂う宇宙空間的なテンポ
+    const chord = SPACE_PAD_CHORDS[spaceStepIndex % SPACE_PAD_CHORDS.length];
+
+    chord.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      const g = audioCtx.createGain();
+      const vol = 0.05 + i * 0.01;
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol, t + stepDur * 0.4);
+      g.gain.linearRampToValueAtTime(vol * 0.6, t + stepDur * 0.8);
+      g.gain.linearRampToValueAtTime(0, t + stepDur);
+      osc.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + stepDur + 0.1);
+    });
+
+    // 星のきらめきのような高音の粒
+    if (spaceStepIndex % 2 === 0) {
+      const twinkleFreq = chord[2] * 4;
+      const tw = audioCtx.createOscillator();
+      tw.type = 'sine';
+      tw.frequency.setValueAtTime(twinkleFreq, t + stepDur * 0.3);
+      const twg = audioCtx.createGain();
+      twg.gain.setValueAtTime(0, t + stepDur * 0.3);
+      twg.gain.linearRampToValueAtTime(0.035, t + stepDur * 0.35);
+      twg.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.9);
+      tw.connect(twg); twg.connect(bgmGain);
+      tw.start(t + stepDur * 0.3); tw.stop(t + stepDur + 0.1);
+    }
+
+    spaceStepIndex++;
+    bgmTimer = setTimeout(scheduleGrandBgmStep, stepDur * 1000);
+  }
+
+  // ------- 選択中のトラックへ振り分けるディスパッチャ -------
+  function scheduleGrandBgmStep() {
+    if (selectedScene === 3) { scheduleSpaceStep(); return; } // 宇宙対地球シーンは専用BGMを強制再生
+    if (selectedTrack === 'musicbox1') { scheduleMusicBox1Step(); return; }
+    if (selectedTrack === 'musicbox2') { scheduleMusicBox2Step(); return; }
+    if (selectedTrack === 'dancepop') { scheduleDancePopStep(); return; }
+    if (selectedTrack === 'cool') { scheduleCoolStep(); return; }
+    if (selectedTrack === 'epic') { scheduleEpicStep(); return; }
+    scheduleLightThemeStep();
+  }
+
+  function startGrandBgm() {
+    if (!bgmEnabled && selectedScene !== 3) return; // 宇宙対地球シーンはオン/オフ設定に関わらず必ず再生する
+    // 「荘厳な行進曲」は日本選択時のみ有効。日本以外なら軽快なテーマへ戻す
+    if (selectedTrack === 'epic' && (!selectedCountry || selectedCountry.id !== 'jp')) {
+      selectedTrack = 'light';
+      const lightRadio = document.querySelector('input[name="bgmTrack"][value="light"]');
+      if (lightRadio) lightRadio.checked = true;
+    }
+    ensureAudio();
+    stopGrandBgm();
+    lightPhraseIndex = 0; lightStepIndex = 0;
+    boxStepIndex1 = 0; boxStepIndex2 = 0;
+    danceStepIndex = 0;
+    coolStepIndex = 0;
+    epicStepIndex = 0;
+    spaceStepIndex = 0;
+    scheduleGrandBgmStep();
+  }
+  function stopGrandBgm() {
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  }
+
+  // ================= 戦闘エフェクト =================
+  let battleEffects = [];
+  function spawnBattleEffect(col, row, destroyed) {
+    const p = hexToPixel(col, row);
+    battleEffects.push({ x: p.x, y: p.y, life: 30, maxLife: 30, destroyed });
+  }
+  function updateBattleEffects() {
+    battleEffects.forEach(e => e.life -= 1);
+    battleEffects = battleEffects.filter(e => e.life > 0);
+  }
+
+  // ================= 紙吹雪（勝利演出） =================
+  let confetti = [];
+  const CONFETTI_COLORS = ['#ffd35c', '#7ec8ff', '#ff8a7e', '#7ee787', '#e63946', '#4d94ff', '#f4c542'];
+  function spawnConfettiBurst() {
+    confetti = [];
+    for (let i = 0; i < 140; i++) {
+      confetti.push({
+        x: Math.random() * W,
+        y: -Math.random() * H * 0.6,
+        vx: (Math.random() - 0.5) * 1.6,
+        vy: 1.6 + Math.random() * 2.6,
+        size: 4 + Math.random() * 5,
+        color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.25,
+        swayPhase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+  function updateConfetti() {
+    if (confetti.length === 0) return;
+    const now = performance.now();
+    confetti.forEach(c => {
+      c.y += c.vy;
+      c.x += c.vx + Math.sin(now / 300 + c.swayPhase) * 0.6;
+      c.rot += c.rotSpeed;
+    });
+    confetti = confetti.filter(c => c.y < H + 30);
+  }
+  function drawConfetti() {
+    confetti.forEach(c => {
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rot);
+      ctx.fillStyle = c.color;
+      ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.6);
+      ctx.restore();
+    });
+  }
+
+  // ================= AI（敵）ターン =================
+  function runEnemyTurn() {
+    collectIncome('enemy');
+    units.forEach(u => {
+      if (u.side !== 'enemy') return;
+      if (u.mountainStunned) { u.moved = true; u.attacked = true; u.mountainStunned = false; }
+      else { u.moved = false; u.attacked = false; }
+      if (u.shieldTurns > 0) u.shieldTurns--;
+    });
+    autoRunDrones('enemy');
+    checkWinCondition();
+    updateHUD();
+    if (appEnded) return;
+
+    // 1) 生産計画：資金が十分ならランダムに強めのユニットを都市で生産（1件ずつ表示しながら実行）
+    const enemyCities = Object.values(mapGrid).filter(h => h.owner === 'enemy' && TERRAIN[h.terrain].isCity);
+    const buildQueue = [];
+    enemyCities.forEach(hex => {
+      if (unitAt(hex.col, hex.row)) return;
+      if (Math.random() < 0.6) buildQueue.push(hex);
+    });
+
+    let bi = 0;
+    function processBuildStep() {
+      if (appEnded || !running) return;
+      if (paused) { setTimeout(processBuildStep, 300); return; }
+      if (bi >= buildQueue.length) { ui = 0; setTimeout(processUnitStep, 400); return; }
+      const hex = buildQueue[bi]; bi++;
+      const isPort = hex.terrain === 'port';
+      const enemyKindPool = resolveKindPool(enemyCountry.id)
+        .filter(k => !(UNIT_TYPES[k].onceOnly && onceOnlyBuiltThisGame.enemy[k]))
+        .filter(k => !(k === 'ufo' && turnCount - lastUfoBuiltTurn.enemy < UFO_COOLDOWN_TURNS));
+      let affordable = enemyKindPool.filter(k =>
+        UNIT_TYPES[k].cost <= enemyGold && !(k === 'drone' && enemyGold < DRONE_UNLOCK_GOLD));
+      if (isPort) affordable = affordable.filter(k => UNIT_TYPES[k].domain === 'naval');
+      if (affordable.length > 0) {
+        const weighted = affordable.filter(k => ['tank','armored','infantry','artillery','artillery2','fighter2'].includes(k));
+        const pool = weighted.length ? weighted : affordable;
+        const kind = pool[Math.floor(Math.random()*pool.length)];
+        const spot = resolveSpawnPosition(hex.col, hex.row, kind);
+        if (!unitAt(spot[0], spot[1])) {
+          spendGold('enemy', UNIT_TYPES[kind].cost);
+          const newUnit = makeUnit(kind, 'enemy', spot[0], spot[1]);
+          newUnit.moved = true; newUnit.attacked = true; // 生産直後は行動できず、次のターンから動ける
+          if (UNIT_TYPES[kind].domain === 'naval' && !hex.isPort) newUnit.pendingDeployment = true;
+          if (UNIT_TYPES[kind].onceOnly) onceOnlyBuiltThisGame.enemy[kind] = true;
+          if (kind === 'ufo') lastUfoBuiltTurn.enemy = turnCount;
+          playBuildSound();
+          const def = UNIT_TYPES[kind];
+          messageEl.textContent = `🔴 敵が ${def.emoji}${def.name} を生産しました`;
+          updateHUD();
+        }
+      }
+      setTimeout(processBuildStep, 550);
+    }
+
+    // 2) 各ユニットを1体ずつ順番に行動させる（1ターン最大7ユニットまで）
+    const unitQueue = units.filter(u => u.side === 'enemy' && u.hp > 0 && !UNIT_TYPES[u.kind].autoRoam);
+    let ui = 0;
+
+    function processUnitStep() {
+      if (appEnded || !running) return;
+      if (paused) { setTimeout(processUnitStep, 300); return; }
+      if (ui >= unitQueue.length) { finishEnemyTurn(); return; }
+      const u = unitQueue[ui]; ui++;
+      if (u.hp <= 0) { setTimeout(processUnitStep, 30); return; }
+      if (!canUnitAct(u)) { setTimeout(processUnitStep, 30); return; }
+      if (u.moved && u.attacked) {
+        // 山で足止め中（このターンは自動的に待機扱い）
+        registerUnitActed(u);
+        messageEl.textContent = `🔴 ${UNIT_TYPES[u.kind].emoji}${UNIT_TYPES[u.kind].name} は山で足止め中です`;
+        setTimeout(processUnitStep, 400);
+        return;
+      }
+      aiActingUnit = u;
+      const def = UNIT_TYPES[u.kind];
+
+      // 本拠地・基地で生産された配置待ちの艦艇：周囲3マス以内の水系へ1度だけ配置する
+      if (u.pendingDeployment) {
+        const spots = computeDeploymentHexes(u);
+        if (spots.length > 0) {
+          const [dc, dr] = spots[Math.floor(Math.random() * spots.length)];
+          u.col = dc; u.row = dr;
+          u.pendingDeployment = false;
+          registerUnitActed(u);
+          const dHex = mapGrid[hexKey(dc, dr)];
+          markTerritory(dHex, 'enemy', u);
+          maybePickupShield(u, dHex);
+          playMoveSound();
+          messageEl.textContent = `🔴 ${def.emoji}${def.name} が水系へ配置されました`;
+          updateHUD();
+        } else {
+          registerUnitActed(u);
+        }
+        setTimeout(processUnitStep, 500);
+        return;
+      }
+
+      const playerUnits = units.filter(pu => pu.side === 'player' && pu.hp > 0);
+      if (playerUnits.length === 0) { setTimeout(processUnitStep, 30); return; }
+
+      // 隣接する敵がいれば攻撃（ドローンは歩兵・潜水艦以外を優先して狙う。レールガン搭載中の巡洋艦はレーザーの性能を使う）
+      const aiWeaponOverride = (u.kind === 'cruiser' && u.cargo && u.cargo.laserGun) ? 'laserGun' : null;
+      let atkTargets = computeAttackableWithWeapon(u, aiWeaponOverride);
+      if (atkTargets.length > 0) {
+        if (def.autoTargetAll) {
+          const preferred = atkTargets.filter(([c, r]) => { const t = unitAt(c, r); return t && t.kind !== 'infantry' && t.kind !== 'submarine'; });
+          if (preferred.length) atkTargets = preferred;
+        }
+        const [tc, tr] = atkTargets[0];
+        const target = unitAt(tc, tr);
+        registerUnitActed(u);
+        markTerritory(mapGrid[hexKey(u.col, u.row)], 'enemy', u);
+        const result = performAttackWithWeapon(u, target, aiWeaponOverride);
+        messageEl.textContent = `🔴 ${def.emoji}${def.name} が攻撃！` + (result.defenderDestroyed ? ' 撃破！' : ` 与ダメージ${result.damage}`);
+        updateHUD();
+        checkWinCondition();
+        setTimeout(processUnitStep, 750);
+        return;
+      }
+
+      // 最も近いプレイヤーユニットか、未占領の都市へ向かって移動
+      let nearest = playerUnits.reduce((best, pu) => {
+        const d = hexDistance(u.col, u.row, pu.col, pu.row);
+        return (!best || d < best.d) ? { pu, d } : best;
+      }, null);
+
+      const reachable = computeReachable(u);
+      if (reachable.length === 0) {
+        registerUnitActed(u);
+        u.moved = true; u.attacked = true;
+        markTerritory(mapGrid[hexKey(u.col, u.row)], 'enemy', u);
+        messageEl.textContent = `🔴 ${def.emoji}${def.name} は動けず待機しました`;
+        updateHUD();
+        setTimeout(processUnitStep, 450);
+        return;
+      }
+      let target = nearest ? [nearest.pu.col, nearest.pu.row] : [PLAYER_HQ_ANCHOR.col, PLAYER_HQ_ANCHOR.row];
+      reachable.sort((a,b) => hexDistance(a[0],a[1],target[0],target[1]) - hexDistance(b[0],b[1],target[0],target[1]));
+      const [nc, nr] = reachable[0];
+      const landingOcc = unitAt(nc, nr);
+      if (landingOcc && landingOcc.side === u.side && canLoadOntoCarrier(landingOcc, u.kind)) {
+        // 戦闘機・ヘリが空母に積み込まれる（積んだ直後に体力が全回復）
+        loadUnitOntoCarrier(u, landingOcc);
+        registerUnitActed(u);
+        playCaptureSound();
+        messageEl.textContent = `🔴 ${def.emoji}${def.name} が空母に着艦しました`;
+        updateHUD();
+        setTimeout(processUnitStep, 600);
+        return;
+      }
+      u.col = nc; u.row = nr; u.moved = true;
+      registerUnitActed(u);
+      playMoveSound();
+      messageEl.textContent = `🔴 ${def.emoji}${def.name} が移動しました`;
+      updateHUD();
+
+      const hex = mapGrid[hexKey(nc,nr)];
+      applyMountainStun(u, hex);
+      const wasCity = hex.isCity && hex.owner !== 'enemy';
+      markTerritory(hex, 'enemy', u);
+      maybePickupShield(u, hex);
+      if (wasCity) playCaptureSound();
+
+      // 移動後に隣接する敵がいれば追撃（少し間を置いて表示、ドローンは歩兵以外を優先）
+      atkTargets = computeAttackableWithWeapon(u, aiWeaponOverride);
+      if (def.autoTargetAll && atkTargets.length > 0) {
+        const preferred2 = atkTargets.filter(([c, r]) => { const t = unitAt(c, r); return t && t.kind !== 'infantry' && t.kind !== 'submarine'; });
+        if (preferred2.length) atkTargets = preferred2;
+      }
+      if (atkTargets.length > 0 && Math.random() < 0.8) {
+        const [tc, tr] = atkTargets[0];
+        const target = unitAt(tc, tr);
+        function doCounterAttack() {
+          if (appEnded || !running) return;
+          if (paused) { setTimeout(doCounterAttack, 300); return; }
+          const result = performAttackWithWeapon(u, target, aiWeaponOverride);
+          messageEl.textContent = `🔴 ${def.emoji}${def.name} が追撃！` + (result.defenderDestroyed ? ' 撃破！' : ` 与ダメージ${result.damage}`);
+          updateHUD();
+          checkWinCondition();
+          setTimeout(processUnitStep, 750);
+        }
+        setTimeout(doCounterAttack, 500);
+        return;
+      }
+      setTimeout(processUnitStep, 700);
+    }
+
+    function finishEnemyTurn() {
+      aiActingUnit = null;
+      checkWinCondition();
+      if (appEnded) return;
+      healUnitsAtBase('enemy');
+      currentSide = 'player';
+      turnCount += 1;
+      maybeSpawnShieldItem();
+      playerActedUnitIds = new Set();
+      collectIncome('player');
+      units.forEach(u => {
+        if (u.side !== 'player') return; // 敵ユニットのリセットは敵ターン開始時（processUnitStep）で行う
+        if (u.mountainStunned) { u.moved = true; u.attacked = true; u.mountainStunned = false; }
+        else { u.moved = false; u.attacked = false; }
+        if (u.shieldTurns > 0) u.shieldTurns--;
+      });
+      autoRunDrones('player');
+      checkWinCondition();
+      updateHUD();
+      messageEl.textContent = '';
+    }
+
+    processBuildStep();
+  }
+
+  // ================= DOM参照 =================
+  const sceneCardsEl = document.getElementById('sceneCards');
+  const countryCardsEl = document.getElementById('countryCards');
+  const hudSceneEl = document.getElementById('hudScene');
+  const hudActedEl = document.getElementById('hudActed');
+  const hudMaxActedEl = document.getElementById('hudMaxActed');
+  const hudGoldEl = document.getElementById('hudGold');
+  const playerFlagCanvas = document.getElementById('playerFlagCanvas');
+  const enemyFlagCanvas = document.getElementById('enemyFlagCanvas');
+  const hudEnemyGoldEl = document.getElementById('hudEnemyGold');
+  const turnBannerEl = document.getElementById('turnBanner');
+  const turnBannerEnemyEl = document.getElementById('turnBannerEnemy');
+  const infoPanelEl = document.getElementById('infoPanel');
+  const messageEl = document.getElementById('message');
+  const restartBtn = document.getElementById('restartBtn');
+  const moveBtn = document.getElementById('moveBtn');
+  const waitBtn = document.getElementById('waitBtn');
+  const attackBtn = document.getElementById('attackBtn');
+  const buildBtn = document.getElementById('buildBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const endTurnBtn = document.getElementById('endTurnBtn');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const endBtn = document.getElementById('endBtn');
+  const bgmOffRadio = document.getElementById('bgmOffRadio');
+  const bgmOnRadio = document.getElementById('bgmOnRadio');
+  const bgmTrackRow = document.getElementById('bgmTrackRow');
+  const bgmEpicOpt = document.getElementById('bgmEpicOpt');
+  const bgmPanel = document.getElementById('bgmPanel');
+  const buildMenuEl = document.getElementById('buildMenu');
+  const buildListEl = document.getElementById('buildList');
+  const closeBuildMenuBtn = document.getElementById('closeBuildMenu');
+
+  // ================= 描画 =================
+  function drawHexPath(cx, cy) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.PI/180 * (60*i);
+      const x = cx + HEX_SIZE * Math.cos(angle);
+      const y = cy + HEX_SIZE * Math.sin(angle);
+      if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+  }
+
+  // 都市を表す小さなイラスト（ビルが並ぶスカイラインのシルエット）
+  function drawCityIcon(cx, cy) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    const buildings = [
+      { dx: -9, w: 6, h: 10 },
+      { dx: -3, w: 7, h: 15 },
+      { dx: 4,  w: 6, h: 11 },
+      { dx: 10, w: 5, h: 8 },
+    ];
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.strokeStyle = 'rgba(40,40,40,0.6)';
+    ctx.lineWidth = 0.8;
+    buildings.forEach(b => {
+      ctx.fillRect(b.dx - b.w/2, -b.h, b.w, b.h);
+      ctx.strokeRect(b.dx - b.w/2, -b.h, b.w, b.h);
+    });
+    // 窓
+    ctx.fillStyle = 'rgba(60,80,110,0.85)';
+    buildings.forEach(b => {
+      const rows = Math.floor(b.h / 4);
+      for (let i = 0; i < rows; i++) {
+        ctx.fillRect(b.dx - 1, -b.h + 3 + i*4, 2, 2);
+      }
+    });
+    ctx.restore();
+  }
+
+  // 港を表す小さなイラスト（碇マーク）
+  function drawPortIcon(cx, cy) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.strokeStyle = 'rgba(255,255,255,0.92)';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    // 碇の輪
+    ctx.beginPath(); ctx.arc(0, -8, 3, 0, Math.PI * 2); ctx.stroke();
+    // 縦の軸
+    ctx.beginPath(); ctx.moveTo(0, -5); ctx.lineTo(0, 8); ctx.stroke();
+    // 横の腕
+    ctx.beginPath(); ctx.moveTo(-6, 0); ctx.lineTo(6, 0); ctx.stroke();
+    // 下の爪
+    ctx.beginPath(); ctx.moveTo(0, 8); ctx.lineTo(-5, 6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, 8); ctx.lineTo(5, 6); ctx.stroke();
+    ctx.restore();
+  }
+
+  // シールド（ラッキーアイテム）を表す、輝く星マーク
+  function drawShieldStarIcon(cx, cy) {
+    const now = performance.now();
+    const twinkle = 0.7 + 0.3 * Math.sin(now / 260);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.shadowColor = '#ffe066';
+    ctx.shadowBlur = 8 * twinkle;
+    ctx.fillStyle = `rgba(255, 224, 102, ${twinkle})`;
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const spikes = 5, outerR = 8, innerR = 3.4;
+    let rot = -Math.PI / 2;
+    const step = Math.PI / spikes;
+    ctx.moveTo(Math.cos(rot) * outerR, Math.sin(rot) * outerR);
+    for (let i = 0; i < spikes; i++) {
+      rot += step;
+      ctx.lineTo(Math.cos(rot) * innerR, Math.sin(rot) * innerR);
+      rot += step;
+      ctx.lineTo(Math.cos(rot) * outerR, Math.sin(rot) * outerR);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // ================= ユニットのイラスト（種類ごとに分かりやすい形） =================
+  function drawUnitIllustration(ctx, kind, ink) {
+    // ctx は既にユニット中心へtranslate済みの前提。半径18px程度に収まるよう描画する
+    ctx.strokeStyle = ink; ctx.fillStyle = ink; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+    if (kind === 'infantry') {
+      ctx.beginPath(); ctx.arc(0, -7, 3.4, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,-3.5); ctx.lineTo(0,6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-6,1); ctx.lineTo(6,1); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,6); ctx.lineTo(-5,11); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,6); ctx.lineTo(5,11); ctx.stroke();
+    } else if (kind === 'armored') {
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-10,-4,20,10,2) : ctx.rect(-10,-4,20,10); ctx.fill();
+      ctx.beginPath(); ctx.arc(-6,7,2.6,0,Math.PI*2); ctx.arc(6,7,2.6,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.rect(-6,-9,7,5); ctx.fill();
+    } else if (kind === 'tank') {
+      ctx.beginPath(); ctx.rect(-11,0,22,7); ctx.fill();
+      for (let i=-9;i<=9;i+=4.5) { ctx.beginPath(); ctx.arc(i,7,2.2,0,Math.PI*2); ctx.fill(); }
+      ctx.beginPath(); ctx.arc(0,-3,7,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0,-3); ctx.lineTo(12,-6); ctx.lineWidth=2.4; ctx.stroke();
+    } else if (kind === 'artillery') {
+      ctx.beginPath(); ctx.moveTo(-9,9); ctx.lineTo(9,9); ctx.lineTo(5,1); ctx.lineTo(-5,1); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.arc(-7,10,2.2,0,Math.PI*2); ctx.arc(7,10,2.2,0,Math.PI*2); ctx.fill();
+      ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(-1,1); ctx.lineTo(-10,-9); ctx.stroke();
+    } else if (kind === 'artillery2') {
+      // 重砲台：車体を大きめに、砲身を2本にして通常の砲台と区別する
+      ctx.beginPath(); ctx.moveTo(-10,9); ctx.lineTo(10,9); ctx.lineTo(6,0); ctx.lineTo(-6,0); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.arc(-8,10,2.4,0,Math.PI*2); ctx.arc(8,10,2.4,0,Math.PI*2); ctx.fill();
+      ctx.lineWidth = 2.6;
+      ctx.beginPath(); ctx.moveTo(-2,0); ctx.lineTo(-12,-11); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(2,0); ctx.lineTo(-6,-13); ctx.stroke();
+    } else if (kind === 'heli') {
+      ctx.beginPath(); ctx.ellipse(0,2,9,5,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(9,2); ctx.lineTo(17,0); ctx.lineWidth=2; ctx.stroke();
+      ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(-13,-7); ctx.lineTo(13,-7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,-7); ctx.lineTo(0,-1); ctx.stroke();
+      ctx.beginPath(); ctx.arc(-5,8,2,0,Math.PI*2); ctx.arc(5,8,2,0,Math.PI*2); ctx.fill();
+    } else if (kind === 'fighter') {
+      ctx.beginPath();
+      ctx.moveTo(0,-12); ctx.lineTo(4,4); ctx.lineTo(16,10); ctx.lineTo(4,7);
+      ctx.lineTo(3,12); ctx.lineTo(-3,12); ctx.lineTo(-4,7); ctx.lineTo(-16,10); ctx.lineTo(-4,4);
+      ctx.closePath(); ctx.fill();
+    } else if (kind === 'fighter2') {
+      // ステルス戦闘機：角ばった全翼機シルエットで通常の戦闘機と区別する
+      ctx.beginPath();
+      ctx.moveTo(0,-13); ctx.lineTo(3,-2); ctx.lineTo(18,7); ctx.lineTo(9,4);
+      ctx.lineTo(4,10); ctx.lineTo(0,6); ctx.lineTo(-4,10); ctx.lineTo(-9,4);
+      ctx.lineTo(-18,7); ctx.lineTo(-3,-2);
+      ctx.closePath(); ctx.fill();
+    } else if (kind === 'carrier') {
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-16,-3,32,8,3) : ctx.rect(-16,-3,32,8); ctx.fill();
+      ctx.beginPath(); ctx.rect(6,-10,5,7); ctx.fill();
+      ctx.lineWidth = 1.4;
+      for (let i=-12;i<=10;i+=6) { ctx.beginPath(); ctx.moveTo(i,-3); ctx.lineTo(i,-6); ctx.stroke(); }
+    } else if (kind === 'cruiser') {
+      ctx.beginPath();
+      ctx.moveTo(-15,3); ctx.lineTo(11,3); ctx.lineTo(16,0); ctx.lineTo(11,-3); ctx.lineTo(-15,-3);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.rect(-4,-9,6,6); ctx.fill();
+      ctx.beginPath(); ctx.rect(-12,-6,4,3); ctx.rect(4,-6,4,3); ctx.fill();
+    } else if (kind === 'yamato') {
+      // 戦艦ヤマト：巡洋艦より大きい船体と、艦橋・複数の主砲塔を持つ堂々としたシルエット
+      ctx.beginPath();
+      ctx.moveTo(-18,4); ctx.lineTo(13,4); ctx.lineTo(18,0); ctx.lineTo(13,-4); ctx.lineTo(-18,-4);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.rect(-3,-12,7,9); ctx.fill(); // 艦橋
+      ctx.beginPath(); ctx.rect(-15,-2,5,2.4); ctx.rect(-8,-2,5,2.4); ctx.rect(6,-2,5,2.4); ctx.fill(); // 主砲塔
+      ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(0.5,-12); ctx.lineTo(0.5,-16); ctx.stroke(); // マスト
+    } else if (kind === 'submarine') {
+      ctx.beginPath(); ctx.ellipse(0,2,15,5,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.rect(-3,-7,4,6); ctx.fill();
+      ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(-2,-7); ctx.lineTo(-2,-11); ctx.stroke();
+    } else if (kind === 'drone') {
+      // 中心ボディ
+      ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI*2); ctx.fill();
+      // 4本のアームとローター（クアッドコプター型）
+      ctx.lineWidth = 1.8;
+      [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dx,dy]) => {
+        const ax = dx*10, ay = dy*7;
+        ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(ax,ay); ctx.stroke();
+        ctx.beginPath(); ctx.arc(ax,ay,3,0,Math.PI*2); ctx.stroke();
+      });
+    } else if (kind === 'robot') {
+      // ロボット兵器：角ばった頭・胴体・腕脚を持つ人型シルエット
+      ctx.beginPath(); ctx.rect(-5,-13,10,7); ctx.fill(); // 頭
+      ctx.beginPath(); ctx.arc(-2.5,-10,1,0,Math.PI*2); ctx.arc(2.5,-10,1,0,Math.PI*2); ctx.fillStyle = ink==='rgba(15,15,15,0.9)' ? '#fff' : '#000'; ctx.fill();
+      ctx.fillStyle = ink;
+      ctx.beginPath(); ctx.rect(-8,-5,16,11); ctx.fill(); // 胴体
+      ctx.lineWidth = 3; ctx.lineCap = 'square';
+      ctx.beginPath(); ctx.moveTo(-8,-2); ctx.lineTo(-13,6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(8,-2); ctx.lineTo(13,6); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-4,6); ctx.lineTo(-6,13); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(4,6); ctx.lineTo(6,13); ctx.stroke();
+    } else if (kind === 'laserGun') {
+      // レールガン：三脚に据えた砲身から光線が伸びるイメージ
+      ctx.beginPath(); ctx.moveTo(-8,10); ctx.lineTo(0,3); ctx.lineTo(8,10); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0,2,4,0,Math.PI*2); ctx.fill();
+      ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(0,2); ctx.lineTo(-11,-9); ctx.stroke();
+      ctx.strokeStyle = ink; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(-11,-9); ctx.lineTo(-15,-13); ctx.stroke();
+    } else if (kind === 'ufo') {
+      // UFO：円盤型のボディとドーム
+      ctx.beginPath(); ctx.ellipse(0,3,16,6,0,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0,-2,7,Math.PI,0); ctx.fill();
+      ctx.fillStyle = ink==='rgba(15,15,15,0.9)' ? 'rgba(15,15,15,0.5)' : 'rgba(255,255,255,0.6)';
+      for (let i=-2;i<=2;i++) { ctx.beginPath(); ctx.arc(i*6,4,1.6,0,Math.PI*2); ctx.fill(); }
+    } else if (kind === 'spaceship') {
+      // スペース船：先の尖ったロケット型シルエット
+      ctx.beginPath();
+      ctx.moveTo(0,-14); ctx.lineTo(6,4); ctx.lineTo(4,12); ctx.lineTo(-4,12); ctx.lineTo(-6,4);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(6,4); ctx.lineTo(13,12); ctx.lineTo(5,9); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-6,4); ctx.lineTo(-13,12); ctx.lineTo(-5,9); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = ink==='rgba(15,15,15,0.9)' ? 'rgba(15,15,15,0.5)' : 'rgba(255,255,255,0.6)';
+      ctx.beginPath(); ctx.arc(0,-2,3,0,Math.PI*2); ctx.fill();
+    }
+  }
+
+  const DOMAIN_RING = { land: '#3a3a3a', air: '#dfe9ee', naval: '#0a2a4a', universal: '#c060ff' };
+
+  // 背景色（国旗の色）の明るさに応じて、兵器イラストが常にはっきり見えるよう色を切り替える
+  function contrastInk(hexColor) {
+    const r = parseInt(hexColor.slice(1, 3), 16);
+    const g = parseInt(hexColor.slice(3, 5), 16);
+    const b = parseInt(hexColor.slice(5, 7), 16);
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.55 ? 'rgba(15,15,15,0.9)' : 'rgba(255,255,255,0.95)';
+  }
+
+  function drawUnit(u) {
+    const { x, y } = hexToPixel(u.col, u.row);
+    const def = UNIT_TYPES[u.kind];
+    const color = u.side === 'player' ? selectedCountry.color : enemyCountry.color;
+    const ink = contrastInk(color);
+    const R = 16;
+    ctx.save();
+    ctx.translate(x, y + 3);
+    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = DOMAIN_RING[def.domain] || '#fff';
+    ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 0.8; ctx.stroke();
+    ctx.scale(0.82, 0.82);
+    drawUnitIllustration(ctx, u.kind, ink);
+    ctx.restore();
+
+    if (u.shieldTurns > 0) {
+      const now = performance.now();
+      const pulse = 0.6 + 0.4 * Math.sin(now / 220);
+      ctx.save();
+      ctx.shadowColor = '#ffe066';
+      ctx.shadowBlur = 10 * pulse;
+      ctx.strokeStyle = `rgba(255, 224, 102, ${0.6 + 0.4 * pulse})`;
+      ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.arc(x, y + 3, R + 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+
+    if (u.moved && u.side === 'player') {
+      ctx.save();
+      ctx.globalAlpha = 0.32;
+      ctx.beginPath(); ctx.arc(x, y+3, R, 0, Math.PI*2); ctx.fillStyle = '#000'; ctx.fill();
+      ctx.restore();
+    }
+    // HPバー
+    const barW = 30;
+    ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(x-barW/2, y+3+R+3, barW, 4);
+    ctx.fillStyle = u.hp/u.maxHp > 0.5 ? '#7ee787' : (u.hp/u.maxHp > 0.25 ? '#ffd35c' : '#ff6b6b');
+    ctx.fillRect(x-barW/2, y+3+R+3, barW*(u.hp/u.maxHp), 4);
+  }
+
+  function drawMap() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a1826';
+    ctx.fillRect(0,0,W,H);
+
+    Object.values(mapGrid).forEach(hex => {
+      const { x, y } = hexToPixel(hex.col, hex.row);
+      const t = TERRAIN[hex.terrain];
+      drawHexPath(x, y);
+      ctx.fillStyle = t.color;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // 所有陣営の色を薄く重ねる
+      if (hex.owner) {
+        drawHexPath(x, y);
+        ctx.fillStyle = (hex.owner==='player' ? selectedCountry.color : enemyCountry.color) + '55';
+        ctx.fill();
+      }
+
+      // 占領された都市（本拠地・基地を除く）は、枠を自軍の色にする
+      if (hex.owner && hex.isCity && !hex.isHQ) {
+        drawHexPath(x, y);
+        ctx.strokeStyle = hex.owner === 'player' ? selectedCountry.color : enemyCountry.color;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+
+      // 地形アイコン：都市・港だけをきれいなイラストで表す。他の地形は色だけで表現する
+      if (hex.terrain === 'city' && !hex.isHQ) {
+        drawCityIcon(x, y - 6);
+      }
+      if (hex.terrain === 'port') {
+        drawPortIcon(x, y - 6);
+      }
+      if (hex.hasShieldItem) {
+        drawShieldStarIcon(x, y - 6);
+      }
+      if (hex.isHQ) {
+        const hqColor = hex.owner === 'player' ? selectedCountry.color : enemyCountry.color;
+        drawHexPath(x, y);
+        ctx.strokeStyle = hqColor;
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        if (hex.isHQAnchor) {
+          const flagSide = hex.owner === 'player' ? selectedCountry.id : enemyCountry.id;
+          const fh = 14;
+          const fw = Math.round(fh * (FLAG_RATIO[flagSide] || 1.5));
+          ctx.save();
+          ctx.translate(x - fw/2, y - fh/2);
+          drawFlag(ctx, flagSide, fw, fh);
+          ctx.restore();
+        } else {
+          ctx.font = 'bold 12px sans-serif';
+          ctx.fillStyle = '#fff';
+          ctx.fillText('★', x, y + 8);
+        }
+      }
+
+      // 移動範囲・攻撃範囲ハイライト
+      const isReachable = reachableHexes.some(([c,r]) => c===hex.col && r===hex.row);
+      const isAttackable = attackableHexes.some(([c,r]) => c===hex.col && r===hex.row);
+      if (isReachable) {
+        drawHexPath(x, y); ctx.fillStyle = 'rgba(126,200,255,0.35)'; ctx.fill();
+      }
+      if (isAttackable) {
+        drawHexPath(x, y); ctx.fillStyle = 'rgba(255,110,90,0.4)'; ctx.fill();
+      }
+      // 選択中ハイライト（黄色い枠を一定間隔で点滅させる）
+      const blinkOn = Math.floor(performance.now() / 420) % 2 === 0;
+      const isPlayerSelected = (selectedUnit && selectedUnit.col===hex.col && selectedUnit.row===hex.row)
+        || (selectedCity && selectedCity.col===hex.col && selectedCity.row===hex.row);
+      const isAiActing = aiActingUnit && aiActingUnit.col===hex.col && aiActingUnit.row===hex.row;
+      if ((isPlayerSelected || isAiActing) && blinkOn) {
+        drawHexPath(x, y); ctx.strokeStyle = '#ffe066'; ctx.lineWidth = 4; ctx.stroke();
+      }
+    });
+
+    // ユニット描画
+    units.filter(u => u.hp > 0).forEach(u => drawUnit(u));
+
+    // 戦闘エフェクト
+    battleEffects.forEach(e => {
+      const a = e.life / e.maxLife;
+      ctx.globalAlpha = a;
+      ctx.font = e.destroyed ? 'bold 24px sans-serif' : 'bold 18px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = e.destroyed ? '#ff6b4a' : '#ffe066';
+      ctx.fillText(e.destroyed ? '💥' : '⚔️', e.x, e.y - 20 - (1-a)*20);
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  function updateHUD() {
+    hudSceneEl.textContent = selectedScene;
+    hudActedEl.textContent = (currentSide === 'player' ? playerActedUnitIds : enemyActedUnitIds).size;
+    hudMaxActedEl.textContent = getMaxUnitsPerTurn(currentSide);
+    hudGoldEl.textContent = playerGold;
+    hudEnemyGoldEl.textContent = enemyGold;
+    turnBannerEl.textContent = 'ターン ' + turnCount + (currentSide === 'player' ? '：あなたの番' : '');
+    turnBannerEl.classList.toggle('active-turn', currentSide === 'player');
+    turnBannerEnemyEl.textContent = currentSide === 'enemy' ? '🔴 相手のターン中' : '相手のターン';
+    turnBannerEnemyEl.classList.toggle('active-turn', currentSide === 'enemy');
+  }
+
+  function clearSelection() {
+    selectedUnit = null;
+    selectedCity = null;
+    selectedCargo = null;
+    selectedWeaponMode = null;
+    mode = null;
+    reachableHexes = [];
+    attackableHexes = [];
+    moveBtn.disabled = true;
+    waitBtn.disabled = true;
+    attackBtn.disabled = true;
+    buildBtn.disabled = true;
+    cancelBtn.disabled = true;
+    infoPanelEl.textContent = 'ヘックスをタップ/クリックして選択してください。';
+  }
+
+  function canUnitAct(unit) {
+    const set = unit.side === 'player' ? playerActedUnitIds : enemyActedUnitIds;
+    if (set.has(unit.id)) return true;
+    return set.size < getMaxUnitsPerTurn(unit.side);
+  }
+  function registerUnitActed(unit) {
+    const set = unit.side === 'player' ? playerActedUnitIds : enemyActedUnitIds;
+    set.add(unit.id);
+  }
+  function findLandingSpotAdjacentTo(unit, targetCol, targetRow, reachable) {
+    if (hexDistance(unit.col, unit.row, targetCol, targetRow) === 1) return [unit.col, unit.row];
+    const adj = hexNeighbors(targetCol, targetRow);
+    const found = reachable.find(([c, r]) => adj.some(([ac, ar]) => ac === c && ar === r));
+    return found || null;
+  }
+
+  function describeUnit(u) {
+    const def = UNIT_TYPES[u.kind];
+    let text = `${def.emoji}${def.name}（HP ${u.hp}/${u.maxHp}）`;
+    if (u.shieldTurns > 0) text += `／⭐シールド残り${u.shieldTurns}ターン`;
+    if (def.cargoKinds && u.cargo) {
+      const loaded = Object.keys(u.cargo).map(k => UNIT_TYPES[k].emoji + UNIT_TYPES[k].name);
+      text += loaded.length ? `／搭載中：${loaded.join('、')}` : '／搭載なし';
+    }
+    return text;
+  }
+
+  // 空母選択時、通常の移動・待機・攻撃案内に加えて、搭載機を出動させるボタンを表示する
+  function renderCarrierCargoUI(carrier) {
+    infoPanelEl.innerHTML = '';
+    const label = document.createElement('div');
+    label.textContent = describeUnit(carrier) + ' を選択中。';
+    infoPanelEl.appendChild(label);
+
+    const cargoKinds = Object.keys(carrier.cargo || {}).filter(k => !UNIT_TYPES[k].permanentMount);
+    if (cargoKinds.length === 0) return;
+
+    const hint = document.createElement('div');
+    hint.style.marginTop = '4px';
+    hint.style.fontSize = '11px';
+    hint.textContent = '搭載機を選ぶと、出動（移動）または空母に留める（待機）ことができます。搭載中の機体を選んで攻撃はできません。';
+    infoPanelEl.appendChild(hint);
+
+    const row = document.createElement('div');
+    row.style.marginTop = '6px';
+    row.style.display = 'flex';
+    row.style.gap = '6px';
+    row.style.flexWrap = 'wrap';
+    cargoKinds.forEach(kind => {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn';
+      btn.style.flex = 'none';
+      btn.style.minHeight = '38px';
+      btn.textContent = `🛫 ${UNIT_TYPES[kind].emoji}${UNIT_TYPES[kind].name}を選択`;
+      btn.addEventListener('click', () => selectCargoUnit(carrier, kind));
+      row.appendChild(btn);
+    });
+    infoPanelEl.appendChild(row);
+  }
+
+  // 巡洋艦がレールガンを搭載している場合、どちらの性能で攻撃するか選ぶボタンを表示する
+  function renderWeaponModeUI(cruiser) {
+    const row = document.createElement('div');
+    row.style.marginTop = '6px';
+    row.style.display = 'flex';
+    row.style.gap = '6px';
+    row.style.flexWrap = 'wrap';
+
+    const normalBtn = document.createElement('button');
+    normalBtn.className = 'action-btn';
+    normalBtn.style.flex = 'none';
+    normalBtn.style.minHeight = '38px';
+    normalBtn.textContent = `⚓ 通常攻撃(射程${UNIT_TYPES.cruiser.range})` + (selectedWeaponMode === null ? ' ✓' : '');
+    normalBtn.addEventListener('click', () => applyWeaponMode(cruiser, null));
+    row.appendChild(normalBtn);
+
+    const laserBtn = document.createElement('button');
+    laserBtn.className = 'action-btn';
+    laserBtn.style.flex = 'none';
+    laserBtn.style.minHeight = '38px';
+    laserBtn.textContent = `🔫 レーザー攻撃(射程${UNIT_TYPES.laserGun.range})` + (selectedWeaponMode === 'laserGun' ? ' ✓' : '');
+    laserBtn.addEventListener('click', () => applyWeaponMode(cruiser, 'laserGun'));
+    row.appendChild(laserBtn);
+
+    infoPanelEl.appendChild(row);
+  }
+
+  // 武器モードを切り替え、選択状態を保ったまま射程・攻撃範囲だけ再計算する
+  function applyWeaponMode(cruiser, weaponKind) {
+    selectedWeaponMode = weaponKind;
+    if (!cruiser.attacked) {
+      attackableHexes = computeAttackableWithWeapon(cruiser, weaponKind);
+      attackBtn.disabled = attackableHexes.length === 0;
+    }
+    const label = weaponKind === 'laserGun' ? 'レールガン' : '通常';
+    infoPanelEl.textContent = describeUnit(cruiser) + ` を選択中。攻撃モード：${label}。移動先のマスを直接タップしても移動できます。`;
+    renderWeaponModeUI(cruiser);
+  }
+
+  // 空母に搭載中の機体を選択する（移動・待機のみ可能、攻撃は不可）
+  function selectCargoUnit(carrier, kind) {
+    selectedUnit = null;
+    selectedCity = null;
+    selectedCargo = { carrier, kind };
+    mode = null;
+    const capReached = playerActedUnitIds.size >= getMaxUnitsPerTurn('player');
+    const pseudo = { kind, col: carrier.col, row: carrier.row, side: 'player' };
+    reachableHexes = capReached ? [] : computeReachable(pseudo);
+    attackableHexes = [];
+    moveBtn.disabled = reachableHexes.length === 0;
+    waitBtn.disabled = false;
+    attackBtn.disabled = true; // 搭載機は選択して攻撃させることはできない
+    buildBtn.disabled = true;
+    cancelBtn.disabled = false;
+    infoPanelEl.textContent = capReached
+      ? `${UNIT_TYPES[kind].emoji}${UNIT_TYPES[kind].name}（空母に搭載中）：このターンはもう行動できるユニット数の上限に達しています。`
+      : `${UNIT_TYPES[kind].emoji}${UNIT_TYPES[kind].name}（空母に搭載中）を選択中。出動先のマスを直接タップするか、「待機」で空母に留められます。`;
+  }
+
+  // 巡洋艦がレールガンを搭載していて、レーザー攻撃モードが選ばれている場合に上書きするkindを返す
+  function currentWeaponOverride(unit) {
+    if (unit && unit.kind === 'cruiser' && unit.cargo && unit.cargo.laserGun && selectedWeaponMode === 'laserGun') return 'laserGun';
+    return null;
+  }
+
+  function selectHex(col, row) {
+    const hex = mapGrid[hexKey(col, row)];
+    if (!hex) return;
+    const occ = unitAt(col, row);
+
+    if (selectedCargo) {
+      const { carrier, kind } = selectedCargo;
+      const isCarrierHex = col === carrier.col && row === carrier.row;
+      if (!isCarrierHex) {
+        const ok = reachableHexes.some(([c, r]) => c === col && r === row);
+        if (ok && !occ) {
+          // 出動：新しいユニットとしてそのマスへ配置する（この後は移動・攻撃できず、次のターンから通常どおり行動可能）
+          const newUnit = makeUnit(kind, 'player', col, row);
+          newUnit.moved = true;
+          newUnit.attacked = true;
+          delete carrier.cargo[kind];
+          registerUnitActed(newUnit);
+          markTerritory(hex, 'player', newUnit);
+          maybePickupShield(newUnit, hex);
+          playMoveSound();
+          infoPanelEl.textContent = `${UNIT_TYPES[kind].emoji}${UNIT_TYPES[kind].name} が出動しました。`;
+          updateHUD();
+          clearSelection();
+        }
+      }
+      return;
+    }
+
+    if (mode === 'attack' && selectedUnit) {
+      const ok = attackableHexes.some(([c, r]) => c === col && r === row);
+      if (ok && occ) {
+        registerUnitActed(selectedUnit);
+        markTerritory(mapGrid[hexKey(selectedUnit.col, selectedUnit.row)], 'player', selectedUnit);
+        updateHUD();
+        const result = performAttackWithWeapon(selectedUnit, occ, currentWeaponOverride(selectedUnit));
+        infoPanelEl.textContent = result.defenderDestroyed
+          ? '敵ユニットを撃破！' : `攻撃！ 与ダメージ${result.damage}／被ダメージ${result.counterDamage}`;
+        checkWinCondition();
+        clearSelection();
+      }
+      return;
+    }
+
+    // ユニットを選択中なら、「移動」ボタンを押さなくても移動可能範囲内のマスを直接クリック/タップして移動できる
+    // （移動先に敵がいれば、そのまま隣接マスまで進んで自動的に戦闘が始まる）
+    if (selectedUnit && selectedUnit.side === 'player' && !selectedUnit.moved) {
+      const su = selectedUnit;
+      const isOwnHex = su.col === col && su.row === row;
+      if (!isOwnHex) {
+        const ok = reachableHexes.some(([c, r]) => c === col && r === row);
+        if (ok && occ && occ.side === su.side && canLoadOntoCarrier(occ, su.kind)) {
+          // 戦闘機・ヘリを空母に積み込む（積んだ直後に体力が全回復）
+          loadUnitOntoCarrier(su, occ);
+          registerUnitActed(su);
+          updateHUD();
+          playCaptureSound();
+          infoPanelEl.textContent = describeUnit(su) + ' を空母に積み込みました。体力が全回復しました。';
+          clearSelection();
+          checkWinCondition();
+          return;
+        } else if (ok && !occ) {
+          // 通常の移動（配置待ちの艦艇の場合はここで初めて水系へ配置される）
+          su.col = col; su.row = row; su.moved = true;
+          su.pendingDeployment = false;
+          applyMountainStun(su, hex);
+          registerUnitActed(su);
+          updateHUD();
+          playMoveSound();
+          const wasCity = hex.isCity && hex.owner !== 'player';
+          markTerritory(hex, 'player', su);
+          maybePickupShield(su, hex);
+          if (wasCity) playCaptureSound();
+          clearSelection();
+          selectedUnit = su;
+          attackableHexes = su.attacked ? [] : computeAttackable(su);
+          mode = null;
+          moveBtn.disabled = true;
+          waitBtn.disabled = true;
+          attackBtn.disabled = attackableHexes.length === 0;
+          cancelBtn.disabled = false;
+          infoPanelEl.textContent = describeUnit(su) + ' を移動しました。';
+          checkWinCondition();
+          return;
+        } else if (occ && occ.side !== su.side && !su.pendingDeployment) {
+          // 既にその場から攻撃範囲内であれば、移動せずそのまま攻撃する（砲台などの遠距離攻撃向け）
+          const alreadyInRange = attackableHexes.some(([c, r]) => c === col && r === row);
+          if (alreadyInRange && !su.attacked) {
+            registerUnitActed(su);
+            updateHUD();
+            const result = performAttackWithWeapon(su, occ, currentWeaponOverride(su));
+            infoPanelEl.textContent = result.defenderDestroyed
+              ? '敵ユニットを撃破！' : `攻撃！ 与ダメージ${result.damage}／被ダメージ${result.counterDamage}`;
+            checkWinCondition();
+            clearSelection();
+            return;
+          }
+          // 敵のいるマスへ移動指示 → 隣接マスまで進んで自動的に戦闘開始
+          const landing = findLandingSpotAdjacentTo(su, col, row, reachableHexes);
+          if (landing) {
+            const needsMove = !(landing[0] === su.col && landing[1] === su.row);
+            if (needsMove) {
+              su.col = landing[0]; su.row = landing[1]; playMoveSound();
+              markTerritory(mapGrid[hexKey(landing[0], landing[1])], 'player', su);
+              maybePickupShield(su, mapGrid[hexKey(landing[0], landing[1])]);
+              applyMountainStun(su, mapGrid[hexKey(landing[0], landing[1])]);
+            }
+            su.moved = true;
+            registerUnitActed(su);
+            updateHUD();
+            const result = performAttackWithWeapon(su, occ, currentWeaponOverride(su));
+            infoPanelEl.textContent = result.defenderDestroyed
+              ? '敵ユニットを撃破！' : `攻撃！ 与ダメージ${result.damage}／被ダメージ${result.counterDamage}`;
+            checkWinCondition();
+            clearSelection();
+            return;
+          } else {
+            infoPanelEl.textContent = 'その敵ユニットには届きません。';
+            return;
+          }
+        }
+      }
+    }
+
+    // 新規選択
+    clearSelection();
+    if (occ && occ.side === 'player') {
+      selectedUnit = occ;
+      const alreadyActing = playerActedUnitIds.has(occ.id);
+      const maxUnits = getMaxUnitsPerTurn('player');
+      const capReached = !alreadyActing && playerActedUnitIds.size >= maxUnits;
+      if (occ.pendingDeployment && !occ.moved) {
+        // 本拠地・基地で生産された艦艇：周囲3マス以内の水系へ1度だけ配置できる
+        reachableHexes = capReached ? [] : computeDeploymentHexes(occ);
+        attackableHexes = [];
+        moveBtn.disabled = reachableHexes.length === 0;
+        waitBtn.disabled = capReached;
+        attackBtn.disabled = true;
+        cancelBtn.disabled = false;
+        infoPanelEl.textContent = capReached
+          ? describeUnit(occ) + '（このターンはもう行動できるユニット数の上限（' + maxUnits + '）に達しています）'
+          : describeUnit(occ) + ' を選択中。周囲3マス以内の海・川マスを直接タップして配置してください（1度だけ）。';
+        return;
+      }
+      reachableHexes = (occ.moved || capReached) ? [] : computeReachable(occ);
+      const hasLaserGun = occ.kind === 'cruiser' && occ.cargo && occ.cargo.laserGun;
+      attackableHexes = (occ.attacked || capReached) ? [] : computeAttackableWithWeapon(occ, hasLaserGun ? selectedWeaponMode : null);
+      moveBtn.disabled = reachableHexes.length === 0;
+      waitBtn.disabled = capReached || (occ.moved && occ.attacked);
+      attackBtn.disabled = attackableHexes.length === 0;
+      cancelBtn.disabled = false;
+      infoPanelEl.textContent = UNIT_TYPES[occ.kind].autoRoam
+        ? describeUnit(occ) + '（ドローンは指令不要で自動的に移動・攻撃します）'
+        : capReached
+        ? describeUnit(occ) + '（このターンはもう行動できるユニット数の上限（' + maxUnits + '）に達しています）'
+        : describeUnit(occ) + ' を選択中。移動先のマスを直接タップしても移動できます。';
+      if (UNIT_TYPES[occ.kind].cargoKinds && occ.cargo && Object.keys(occ.cargo).length > 0 && !capReached) {
+        renderCarrierCargoUI(occ);
+      }
+      if (hasLaserGun && !capReached && !occ.attacked) {
+        renderWeaponModeUI(occ);
+      }
+    } else if (!occ && hex.owner === 'player' && TERRAIN[hex.terrain].isCity) {
+      selectedCity = hex;
+      buildBtn.disabled = false;
+      cancelBtn.disabled = false;
+      infoPanelEl.textContent = '自軍都市を選択中。「生産」でユニットを作れます。';
+    } else if (occ && occ.side === 'enemy') {
+      infoPanelEl.textContent = '敵：' + describeUnit(occ);
+    }
+  }
+
+  waitBtn.addEventListener('click', () => {
+    if (selectedCargo) {
+      const { kind } = selectedCargo;
+      infoPanelEl.textContent = `${UNIT_TYPES[kind].emoji}${UNIT_TYPES[kind].name} は空母に留まりました。`;
+      clearSelection();
+      return;
+    }
+    if (!selectedUnit) return;
+    const alreadyActing = playerActedUnitIds.has(selectedUnit.id);
+    if (!alreadyActing && playerActedUnitIds.size >= getMaxUnitsPerTurn('player')) {
+      infoPanelEl.textContent = 'このターンはもう行動できるユニット数の上限です。';
+      return;
+    }
+    selectedUnit.moved = true;
+    selectedUnit.attacked = true;
+    registerUnitActed(selectedUnit);
+    markTerritory(mapGrid[hexKey(selectedUnit.col, selectedUnit.row)], 'player', selectedUnit);
+    updateHUD();
+    infoPanelEl.textContent = describeUnit(selectedUnit) + ' はこの場に待機しました。';
+    clearSelection();
+  });
+
+  // ================= マップの拡大縮小・パン（iPhoneでの2本指操作） =================
+  const mapWrapEl = document.getElementById('mapWrap');
+  const mapZoomHintEl = document.getElementById('mapZoomHint');
+  const mapResetZoomBtn = document.getElementById('mapResetZoomBtn');
+  let mapZoom = 1, mapPanX = 0, mapPanY = 0;
+  const MAP_ZOOM_MIN = 1, MAP_ZOOM_MAX = 3.5;
+  let pinchState = null; // { startDist, startZoom, startMidX, startMidY, startPanX, startPanY }
+  let zoomHintTimer = null;
+
+  function applyMapTransform() {
+    canvas.style.transform = `translate(${mapPanX}px, ${mapPanY}px) scale(${mapZoom})`;
+  }
+  function clampPan() {
+    // ズーム時にマップが枠外へ大きくはみ出しすぎないよう、パン量を緩やかに制限する
+    const rect = mapWrapEl.getBoundingClientRect();
+    const maxPan = (rect.width * (mapZoom - 1)) / 2 + 40;
+    mapPanX = Math.max(-maxPan, Math.min(maxPan, mapPanX));
+    mapPanY = Math.max(-maxPan, Math.min(maxPan, mapPanY));
+  }
+  function resetMapView() {
+    mapZoom = 1; mapPanX = 0; mapPanY = 0;
+    applyMapTransform();
+  }
+  function showZoomHint() {
+    mapZoomHintEl.classList.add('show');
+    clearTimeout(zoomHintTimer);
+    zoomHintTimer = setTimeout(() => mapZoomHintEl.classList.remove('show'), 1200);
+  }
+  function touchDist(t0, t1) {
+    return Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+  }
+  function touchMid(t0, t1) {
+    return { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
+  }
+  mapWrapEl.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      const [t0, t1] = e.touches;
+      pinchState = {
+        startDist: touchDist(t0, t1),
+        startZoom: mapZoom,
+        startMid: touchMid(t0, t1),
+        startPanX: mapPanX,
+        startPanY: mapPanY,
+      };
+    }
+  }, { passive: true });
+  mapWrapEl.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && pinchState) {
+      e.preventDefault();
+      const [t0, t1] = e.touches;
+      const dist = touchDist(t0, t1);
+      const mid = touchMid(t0, t1);
+      const scaleDelta = dist / pinchState.startDist;
+      mapZoom = Math.max(MAP_ZOOM_MIN, Math.min(MAP_ZOOM_MAX, pinchState.startZoom * scaleDelta));
+      mapPanX = pinchState.startPanX + (mid.x - pinchState.startMid.x);
+      mapPanY = pinchState.startPanY + (mid.y - pinchState.startMid.y);
+      clampPan();
+      applyMapTransform();
+      showZoomHint();
+    }
+  }, { passive: false });
+  mapWrapEl.addEventListener('touchend', e => {
+    if (e.touches.length < 2) pinchState = null;
+  }, { passive: true });
+  mapWrapEl.addEventListener('touchcancel', () => { pinchState = null; }, { passive: true });
+  // ダブルタップ／ダブルクリックで表示をリセット
+  let lastTapTime = 0;
+  mapWrapEl.addEventListener('touchend', e => {
+    if (e.touches.length === 0 && e.changedTouches.length === 1) {
+      const now = Date.now();
+      if (now - lastTapTime < 300) resetMapView();
+      lastTapTime = now;
+    }
+  }, { passive: true });
+  mapResetZoomBtn.addEventListener('click', resetMapView);
+
+  canvas.addEventListener('click', e => {
+    if (!gameStarted || paused || currentSide !== 'player' || appEnded) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    const px = (e.clientX - rect.left) * scaleX, py = (e.clientY - rect.top) * scaleY;
+    // 最も近いヘックス中心を探す
+    let best = null, bestD = Infinity;
+    Object.values(mapGrid).forEach(hex => {
+      const { x, y } = hexToPixel(hex.col, hex.row);
+      const d = Math.hypot(px-x, py-y);
+      if (d < bestD) { bestD = d; best = hex; }
+    });
+    if (best && bestD < HEX_SIZE * 1.05) selectHex(best.col, best.row);
+  });
+
+  moveBtn.addEventListener('click', () => {
+    if (!selectedUnit && !selectedCargo) return;
+    infoPanelEl.textContent = '移動先のヘックス（青く光る範囲）を直接タップ/クリックしてください。';
+  });
+  attackBtn.addEventListener('click', () => {
+    if (!selectedUnit) return;
+    if (UNIT_TYPES[selectedUnit.kind].autoTargetAll) {
+      // ドローンなど：対象を選ばず、自動で相手を選んで攻撃する
+      if (attackableHexes.length === 0) { infoPanelEl.textContent = '攻撃できる相手がいません。'; return; }
+      const targets = attackableHexes.map(([c, r]) => unitAt(c, r)).filter(Boolean);
+      const preferred = targets.filter(t => t.kind !== 'infantry' && t.kind !== 'submarine');
+      const pool = preferred.length ? preferred : targets;
+      pool.sort((a, b) => hexDistance(selectedUnit.col, selectedUnit.row, a.col, a.row) - hexDistance(selectedUnit.col, selectedUnit.row, b.col, b.row));
+      const target = pool[0];
+      registerUnitActed(selectedUnit);
+      markTerritory(mapGrid[hexKey(selectedUnit.col, selectedUnit.row)], 'player', selectedUnit);
+      updateHUD();
+      const result = performAttack(selectedUnit, target);
+      infoPanelEl.textContent = result.defenderDestroyed
+        ? '敵ユニットを撃破！' : `攻撃！ 与ダメージ${result.damage}／被ダメージ${result.counterDamage}`;
+      checkWinCondition();
+      clearSelection();
+      return;
+    }
+    mode = 'attack';
+    infoPanelEl.textContent = '攻撃先の敵ユニット（赤く光る範囲）をタップしてください。';
+  });
+  cancelBtn.addEventListener('click', () => clearSelection());
+
+  buildBtn.addEventListener('click', () => {
+    if (!selectedCity) return;
+    renderBuildMenu();
+    buildMenuEl.style.display = 'flex';
+  });
+  closeBuildMenuBtn.addEventListener('click', () => { buildMenuEl.style.display = 'none'; });
+
+  function renderBuildMenu() {
+    buildListEl.innerHTML = '';
+    const isPort = selectedCity && selectedCity.terrain === 'port';
+    const playerKindPool = resolveKindPool(selectedCountry.id)
+      .filter(k => !(UNIT_TYPES[k].onceOnly && onceOnlyBuiltThisGame.player[k]))
+      .filter(k => !(k === 'ufo' && turnCount - lastUfoBuiltTurn.player < UFO_COOLDOWN_TURNS));
+    const kindsToShow = isPort ? playerKindPool.filter(k => UNIT_TYPES[k].domain === 'naval') : playerKindPool;
+    kindsToShow.forEach(kind => {
+      const def = UNIT_TYPES[kind];
+      const droneLocked = kind === 'drone' && playerGold < DRONE_UNLOCK_GOLD;
+      const affordable = playerGold >= def.cost && !droneLocked;
+      const item = document.createElement('div');
+      item.className = 'build-item' + (affordable ? '' : ' unaffordable');
+      const rangeText = def.canAttack === false ? '攻撃不可' : (def.autoTargetAll ? '射程：全域自動攻撃' : `射程${def.range || 1}`);
+      const lockNote = droneLocked ? `<div class="bi-desc" style="color:#ff8a7e;">資金${DRONE_UNLOCK_GOLD}G以上で生産可能</div>` : '';
+      item.innerHTML = `<div><div class="bi-name">${def.emoji} ${def.name}</div><div class="bi-desc">移動${def.move}／HP${def.hp}／攻${def.atk}／防${def.def}／${rangeText}</div>${lockNote}</div><div class="bi-cost">${def.cost}G</div>`;
+      item.addEventListener('click', () => {
+        if (!affordable || !selectedCity) return;
+        const spot = resolveSpawnPosition(selectedCity.col, selectedCity.row, kind);
+        if (unitAt(spot[0], spot[1])) { infoPanelEl.textContent = '配置できるマスが見つかりませんでした。'; return; }
+        spendGold('player', def.cost);
+        const newUnit = makeUnit(kind, 'player', spot[0], spot[1]);
+        newUnit.moved = true; newUnit.attacked = true; // 生産直後は行動できず、次のターンから動ける
+        if (def.domain === 'naval' && selectedCity.terrain !== 'port') newUnit.pendingDeployment = true;
+        if (def.onceOnly) onceOnlyBuiltThisGame.player[kind] = true;
+        if (kind === 'ufo') lastUfoBuiltTurn.player = turnCount;
+        playBuildSound();
+        buildMenuEl.style.display = 'none';
+        updateHUD();
+        clearSelection();
+      });
+      buildListEl.appendChild(item);
+    });
+  }
+
+  // ================= ターン終了・ゲーム開始・終了 =================
+  endTurnBtn.addEventListener('click', () => {
+    if (!gameStarted || paused || currentSide !== 'player' || appEnded) return;
+    clearSelection();
+    healUnitsAtBase('player');
+    currentSide = 'enemy';
+    enemyActedUnitIds = new Set();
+    updateHUD();
+    messageEl.textContent = '敵のターン...';
+    function kickOffEnemyTurn() {
+      if (appEnded || !running) return;
+      if (paused) { setTimeout(kickOffEnemyTurn, 300); return; }
+      runEnemyTurn();
+    }
+    setTimeout(kickOffEnemyTurn, 500);
+  });
+
+  function initGame() {
+    setupGame();
+    resetMapView();
+    appEnded = false;
+    paused = false;
+    running = true;
+    playerActedUnitIds = new Set();
+    enemyActedUnitIds = new Set();
+    aiActingUnit = null;
+    clearSelection();
+    battleEffects = [];
+    confetti = [];
+    messageEl.textContent = '';
+    restartBtn.style.display = 'none';
+    buildMenuEl.style.display = 'none';
+    updateHUD();
+    drawFlagCanvases();
+    startGrandBgm();
+  }
+
+  function endGame(status) {
+    running = false;
+    appEnded = true;
+    stopGrandBgm();
+    if (status === 'win') {
+      messageEl.textContent = '🎉 勝利！ ' + enemyCountry.name + ' を降しました！';
+      playVictorySound();
+      spawnConfettiBurst();
+      if ((selectedScene === 1 || selectedScene === 2) && !hasEverWon) {
+        hasEverWon = true;
+        SCENES[2].available = true; // 宇宙 対 地球（id:3、配列index:2）を解禁
+        renderSceneCards();
+      }
+    } else {
+      messageEl.textContent = '💥 敗北... ' + enemyCountry.name + ' に敗れました。';
+      playDefeatSound();
+    }
+    restartBtn.style.display = 'inline-block';
+  }
+
+  // ================= シーン・国選択UI =================
+  function renderSceneCards() {
+    sceneCardsEl.innerHTML = '';
+    SCENES.forEach(s => {
+      // 宇宙対地球は、解禁されるまでカード自体を表示しない
+      if (s.id === 3 && !s.available) return;
+      const card = document.createElement('div');
+      card.className = 'scene-card' + (s.id === selectedScene ? ' selected' : '') + (s.available ? '' : ' disabled');
+      card.innerHTML = `<div class="scene-emoji">${s.emoji}</div><div class="scene-name">${s.name}</div>` + (s.available ? '' : '<div class="scene-name" style="color:#8fa8c0;">近日公開</div>');
+      if (s.available) {
+        card.addEventListener('click', () => {
+          selectedScene = s.id;
+          selectedCountry = (SCENE_COUNTRIES[selectedScene] || COUNTRIES_SCENE1)[0];
+          renderSceneCards();
+          renderCountryCards();
+          updateBgmPanelVisibility();
+        });
+      }
+      sceneCardsEl.appendChild(card);
+    });
+  }
+
+  // 宇宙対地球シーンではBGMのオン/オフ・曲選択自体を行えないようにする（専用曲が強制的に流れるため）
+  function updateBgmPanelVisibility() {
+    if (!bgmPanel) return;
+    bgmPanel.style.display = selectedScene === 3 ? 'none' : 'flex';
+  }
+
+  // ================= 国旗描画 =================
+  // 実際の国旗の縦横比（横:縦）。変形させずに描画するために使う
+  const FLAG_RATIO = { jp: 3/2, cn: 3/2, au: 2/1, kr: 3/2, kp: 2/1, us: 1.9, gb: 2/1, fr: 3/2, de: 3/2, it: 3/2, ru: 3/2, es: 3/2, pt: 3/2, nato: 3/2, earth: 3/2, space: 3/2 };
+
+  function drawFlag(ctx, countryId, w, h) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.clip();
+    if (countryId === 'jp') {
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#e63946';
+      ctx.beginPath(); ctx.arc(w/2, h/2, h*0.3, 0, Math.PI*2); ctx.fill();
+    } else if (countryId === 'cn') {
+      ctx.fillStyle = '#de2910'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#ffde00';
+      function star(cx, cy, r) {
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = -Math.PI/2 + i * (Math.PI*4/5);
+          const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+          if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.closePath(); ctx.fill();
+      }
+      star(w*0.22, h*0.28, h*0.16);
+      star(w*0.42, h*0.14, h*0.05);
+      star(w*0.5, h*0.26, h*0.05);
+      star(w*0.48, h*0.4, h*0.05);
+      star(w*0.4, h*0.5, h*0.05);
+    } else if (countryId === 'au') {
+      ctx.fillStyle = '#1a3a6b'; ctx.fillRect(0, 0, w, h);
+      // 左上のユニオンジャック（簡略化）
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, 0, w*0.5, h*0.5); ctx.clip();
+      ctx.fillStyle = '#1a3a6b'; ctx.fillRect(0, 0, w*0.5, h*0.5);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = h*0.09;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w*0.5,h*0.5); ctx.moveTo(w*0.5,0); ctx.lineTo(0,h*0.5); ctx.stroke();
+      ctx.strokeStyle = '#e63946'; ctx.lineWidth = h*0.04;
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(w*0.5,h*0.5); ctx.moveTo(w*0.5,0); ctx.lineTo(0,h*0.5); ctx.stroke();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = h*0.12;
+      ctx.beginPath(); ctx.moveTo(w*0.25,0); ctx.lineTo(w*0.25,h*0.5); ctx.moveTo(0,h*0.25); ctx.lineTo(w*0.5,h*0.25); ctx.stroke();
+      ctx.strokeStyle = '#e63946'; ctx.lineWidth = h*0.05;
+      ctx.beginPath(); ctx.moveTo(w*0.25,0); ctx.lineTo(w*0.25,h*0.5); ctx.moveTo(0,h*0.25); ctx.lineTo(w*0.5,h*0.25); ctx.stroke();
+      ctx.restore();
+      // 星（サザンクロス簡略化）
+      ctx.fillStyle = '#fff';
+      function auStar(cx, cy, r) {
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = -Math.PI/2 + i * (Math.PI*4/5);
+          const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+          if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+        }
+        ctx.closePath(); ctx.fill();
+      }
+      auStar(w*0.72, h*0.28, h*0.09);
+      auStar(w*0.62, h*0.5, h*0.07);
+      auStar(w*0.78, h*0.62, h*0.07);
+      auStar(w*0.88, h*0.42, h*0.06);
+      auStar(w*0.75, h*0.82, h*0.05);
+    } else if (countryId === 'kp') {
+      ctx.fillStyle = '#024fa2'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, h*0.13, w, h*0.74);
+      ctx.fillStyle = '#ed1c27'; ctx.fillRect(0, h*0.2, w, h*0.6);
+      ctx.save();
+      ctx.translate(w*0.22, h/2);
+      const r = h*0.16;
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+      ctx.fillStyle = '#ed1c27';
+      ctx.beginPath();
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI/2 + i * (Math.PI*4/5);
+        const x = Math.cos(a)*r*0.75, y = Math.sin(a)*r*0.75;
+        if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    } else if (countryId === 'kr') {
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+      ctx.save();
+      ctx.translate(w/2, h/2);
+      const r = h*0.22;
+      ctx.beginPath(); ctx.arc(0, 0, r, -Math.PI/2, Math.PI/2); ctx.fillStyle = '#c60c30'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, 0, r, Math.PI/2, Math.PI*1.5); ctx.fillStyle = '#003478'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, -r/2, r/2, 0, Math.PI*2); ctx.fillStyle = '#c60c30'; ctx.fill();
+      ctx.beginPath(); ctx.arc(0, r/2, r/2, 0, Math.PI*2); ctx.fillStyle = '#003478'; ctx.fill();
+      ctx.restore();
+    } else if (countryId === 'us') {
+      // 星条旗（簡略化）
+      const stripeH = h / 7;
+      for (let i = 0; i < 7; i++) {
+        ctx.fillStyle = i % 2 === 0 ? '#b22234' : '#fff';
+        ctx.fillRect(0, i * stripeH, w, stripeH);
+      }
+      ctx.fillStyle = '#3c3b6e';
+      ctx.fillRect(0, 0, w * 0.4, stripeH * 4);
+      ctx.fillStyle = '#fff';
+      for (let ry = 0; ry < 3; ry++) {
+        for (let rx = 0; rx < 4; rx++) {
+          ctx.beginPath(); ctx.arc(w * 0.4 * (rx + 0.5) / 4, stripeH * 4 * (ry + 0.5) / 3, 1.3, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    } else if (countryId === 'gb') {
+      // ユニオンジャック（簡略化）
+      ctx.fillStyle = '#00247d'; ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = h * 0.18;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(w, h); ctx.moveTo(w, 0); ctx.lineTo(0, h); ctx.stroke();
+      ctx.strokeStyle = '#cf142b'; ctx.lineWidth = h * 0.07;
+      ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(w, h); ctx.moveTo(w, 0); ctx.lineTo(0, h); ctx.stroke();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = h * 0.3;
+      ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+      ctx.strokeStyle = '#cf142b'; ctx.lineWidth = h * 0.12;
+      ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+    } else if (countryId === 'fr') {
+      ctx.fillStyle = '#0055a4'; ctx.fillRect(0, 0, w/3, h);
+      ctx.fillStyle = '#fff'; ctx.fillRect(w/3, 0, w/3, h);
+      ctx.fillStyle = '#ef4135'; ctx.fillRect(w*2/3, 0, w/3, h);
+    } else if (countryId === 'de') {
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h/3);
+      ctx.fillStyle = '#dd0000'; ctx.fillRect(0, h/3, w, h/3);
+      ctx.fillStyle = '#ffce00'; ctx.fillRect(0, h*2/3, w, h/3);
+    } else if (countryId === 'it') {
+      ctx.fillStyle = '#009246'; ctx.fillRect(0, 0, w/3, h);
+      ctx.fillStyle = '#fff'; ctx.fillRect(w/3, 0, w/3, h);
+      ctx.fillStyle = '#ce2b37'; ctx.fillRect(w*2/3, 0, w/3, h);
+    } else if (countryId === 'ru') {
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h/3);
+      ctx.fillStyle = '#0039a6'; ctx.fillRect(0, h/3, w, h/3);
+      ctx.fillStyle = '#d52b1e'; ctx.fillRect(0, h*2/3, w, h/3);
+    } else if (countryId === 'es') {
+      ctx.fillStyle = '#aa151b'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#f1bf00'; ctx.fillRect(0, h/4, w, h/2);
+    } else if (countryId === 'pt') {
+      ctx.fillStyle = '#046a38'; ctx.fillRect(0, 0, w*0.4, h);
+      ctx.fillStyle = '#da291c'; ctx.fillRect(w*0.4, 0, w*0.6, h);
+      ctx.fillStyle = '#ffce00';
+      ctx.beginPath(); ctx.arc(w*0.4, h/2, h*0.22, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#046a38'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(w*0.4, h/2, h*0.22, 0, Math.PI*2); ctx.stroke();
+    } else if (countryId === 'nato') {
+      // NATO：紺地に、羅針図形を簡略化した白い星型のエンブレム
+      ctx.fillStyle = '#1c3f94'; ctx.fillRect(0, 0, w, h);
+      ctx.save();
+      ctx.translate(w/2, h/2);
+      const r = h * 0.34;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(1.2, h*0.03);
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      for (let i = 0; i < 4; i++) {
+        const ang = (Math.PI / 2) * i;
+        ctx.save();
+        ctx.rotate(ang);
+        ctx.beginPath();
+        ctx.moveTo(0, -r * 0.95);
+        ctx.lineTo(r * 0.16, 0);
+        ctx.lineTo(0, r * 0.95);
+        ctx.lineTo(-r * 0.16, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.restore();
+    } else if (countryId === 'earth') {
+      // 地球防衛軍：青緑地に、地球(円+経緯線)と守りの盾を模したエンブレム
+      ctx.fillStyle = '#0e3b3a'; ctx.fillRect(0, 0, w, h);
+      ctx.save();
+      ctx.translate(w/2, h/2);
+      const r = h * 0.3;
+      ctx.fillStyle = '#2ec4b6';
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#e8fffb'; ctx.lineWidth = Math.max(1, h*0.02);
+      ctx.beginPath(); ctx.ellipse(0, 0, r, r*0.4, 0, 0, Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(0, r); ctx.stroke();
+      ctx.strokeStyle = '#ffd35c'; ctx.lineWidth = Math.max(1.4, h*0.035);
+      ctx.beginPath(); ctx.arc(0, 0, r*1.35, -Math.PI*0.72, -Math.PI*0.28); ctx.stroke();
+      ctx.restore();
+    } else if (countryId === 'space') {
+      // 宇宙人：漆黒の宇宙地に、円盤型UFOのシルエット
+      ctx.fillStyle = '#0a0518'; ctx.fillRect(0, 0, w, h);
+      ctx.save();
+      ctx.translate(w/2, h/2);
+      ctx.fillStyle = '#b98cff';
+      ctx.beginPath(); ctx.ellipse(0, 2, w*0.32, h*0.14, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#e8dcff';
+      ctx.beginPath(); ctx.arc(0, -h*0.06, h*0.16, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = '#7b2cbf';
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath(); ctx.arc(i * w*0.1, h*0.08, 1.6, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.restore();
+    } else {
+      ctx.fillStyle = '#888'; ctx.fillRect(0, 0, w, h);
+    }
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(0.75, 0.75, w-1.5, h-1.5);
+  }
+
+  // スコアボードに、選択した国・対戦相手の国の旗を描画する
+  function drawFlagCanvases() {
+    const flagH = 20;
+    if (playerFlagCanvas) {
+      const w = Math.round(flagH * (FLAG_RATIO[selectedCountry.id] || 1.5));
+      playerFlagCanvas.width = w; playerFlagCanvas.height = flagH;
+      const pctx = playerFlagCanvas.getContext('2d');
+      drawFlag(pctx, selectedCountry.id, w, flagH);
+    }
+    if (enemyFlagCanvas && enemyCountry) {
+      const w = Math.round(flagH * (FLAG_RATIO[enemyCountry.id] || 1.5));
+      enemyFlagCanvas.width = w; enemyFlagCanvas.height = flagH;
+      const ectx = enemyFlagCanvas.getContext('2d');
+      drawFlag(ectx, enemyCountry.id, w, flagH);
+    }
+  }
+
+  function renderCountryCards() {
+    countryCardsEl.innerHTML = '';
+    const countryList = SCENE_COUNTRIES[selectedScene] || COUNTRIES_SCENE1;
+    countryList.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'country-card' + (c.id === selectedCountry.id ? ' selected' : '');
+      const flagH = 20;
+      const flagW = Math.round(flagH * (FLAG_RATIO[c.id] || 1.5));
+      const flagCanvas = document.createElement('canvas');
+      flagCanvas.width = flagW; flagCanvas.height = flagH;
+      flagCanvas.style.borderRadius = '3px';
+      const fctx = flagCanvas.getContext('2d');
+      drawFlag(fctx, c.id, flagW, flagH);
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'country-name';
+      nameDiv.textContent = c.name;
+      card.appendChild(flagCanvas); card.appendChild(nameDiv);
+      card.addEventListener('click', () => { selectedCountry = c; renderCountryCards(); updateEpicBgmOptionVisibility(); });
+      countryCardsEl.appendChild(card);
+    });
+    updateEpicBgmOptionVisibility();
+  }
+
+  // 「荘厳な行進曲」は日本を選んでいる場合だけ選べるようにする
+  function updateEpicBgmOptionVisibility() {
+    if (!bgmEpicOpt) return;
+    const isJapan = selectedCountry && selectedCountry.id === 'jp';
+    bgmEpicOpt.style.display = isJapan ? 'flex' : 'none';
+    if (!isJapan && selectedTrack === 'epic') {
+      selectedTrack = 'light';
+      const lightRadio = document.querySelector('input[name="bgmTrack"][value="light"]');
+      if (lightRadio) lightRadio.checked = true;
+    }
+  }
+
+  // ================= ボタン =================
+  startBtn.addEventListener('click', () => {
+    ensureAudio();
+    gameStarted = true;
+    initGame();
+  });
+  pauseBtn.addEventListener('click', () => { if (gameStarted && running) { paused = true; stopGrandBgm(); } });
+  resumeBtn.addEventListener('click', () => { if (gameStarted && running) { paused = false; startGrandBgm(); } });
+
+  bgmOffRadio.addEventListener('change', () => {
+    if (bgmOffRadio.checked) {
+      bgmEnabled = false;
+      bgmTrackRow.style.opacity = '0.4';
+      stopGrandBgm();
+    }
+  });
+  bgmOnRadio.addEventListener('change', () => {
+    if (bgmOnRadio.checked) {
+      bgmEnabled = true;
+      bgmTrackRow.style.opacity = '1';
+      if (gameStarted && running && !paused) startGrandBgm();
+    }
+  });
+  document.querySelectorAll('input[name="bgmTrack"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      if (!radio.checked) return;
+      selectedTrack = radio.value;
+      if (bgmEnabled && gameStarted && running && !paused) startGrandBgm();
+    });
+  });
+  endBtn.addEventListener('click', () => {
+    if (!gameStarted) return;
+    stopGrandBgm();
+    gameStarted = false; running = false; paused = false; appEnded = true;
+    messageEl.textContent = '';
+    restartBtn.style.display = 'none';
+    buildMenuEl.style.display = 'none';
+  });
+  restartBtn.addEventListener('click', () => { ensureAudio(); initGame(); });
+
+  // ================= メインループ =================
+  function drawIdle() {
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = '#0a1826'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('国を選んで「ゲーム開始」を押してください', W/2, H/2);
+  }
+
+  function loop() {
+    if (!gameStarted) { drawIdle(); requestAnimationFrame(loop); return; }
+    if (running && !paused) {
+      updateBattleEffects();
+    }
+    updateConfetti();
+    drawMap();
+    drawConfetti();
+    if (paused) {
+      ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#7ec8ff'; ctx.font = 'bold 20px sans-serif'; ctx.textAlign='center';
+      ctx.fillText('一時停止中', W/2, H/2);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  renderSceneCards();
+  renderCountryCards();
+  updateBgmPanelVisibility();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

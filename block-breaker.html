@@ -1,0 +1,2233 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="のりくんブロック崩し">
+<meta name="theme-color" content="#0b0f2b">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAFC0lEQVR4nO3br24UURiG8SnBEAQOCSgSQgKKVJCQEgyivgYugCvqBYCpr6ghbUgQDQoMCQqQ3AAWMQlZpt97/s237Plmnp9j0x5m9zycmZ057N289XAALNd2fQDoF3FAIg5I191HfH544j4mCp2fHjmOtudyQUoQHZofytw4yKJzcxJpj4MsAmlLpCUOsgiqNpHqbyuUEVft3NWtHIWjX168qToIuNg/OC75sfL1ozSObBYE0ZVsKCWJFMWRLoMsupVOJNtHPo5EGWQRQiKRdB/tt88pI4rmmcrEoZYNyohFzVf6giF1WjF/kyxCM08x6uQiVw7uZ6yHmuu6aw6WjeiqZtCOgxPKgpnzaM546cpBGUtSOJtGHFxtrNPVeS9aOVg2lqdkTqdxsGys2WT28ysHy8ZSZWeW3eeQiAPSP3FwwYHNBjIrBxccy5aeX04rkIgDEnFAIg5IxAGp5X/Zf3//aP5ffO/FF/P1Tx/fzh/8ydPX5uvfv53NH/ze/Zfm6+++fpg/+KsHz8zXP9+5MX/wxz9/V/189crhUoYax6UMNY5LGWoclzLUOC5lNIxTF4dXGeZoXmWYo3mVYY7mVYY5mlcZDaNxzQGJOCARByTigEQckIgDEnFAIg5IxAGJOCDVxaGelrWZjKaelrWZjKaelrWZjKaelrWZjFb7tCytarTqlcOrD3Mcrz7Mcbz6MMfx6sMcx6uP2nFaHtn7rh8TvuvHhO/6MeG7fkz4rh+FuOaARByQiAMS2wSrsU1QYpsg2wRtbBM0R2ObIFaHOCARByTigEQckIgDEnFAIg5IxAGJOCCxTbAF2wRtbBNkm2AK2wRNbBPEihAHJOKAxDbBamwTlNgmyDZBG9sEzdHYJojVIQ5IxAGJOCARByTigEQckIgDEnFAIg5IbBNswTZBG9sE2SaYwjZBE9sEsSLEAYk4IBEHJOKARByQiAMScUAiDkjEAYk4IBEHJOKARByQiAMScUAiDkjEAYk4IBEHJOKARByQiANSy/9bQZVfZ3c3/3j75Y9dHUkt4tiiSRabL4ZIhDi2wszi6g90ngjXHP6yZTT85E4QByTicFa7GPS8eBAHJOLw1LYMdLt4EAck4oBEHJCIAxJxeGq749ntfVLigEQczmqXgW6XjYE4kEAc/soXg56XjYFH9lsyznri1mfnWYyIY4vMREJkMSKOrQtUwwTXHJCIAxJxQCIOSMQBiTggEQck4oBEHJDi3SHdPzje9SG0u7x4s+tDqBBs5QhdxhDt+CPFEeuTVQK9izBxBPpMs6K8lxhxRPk0y4V4RzHiwE4QByTigEQckGLEEeveUYkQ7yhGHEOQT7NQlPcSJo4hzmeaFuhdRIpjCPXJmmIdf+bB2/7BcW/vp7fjCS19L+6fleP89GjLB4PebTYQ7LSC/4k4IOXjCPGICA2yMzuNg8uONZvMftFphcVjeUrm1IiDxWOdrs576QUpi8eSFM6mHYe5eNDHMpjzaM543VdZ+oiuagZlHFx5rIea672btx4mfu354Yn5Og84wlFrRmIVyJxW1G9yfomloYxhzu1z+oiieaYyp5WROrmMOMV0K51F9rKyKI4h18dAIp3JrhYlXzhK4xhlExkRyk4Unj7Kv4fWxTEU94E+Vd2hqL4g5f5HXLVzV71y/MUSEkjbP+n2OEYk0rk5K/3cOEYk0qH5FwA+cWwilB3yvSL0jwOLwe5zSMQB6Q+ydO0aXcggtgAAAABJRU5ErkJggg==">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAFC0lEQVR4nO3br24UURiG8SnBEAQOCSgSQgKKVJCQEgyivgYugCvqBYCpr6ghbUgQDQoMCQqQ3AAWMQlZpt97/s237Plmnp9j0x5m9zycmZ057N289XAALNd2fQDoF3FAIg5I191HfH544j4mCp2fHjmOtudyQUoQHZofytw4yKJzcxJpj4MsAmlLpCUOsgiqNpHqbyuUEVft3NWtHIWjX168qToIuNg/OC75sfL1ozSObBYE0ZVsKCWJFMWRLoMsupVOJNtHPo5EGWQRQiKRdB/tt88pI4rmmcrEoZYNyohFzVf6giF1WjF/kyxCM08x6uQiVw7uZ6yHmuu6aw6WjeiqZtCOgxPKgpnzaM546cpBGUtSOJtGHFxtrNPVeS9aOVg2lqdkTqdxsGys2WT28ysHy8ZSZWeW3eeQiAPSP3FwwYHNBjIrBxccy5aeX04rkIgDEnFAIg5IxAGp5X/Zf3//aP5ffO/FF/P1Tx/fzh/8ydPX5uvfv53NH/ze/Zfm6+++fpg/+KsHz8zXP9+5MX/wxz9/V/189crhUoYax6UMNY5LGWoclzLUOC5lNIxTF4dXGeZoXmWYo3mVYY7mVYY5mlcZDaNxzQGJOCARByTigEQckIgDEnFAIg5IxAGJOCDVxaGelrWZjKaelrWZjKaelrWZjKaelrWZjFb7tCytarTqlcOrD3Mcrz7Mcbz6MMfx6sMcx6uP2nFaHtn7rh8TvuvHhO/6MeG7fkz4rh+FuOaARByQiAMS2wSrsU1QYpsg2wRtbBM0R2ObIFaHOCARByTigEQckIgDEnFAIg5IxAGJOCCxTbAF2wRtbBNkm2AK2wRNbBPEihAHJOKAxDbBamwTlNgmyDZBG9sEzdHYJojVIQ5IxAGJOCARByTigEQckIgDEnFAIg5IbBNswTZBG9sE2SaYwjZBE9sEsSLEAYk4IBEHJOKARByQiAMScUAiDkjEAYk4IBEHJOKARByQiAMScUAiDkjEAYk4IBEHJOKARByQiANSy/9bQZVfZ3c3/3j75Y9dHUkt4tiiSRabL4ZIhDi2wszi6g90ngjXHP6yZTT85E4QByTicFa7GPS8eBAHJOLw1LYMdLt4EAck4oBEHJCIAxJxeGq749ntfVLigEQczmqXgW6XjYE4kEAc/soXg56XjYFH9lsyznri1mfnWYyIY4vMREJkMSKOrQtUwwTXHJCIAxJxQCIOSMQBiTggEQck4oBEHJDi3SHdPzje9SG0u7x4s+tDqBBs5QhdxhDt+CPFEeuTVQK9izBxBPpMs6K8lxhxRPk0y4V4RzHiwE4QByTigEQckGLEEeveUYkQ7yhGHEOQT7NQlPcSJo4hzmeaFuhdRIpjCPXJmmIdf+bB2/7BcW/vp7fjCS19L+6fleP89GjLB4PebTYQ7LSC/4k4IOXjCPGICA2yMzuNg8uONZvMftFphcVjeUrm1IiDxWOdrs576QUpi8eSFM6mHYe5eNDHMpjzaM543VdZ+oiuagZlHFx5rIea672btx4mfu354Yn5Og84wlFrRmIVyJxW1G9yfomloYxhzu1z+oiieaYyp5WROrmMOMV0K51F9rKyKI4h18dAIp3JrhYlXzhK4xhlExkRyk4Unj7Kv4fWxTEU94E+Vd2hqL4g5f5HXLVzV71y/MUSEkjbP+n2OEYk0rk5K/3cOEYk0qH5FwA+cWwilB3yvSL0jwOLwe5zSMQB6Q+ydO0aXcggtgAAAABJRU5ErkJggg==">
+<title>のりくんのブロック崩しゲーム</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: radial-gradient(circle at top, #1e2749, #0b0f2b);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 20px);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+  h1 {
+    margin: 14px 0 6px;
+    font-size: 22px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  #info {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #timer {
+    font-variant-numeric: tabular-nums;
+    color: #8fd3ff;
+  }
+  #mainArea {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #canvasWrap {
+    position: relative;
+    flex: 0 1 560px;
+    min-width: 0;
+    touch-action: none;
+  }
+  #gameCanvas {
+    background: #0d1226;
+    border: 3px solid #4c5bd4;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(76, 91, 212, 0.5);
+    touch-action: none;
+    cursor: crosshair;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+    will-change: transform;
+  }
+  #canvasZoomHint {
+    position: absolute; top: 6px; right: 6px; z-index: 5;
+    background: rgba(13,18,38,0.8); color: #fff; font-size: 11px;
+    padding: 5px 9px; border-radius: 8px; pointer-events: none; opacity: 0;
+    transition: opacity 0.25s;
+  }
+  #canvasZoomHint.show { opacity: 1; }
+  #canvasResetZoomBtn {
+    position: absolute; bottom: 6px; right: 6px; z-index: 5;
+    background: rgba(13,18,38,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    font-size: 16px; border-radius: 50%; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; cursor: pointer;
+  }
+  #controlPanel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 10px;
+    width: 100%;
+    max-width: 480px;
+  }
+  #startBtn, #endBtn, #pauseBtn, #resumeBtn {
+    padding: 14px 8px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    min-height: 50px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  #startBtn {
+    background: #ffd35c;
+    color: #2a2200;
+  }
+  #startBtn:hover {
+    background: #ffe08a;
+  }
+  #pauseBtn {
+    background: #6b8bd6;
+    color: #fff;
+  }
+  #pauseBtn:hover {
+    background: #83a0e2;
+  }
+  #resumeBtn {
+    background: #4dbb7a;
+    color: #fff;
+  }
+  #resumeBtn:hover {
+    background: #5fd18f;
+  }
+  #endBtn {
+    background: #4a4f6b;
+    color: #fff;
+  }
+  #endBtn:hover {
+    background: #5c6284;
+  }
+  #leaderboard {
+    width: auto;
+    max-width: 400px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+  .lb-title {
+    font-size: 12px;
+    margin: 0;
+    color: #ffd35c;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+  #lbList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #lbList li {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    background: rgba(255,255,255,0.04);
+    padding: 4px 6px;
+    border-radius: 4px;
+  }
+  #lbList li.rank1 { background: rgba(255,211,92,0.25); }
+  #lbList li.rank2 { background: rgba(200,200,200,0.2); }
+  #lbList li.rank3 { background: rgba(180,120,60,0.2); }
+  #lbList li.rank4 { background: rgba(140,150,190,0.15); }
+  .lb-empty { color: #6b729c; text-align: center; justify-content: center !important; }
+  .lb-rank { font-weight: bold; width: 16px; }
+  .lb-name { flex: 1; text-align: center; letter-spacing: 1px; white-space: nowrap; }
+  .lb-time { font-variant-numeric: tabular-nums; }
+  .lb-score { font-variant-numeric: tabular-nums; color: #ffd35c; white-space: nowrap; }
+  #legend {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 540px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  #message {
+    margin-top: 10px;
+    font-size: 18px;
+    min-height: 24px;
+    color: #ffd35c;
+    text-align: center;
+  }
+  #nameEntry {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+  }
+  #nameEntry input {
+    width: 90px;
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 4px;
+    border-radius: 4px;
+    border: none;
+  }
+  #nameEntry button {
+    padding: 6px 18px;
+    font-size: 13px;
+    border: none;
+    border-radius: 20px;
+    background: #ffd35c;
+    color: #2a2200;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #nameEntry button:hover { background: #ffe08a; }
+  #restartBtn {
+    margin-top: 6px;
+    padding: 8px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 20px;
+    background: #4c5bd4;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+  }
+  #restartBtn:hover {
+    background: #6472e0;
+  }
+  #hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #8891c9;
+    text-align: center;
+    max-width: 500px;
+  }
+  #powerStatus {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 11px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .power-badge {
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: #6b729c;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .power-badge.active {
+    background: #ffd35c;
+    color: #2a2200;
+    font-weight: bold;
+  }
+  #paywallOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.82);
+    z-index: 999;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #paywallBox {
+    max-width: 340px; width: 100%;
+    background: linear-gradient(180deg, #1c3a5c, #122438);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 24px 22px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    color: #fff;
+  }
+  #paywallTitle { font-size: 19px; font-weight: bold; margin-bottom: 10px; }
+  #paywallText { font-size: 13px; line-height: 1.7; color: #cfe0f0; margin: 0 0 18px; }
+  #buyLink {
+    display: block; text-decoration: none;
+    background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 15px;
+    padding: 12px; border-radius: 24px;
+    margin-bottom: 18px;
+  }
+  #licenseRow { display: flex; gap: 6px; }
+  #licenseKeyInput {
+    flex: 1; min-width: 0;
+    padding: 9px 10px; border-radius: 8px; border: none; font-size: 12.5px;
+  }
+  #verifyKeyBtn {
+    padding: 9px 14px; border-radius: 8px; border: none;
+    background: #7ee787; color: #06280e; font-weight: bold; font-size: 12.5px; cursor: pointer;
+  }
+  #licenseMsg { font-size: 12px; margin-top: 10px; min-height: 16px; color: #ffb454; }
+</style>
+</head>
+<body>
+  <h1>のりくんのブロック崩しゲーム</h1>
+  <div id="leaderboard">
+    <div class="lb-title">🏆 全3ステージクリア タイム&スコア ランキング</div>
+    <ol id="lbList">
+      <li class="lb-empty">まだ記録がありません</li>
+    </ol>
+  </div>
+  <div id="info">
+    <div>ステージ: <span id="stageNum">1</span> / 3</div>
+    <div>スコア: <span id="score">0</span></div>
+    <div>残り球数: <span id="lives">3</span></div>
+    <div>タイム: <span id="timer">0:00.0</span></div>
+  </div>
+  <div id="powerStatus">
+    <span class="power-badge" id="badgeExpand">①バー拡大</span>
+    <span class="power-badge" id="badgeMulti">②ボール5個</span>
+    <span class="power-badge" id="badgeLaser">③レーザー砲</span>
+    <span class="power-badge" id="badgeGiant">④ボール巨大化</span>
+    <span class="power-badge" id="badgeHuge">⑤バー3倍</span>
+    <span class="power-badge" id="badgeIron">⑥鉄球</span>
+    <span class="power-badge" id="badgeRare">⑦全壊クリア</span>
+  </div>
+
+  <div id="mainArea">
+    <div id="canvasWrap">
+      <canvas id="gameCanvas" width="560" height="640"></canvas>
+      <div id="canvasZoomHint">2本指でズーム</div>
+      <button id="canvasResetZoomBtn" title="表示をリセット">⤢</button>
+    </div>
+    <div id="controlPanel">
+      <button id="startBtn">開始</button>
+      <button id="pauseBtn">停止</button>
+      <button id="resumeBtn">再開</button>
+      <button id="endBtn">終了</button>
+    </div>
+  </div>
+
+  <div id="paywallOverlay">
+    <div id="paywallBox">
+      <div id="paywallTitle">⏰ 体験版はここまで！</div>
+      <p id="paywallText">製品版を購入すると、時間制限なしで遊べます。</p>
+      <a id="buyLink" href="https://gumroad.com/l/YOUR_PRODUCT_ID" target="_blank" rel="noopener">🛒 製品版を購入する</a>
+      <div id="licenseRow">
+        <input id="licenseKeyInput" placeholder="購入済みの方はライセンスキーを入力">
+        <button id="verifyKeyBtn">解除する</button>
+      </div>
+      <div id="licenseMsg"></div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div class="legend-item"><span class="swatch" style="background:#f5f5f5;"></span>白（1回で破壊）</div>
+    <div class="legend-item"><span class="swatch" style="background:#c0c0c0;"></span>銀（2回で破壊）</div>
+    <div class="legend-item"><span class="swatch" style="background:#e0b93a;"></span>金（3回で破壊）</div>
+    <div class="legend-item"><span class="swatch" style="background:#b9f2ff;"></span>ダイヤ（レーザー、鉄球のみ）</div>
+    <div class="legend-item"><span class="swatch" style="background:#2b2b2b;border:1px solid #666;"></span>黒（壊すとブロック+5）</div>
+    <div class="legend-item"><span class="swatch" style="background:#e63946;"></span>赤（壊すとアンラッキー5個）</div>
+    <div class="legend-item"><span class="swatch" style="background:#ffd35c;border-radius:50%;"></span>★ラッキー</div>
+    <div class="legend-item"><span class="swatch" style="background:#c8375e;"></span>！アンラッキー</div>
+    <div class="legend-item">✨ ⑦全ブロック即破壊（3プレイ後〜）</div>
+    <div class="legend-item">🦖 3分で出現・5分で赤ブロックから2匹追加（鉄球/レーザーのみ倒せる）</div>
+  </div>
+
+  <div id="message"></div>
+  <div id="nameEntry">
+    <div>クリアタイム: <span id="clearTimeText"></span></div>
+    <input id="nameInput" maxlength="4" placeholder="なまえ">
+    <button id="submitScoreBtn">ランキングに登録</button>
+  </div>
+  <button id="restartBtn">もう一度プレイ</button>
+  <div id="hint">全3ステージ構成です。ステージ1は白・銀中心で比較的簡単、ラッキーアイテムも豊富。ステージ2は金・ダイヤが増えて少し難しく、アンラッキーアイテムも増加。ステージ3はさらに金・ダイヤ・アンラッキーアイテムが増えて最も難しくなります。← → キー、またはマウス／タッチでバーを操作。スペース／クリックでボール発射。③取得後はクリックでレーザー発射（破壊すると花火のように弾けます）。⑤バーは3倍に拡大します。⑧ハート型のアイテムを取ると残機が1つ増えます。ダイヤはレーザー、鉄球のみ、黒ブロックを壊すとブロックがランダムに5個増え、赤ブロックを壊すとアンラッキーアイテムが5個一気に出現します。クリアタイム1〜2分以内は🏆表彰マークが付きます。3分経過すると恐竜が出現し、触れたり火を浴びるとボールを1つ失います（鉄球かレーザーでのみ倒せます）。5分経過で赤ブロックが残っていればそこから2匹追加出現します。ステージ3までクリアしたタイムとスコアで競おう！</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // ================= 購入・ライセンスキー（デモ制限） =================
+  // ↓ Gumroadで商品を公開したら、この2つを実際の値に書き換えてください
+  const GUMROAD_PRODUCT_ID = 'YOUR_GUMROAD_PRODUCT_ID'; // 商品編集画面のSettingsにあるProduct ID
+  const GUMROAD_BUY_URL = 'https://gumroad.com/l/YOUR_PRODUCT_ID'; // 商品ページのURL
+  const DEMO_TIME_LIMIT_MS = 60000; // デモで遊べる時間（ミリ秒）＝60秒
+  const UNLOCK_STORAGE_KEY = 'norikun_unlocked'; // 全ゲーム共通のキー名（同じドメインなら他のゲームにも引き継がれます）
+
+  document.getElementById('buyLink').href = GUMROAD_BUY_URL;
+
+  function isUnlocked() {
+    return localStorage.getItem(UNLOCK_STORAGE_KEY) === 'true';
+  }
+
+  let demoTimeoutId = null;
+  let demoRemainingMs = DEMO_TIME_LIMIT_MS;
+  let demoTimerStartedAt = null;
+  function startDemoTimer() {
+    clearDemoTimer();
+    if (isUnlocked()) return;
+    demoRemainingMs = DEMO_TIME_LIMIT_MS;
+    demoTimerStartedAt = performance.now();
+    demoTimeoutId = setTimeout(showPaywall, demoRemainingMs);
+  }
+  function pauseDemoTimer() {
+    if (demoTimeoutId) {
+      clearTimeout(demoTimeoutId);
+      demoTimeoutId = null;
+      demoRemainingMs -= (performance.now() - demoTimerStartedAt);
+    }
+  }
+  function resumeDemoTimer() {
+    if (isUnlocked()) return;
+    if (demoRemainingMs <= 0) { showPaywall(); return; }
+    demoTimerStartedAt = performance.now();
+    demoTimeoutId = setTimeout(showPaywall, demoRemainingMs);
+  }
+  function clearDemoTimer() {
+    if (demoTimeoutId) { clearTimeout(demoTimeoutId); demoTimeoutId = null; }
+  }
+  function showPaywall() {
+    if (typeof paused !== 'undefined') paused = true;
+    document.getElementById('paywallOverlay').style.display = 'flex';
+  }
+  function hidePaywall() {
+    document.getElementById('paywallOverlay').style.display = 'none';
+  }
+
+  async function verifyLicenseKey(key) {
+    const msgEl = document.getElementById('licenseMsg');
+    if (!key) { msgEl.textContent = 'ライセンスキーを入力してください。'; return; }
+    msgEl.textContent = '確認中…';
+    try {
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: key }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem(UNLOCK_STORAGE_KEY, 'true');
+        msgEl.textContent = '';
+        clearDemoTimer();
+        hidePaywall();
+        if (typeof paused !== 'undefined') paused = false;
+      } else {
+        msgEl.textContent = 'キーが正しくないか、確認できませんでした。';
+      }
+    } catch (e) {
+      msgEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+    }
+  }
+  document.getElementById('verifyKeyBtn').addEventListener('click', () => {
+    verifyLicenseKey(document.getElementById('licenseKeyInput').value.trim());
+  });
+
+  const scoreEl = document.getElementById('score');
+  const livesEl = document.getElementById('lives');
+  const stageNumEl = document.getElementById('stageNum');
+  const timerEl = document.getElementById('timer');
+  const messageEl = document.getElementById('message');
+  const restartBtn = document.getElementById('restartBtn');
+  const startBtn = document.getElementById('startBtn');
+  const nameEntryEl = document.getElementById('nameEntry');
+  const clearTimeTextEl = document.getElementById('clearTimeText');
+  const nameInputEl = document.getElementById('nameInput');
+  const submitScoreBtn = document.getElementById('submitScoreBtn');
+  const lbListEl = document.getElementById('lbList');
+  const badgeEls = {
+    expand: document.getElementById('badgeExpand'),
+    multi: document.getElementById('badgeMulti'),
+    laser: document.getElementById('badgeLaser'),
+    giant: document.getElementById('badgeGiant'),
+    huge: document.getElementById('badgeHuge'),
+    iron: document.getElementById('badgeIron'),
+    rare: document.getElementById('badgeRare')
+  };
+
+  // --- ブロック硬さの定義 ---
+  const BLOCK_TYPES = {
+    white:   { hits: 1, colors: ['#f5f5f5'] },
+    silver:  { hits: 2, colors: ['#9a9a9a', '#e0e0e0'] },
+    gold:    { hits: 3, colors: ['#8a6b1a', '#c99a2e', '#f5d86b'] },
+    diamond: { hits: 1, colors: ['#b9f2ff'], score: 50 },
+    black:   { hits: 1, colors: ['#2b2b2b'] },
+    red:     { hits: 1, colors: ['#e63946'] }
+  };
+  const REVIVE_TYPE_POOL = ['white', 'white', 'white', 'silver', 'silver', 'gold'];
+  const FIREWORK_PALETTE = ['#ff5c7a', '#ffd35c', '#4dff88', '#4d94ff', '#ff9d4d', '#ffffff'];
+
+  const ROWS = 5;
+  const COLS = 9;
+  const TOTAL_BLOCKS = ROWS * COLS;
+  const BLOCKS_ADDED_ON_BLACK = 5;
+  const RED_COUNT = 3;
+  const UNLUCKY_BURST_ON_RED = 5;
+  const STAGE_COUNT = 3;
+  // ステージ毎のブロック構成・アイテム量。white(残り数)は自動計算される
+  const STAGE_BLOCK_CONFIG = {
+    1: { goldCount: 3,  silverCount: COLS * 3, diamondMin: 1, diamondMax: 1, blackCount: 2, redCount: 2, luckyDouble: true,  unluckyMin: 2, unluckyMax: 3 },
+    2: { goldCount: COLS,     silverCount: COLS * 2, diamondMin: 2, diamondMax: 3, blackCount: 3, redCount: 3, luckyDouble: false, unluckyMin: 3, unluckyMax: 4 },
+    3: { goldCount: COLS + 5, silverCount: COLS,     diamondMin: 3, diamondMax: 4, blackCount: 4, redCount: 4, luckyDouble: false, unluckyMin: 4, unluckyMax: 5 }
+  };
+
+  const BLOCK_PADDING = 6;
+  const BLOCK_TOP_OFFSET = 50;
+  const BLOCK_WIDTH = (W - BLOCK_PADDING * (COLS + 1)) / COLS;
+  const BLOCK_HEIGHT = 22;
+
+  const PADDLE_WIDTH_BASE = 90;
+  const PADDLE_WIDTH_EXPANDED = 150;
+  const PADDLE_WIDTH_EXPAND_STEP = 30;   // ①バー拡大を重ねて取るたびに広がる幅
+  const PADDLE_WIDTH_EXPAND_MAX = 300;   // ①の重ねがけ上限（⑤バー3倍とは別枠）
+  const PADDLE_WIDTH_HUGE = 270;
+  const PADDLE_WIDTH_MIN = 45;
+  const PADDLE_SHRINK_STEP = 22;
+  const PADDLE_HEIGHT = 12;
+  const PADDLE_Y = H - 30;
+  const BALL_RADIUS = 7;
+  const BALL_BASE_SPEED = 5;
+  const MEGAFAST_MULTIPLIER = 5; // 「ボール5倍」アンラッキーの1スタックあたりの倍率
+  const TIME_SPEEDUP_1_SEC = 300;  // 5分でボール速度2倍
+  const TIME_SPEEDUP_2_SEC = 420;  // 7分でボール速度3倍
+  const TIME_LIMIT_SEC = 600;      // 10分でタイムオーバー（無効）
+  const GIANT_MULTIPLIER = 3;
+  const GIANT_STEP_MULTIPLIER = 2; // ④ボール巨大化を重ねて取るたびに増える倍率
+  const GIANT_MAX_MULTIPLIER = 9;  // ④の重ねがけ上限
+  const LASER_BASE_COOLDOWN = 200;   // ③レーザーの基本連射間隔(ms)
+  const LASER_COOLDOWN_STEP = 40;    // 重ねて取るたびに連射間隔が縮む量
+  const LASER_MIN_COOLDOWN = 70;     // 連射間隔の下限
+  const LASER_BASE_BULLETS = 3;      // ③レーザーの基本弾数
+  const LASER_BULLETS_STEP = 2;      // 重ねて取るたびに増える弾数
+  const BALL_COLORS = ['#ffffff', '#ff4d4d', '#ffe14d', '#4d94ff', '#4dff88'];
+  const IRON_BALL_COLOR = '#b8b8c0';
+  const LUCKY_KIND_LIST = ['expand', 'multi', 'laser', 'giant', 'huge', 'iron', 'extraLife'];
+  const RARE_UNLOCK_GAMES = 3; // ⑦は3ゲームプレイした後（4戦目）から出現
+  const UNLUCKY_KIND_LIST = ['shrink', 'fastball', 'megafast'];
+  const UNLUCKY_ITEM_MIN = 2;
+  const UNLUCKY_ITEM_MAX = 3;
+  const MAX_LEADERBOARD = 4;
+  const DINO_SPAWN_TIME_SEC = 180; // 3分で恐竜が出現
+  const DINO_SPAWN_TIME_2_SEC = 300; // 5分経過時、赤ブロックが残っていれば2匹追加出現
+  const DINO_WAVE2_COUNT = 2;
+  const DINO_SIZE = 24;
+  const DINO_SPEED = 2.3;
+  const DINO_HIT_COOLDOWN = 1000; // 恐竜本体に当たった時の無敵時間(ms)
+  const FIREBALL_SPEED = 4.2;
+  const FIREBALL_INTERVAL_MIN = 2200;
+  const FIREBALL_INTERVAL_MAX = 3800;
+
+  let paddleX, paddleWidth, paddleSpeed = 7;
+  let leftPressed = false, rightPressed = false;
+
+  let balls, blocks, items, bullets, particles, score, lives, running, ballLaunched, lastShotTime;
+  let confetti = []; // クリア時に画面いっぱいに散らばるクラッカー(紙吹雪)
+  let bgmTimer = null, bgmStepIndex = 0; // クリア時の達成BGM用
+  let stage = 1; // 現在のステージ（1〜STAGE_COUNT）
+  let stageStartTime = 0; // 現在のステージが始まった時刻
+  let stageTimes = []; // 各ステージのクリアタイム（秒）
+  let stageAdvancing = false; // ステージ切り替え演出中の多重実行防止
+  let stageTransitionSession = 0; // ステージ切り替えsetTimeoutの誤作動防止
+  let powerState;
+  let megaFastStacks = 0; // 「ボール5倍」アンラッキーの累積スタック数
+  let currentBallSpeed = 5; // アンラッキー効果を反映した「今の基準速度」（後でBALL_BASE_SPEEDに合わせる）
+  let timeMultiplier = 1; // 経過時間によるボール速度倍率（5分で2倍、7分で3倍）
+  let luckyStacks = { expand: 0, giant: 0, laser: 0 }; // ラッキーアイテムの取得回数（同じ種類を重ねて取るほど強化）
+  let gamesPlayedCount = 0; // セッション内でスタート/リスタートした回数（⑦の解禁判定に使用）
+  let dinos = []; // 恐竜の状態（複数出現に対応）
+  let lastDinoHitTime = 0; // 恐竜本体との衝突の無敵時間管理（全恐竜共通）
+  let dinoWave1Spawned = false; // 3分の出現済みフラグ
+  let dinoWave2Spawned = false; // 5分の出現済みフラグ
+  let startTime = 0, elapsedTime = 0, timeFrozen = false, pendingWinTime = null, pendingWinScore = null;
+  let leaderboard = []; // { name, time } のセッション内履歴（短い順、上位4件）
+  let gameStarted = false; // 「ゲーム開始」ボタンが押されるまでtrueにならない
+  let paused = false; // 一時停止中はtrue
+
+  // ================= 効果音 =================
+  let audioCtx = null, sfxGain = null;
+
+  function ensureAudio() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      sfxGain = audioCtx.createGain();
+      sfxGain.gain.value = 0.7;
+      sfxGain.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  // 単音（金属的な響きが欲しい時はovertoneFreqで倍音を重ねる）
+  function playTone(freq, type, duration, volume, overtoneFreq) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(volume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    osc.connect(g); g.connect(sfxGain);
+    osc.start(t); osc.stop(t + duration);
+
+    if (overtoneFreq) {
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = type;
+      osc2.frequency.setValueAtTime(overtoneFreq, t);
+      const g2 = audioCtx.createGain();
+      g2.gain.setValueAtTime(volume * 0.45, t);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + duration * 0.7);
+      osc2.connect(g2); g2.connect(sfxGain);
+      osc2.start(t); osc2.stop(t + duration * 0.7);
+    }
+  }
+
+  // ノイズバースト（打撃感・衝撃感を足す）
+  function playNoiseBurst(duration, volume, filterFreq) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const bufferSize = Math.floor(audioCtx.sampleRate * duration);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(filterFreq, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(volume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + duration);
+    noise.connect(filter); filter.connect(g); g.connect(sfxGain);
+    noise.start(t); noise.stop(t + duration);
+  }
+
+  // 金：キーンと硬く高い金属音
+  function playGoldHitSound() {
+    playTone(1300, 'triangle', 0.35, 0.28, 2600);
+  }
+  // ダイヤ：金よりさらに高いキーン
+  function playDiamondHitSound() {
+    playTone(1900, 'triangle', 0.4, 0.3, 3800);
+  }
+  // 銀：ガンと硬質な打撃音
+  function playSilverHitSound() {
+    playTone(600, 'square', 0.15, 0.24);
+    playNoiseBurst(0.08, 0.18, 2500);
+  }
+  // 白：バンという低めの打撃音
+  function playWhiteHitSound() {
+    playTone(220, 'sine', 0.18, 0.32);
+    playNoiseBurst(0.12, 0.26, 1200);
+  }
+  // 黒：ポコッとした空気感のある音（ブロック増殖のギミック用）
+  function playBlackHitSound() {
+    playTone(160, 'sine', 0.22, 0.28);
+  }
+  // 赤：バシュッというはじけるような音（アンラッキー放出用）
+  function playRedHitSound() {
+    playNoiseBurst(0.2, 0.3, 3200);
+    playTone(340, 'sawtooth', 0.15, 0.18);
+  }
+
+  // ボールが下に落ちてしまった時の「デデンツ」という残念な効果音
+  function playBallLostSound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const notes = [392.0, 349.23, 311.13, 261.63]; // ソ→ファ→ミ♭→ド と下がる、しょんぼりした響き
+    const durs = [0.13, 0.13, 0.13, 0.42];
+    let t = t0;
+    notes.forEach((freq, i) => {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.92, t + durs[i]);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.26, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + durs[i]);
+      osc.connect(g); g.connect(sfxGain);
+      osc.start(t); osc.stop(t + durs[i]);
+      t += durs[i];
+    });
+  }
+
+  // ================= クリア達成BGM（ポップで軽快） =================
+  const VICTORY_LEAD_SCALE = [523.25, 659.25, 783.99, 659.25, 523.25, 659.25, 783.99, 1046.5];
+  const VICTORY_BASS_NOTES = [130.81, 130.81, 164.81, 196.0];
+
+  function scheduleVictoryBgmStep() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const tempo = 128;
+    const stepDur = 60 / tempo / 2;
+
+    // 跳ねるようなベース
+    const bassOsc = audioCtx.createOscillator();
+    bassOsc.type = 'square';
+    bassOsc.frequency.setValueAtTime(VICTORY_BASS_NOTES[Math.floor(bgmStepIndex / 2) % VICTORY_BASS_NOTES.length], t);
+    const bassGain = audioCtx.createGain();
+    bassGain.gain.setValueAtTime(0.2, t);
+    bassGain.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.85);
+    bassOsc.connect(bassGain); bassGain.connect(sfxGain);
+    bassOsc.start(t); bassOsc.stop(t + stepDur * 0.9);
+
+    // 明るいリード（達成感のある上昇アルペジオ）
+    const note = VICTORY_LEAD_SCALE[bgmStepIndex % VICTORY_LEAD_SCALE.length];
+    const leadOsc = audioCtx.createOscillator();
+    leadOsc.type = 'triangle';
+    leadOsc.frequency.setValueAtTime(note, t);
+    const leadGain = audioCtx.createGain();
+    leadGain.gain.setValueAtTime(0.19, t);
+    leadGain.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 0.8);
+    leadOsc.connect(leadGain); leadGain.connect(sfxGain);
+    leadOsc.start(t); leadOsc.stop(t + stepDur);
+
+    // 軽快なハイハット風パーカッション
+    if (bgmStepIndex % 2 === 0) {
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.04);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const nf = audioCtx.createBiquadFilter();
+      nf.type = 'highpass';
+      nf.frequency.setValueAtTime(4000, t);
+      const ng = audioCtx.createGain();
+      ng.gain.setValueAtTime(0.12, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+      noise.connect(nf); nf.connect(ng); ng.connect(sfxGain);
+      noise.start(t); noise.stop(t + 0.04);
+    }
+
+    bgmStepIndex++;
+    bgmTimer = setTimeout(scheduleVictoryBgmStep, stepDur * 1000);
+  }
+
+  function startVictoryBgm() {
+    ensureAudio();
+    stopBgm();
+    bgmStepIndex = 0;
+    scheduleVictoryBgmStep();
+  }
+
+  function stopBgm() {
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  }
+
+  // 恐竜が火を吐く時の「ボム」という効果音
+  function playFireballSound() {
+    playTone(160, 'sine', 0.16, 0.26);
+    playNoiseBurst(0.12, 0.2, 900);
+  }
+
+  // 恐竜がたまに吠える「ガオー」という効果音
+  function playDinoRoarSound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const dur = 0.55;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(90, t0 + dur * 0.7);
+    osc.frequency.exponentialRampToValueAtTime(60, t0 + dur);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.001, t0);
+    g.gain.exponentialRampToValueAtTime(0.32, t0 + 0.08);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    // 唸りを加えるビブラート
+    const lfo = audioCtx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(14, t0);
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.setValueAtTime(18, t0);
+    lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+    osc.connect(g); g.connect(sfxGain);
+    osc.start(t0); osc.stop(t0 + dur);
+    lfo.start(t0); lfo.stop(t0 + dur);
+    playNoiseBurst(dur * 0.8, 0.12, 1500);
+  }
+
+  // レーザー連射のたびに鳴らす「シュシュ」というかっこいい発射音
+  function playLaserShotSound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    [0, 0.06].forEach(delay => {
+      const t = t0 + delay;
+      const osc = audioCtx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1400, t);
+      osc.frequency.exponentialRampToValueAtTime(500, t + 0.09);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0.16, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      osc.connect(g); g.connect(sfxGain);
+      osc.start(t); osc.stop(t + 0.1);
+    });
+  }
+
+  function playBlockHitSound(type) {
+    if (type === 'gold') playGoldHitSound();
+    else if (type === 'diamond') playDiamondHitSound();
+    else if (type === 'silver') playSilverHitSound();
+    else if (type === 'white') playWhiteHitSound();
+    else if (type === 'black') playBlackHitSound();
+    else if (type === 'red') playRedHitSound();
+  }
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function currentBallRadius() {
+    return powerState.giant ? BALL_RADIUS * GIANT_MULTIPLIER : BALL_RADIUS;
+  }
+
+  function initBlocks() {
+    const cfg = STAGE_BLOCK_CONFIG[stage] || STAGE_BLOCK_CONFIG[2];
+    const diamondCount = cfg.diamondMin + Math.floor(Math.random() * (cfg.diamondMax - cfg.diamondMin + 1));
+    const whiteCount = Math.max(0, TOTAL_BLOCKS - cfg.goldCount - cfg.silverCount - diamondCount - cfg.blackCount - cfg.redCount);
+
+    let typePool = [
+      ...Array(cfg.goldCount).fill('gold'),
+      ...Array(cfg.silverCount).fill('silver'),
+      ...Array(whiteCount).fill('white'),
+      ...Array(diamondCount).fill('diamond'),
+      ...Array(cfg.blackCount).fill('black'),
+      ...Array(cfg.redCount).fill('red')
+    ];
+    // 端数調整：合計がTOTAL_BLOCKSに満たない場合はwhiteで埋める
+    while (typePool.length < TOTAL_BLOCKS) typePool.push('white');
+    typePool = typePool.slice(0, TOTAL_BLOCKS);
+    shuffle(typePool);
+
+    const arr = [];
+    let k = 0;
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const type = typePool[k++];
+        arr.push({
+          x: BLOCK_PADDING + c * (BLOCK_WIDTH + BLOCK_PADDING),
+          y: BLOCK_TOP_OFFSET + r * (BLOCK_HEIGHT + BLOCK_PADDING),
+          w: BLOCK_WIDTH,
+          h: BLOCK_HEIGHT,
+          type: type,
+          hitsLeft: BLOCK_TYPES[type].hits,
+          maxHits: BLOCK_TYPES[type].hits,
+          alive: true,
+          item: null
+        });
+      }
+    }
+
+    const breakableIndices = shuffle(
+      arr.map((b, i) => (b.type !== 'diamond' && b.type !== 'black' && b.type !== 'red' ? i : -1)).filter(i => i >= 0)
+    );
+    let cursor = 0;
+
+    let luckyPool = gamesPlayedCount > RARE_UNLOCK_GAMES ? [...LUCKY_KIND_LIST, 'rare'] : [...LUCKY_KIND_LIST];
+    if (cfg.luckyDouble) {
+      // ステージ1はラッキーアイテムを豊富に（rareは増やさない）
+      luckyPool = [...luckyPool, ...LUCKY_KIND_LIST];
+    }
+    const luckyKinds = shuffle(luckyPool);
+    luckyKinds.forEach(kind => {
+      if (cursor >= breakableIndices.length) return;
+      const idx = breakableIndices[cursor++];
+      arr[idx].item = { lucky: true, kind };
+    });
+
+    const unluckyCount = cfg.unluckyMin + Math.floor(Math.random() * (cfg.unluckyMax - cfg.unluckyMin + 1));
+    for (let n = 0; n < unluckyCount; n++) {
+      if (cursor >= breakableIndices.length) break;
+      const idx = breakableIndices[cursor++];
+      const kind = UNLUCKY_KIND_LIST[Math.floor(Math.random() * UNLUCKY_KIND_LIST.length)];
+      arr[idx].item = { lucky: false, kind };
+    }
+
+    return arr;
+  }
+
+  function addRandomBlocks(count) {
+    const deadIndices = shuffle(blocks.map((b, i) => (!b.alive ? i : -1)).filter(i => i >= 0));
+    const n = Math.min(count, deadIndices.length);
+    for (let i = 0; i < n; i++) {
+      const b = blocks[deadIndices[i]];
+      const type = REVIVE_TYPE_POOL[Math.floor(Math.random() * REVIVE_TYPE_POOL.length)];
+      b.type = type;
+      b.hitsLeft = BLOCK_TYPES[type].hits;
+      b.maxHits = BLOCK_TYPES[type].hits;
+      b.alive = true;
+      b.item = null;
+    }
+  }
+
+  function newBallOnPaddle() {
+    return {
+      x: paddleX + paddleWidth / 2,
+      y: PADDLE_Y - currentBallRadius() - 1,
+      dx: 0,
+      dy: 0,
+      speed: currentBallSpeed * timeMultiplier,
+      r: currentBallRadius(),
+      color: powerState.iron ? IRON_BALL_COLOR : BALL_COLORS[0]
+    };
+  }
+
+  function resetBalls() {
+    balls = [newBallOnPaddle()];
+    ballLaunched = false;
+  }
+
+  function launchBalls() {
+    if (ballLaunched) return;
+    balls.forEach(ball => {
+      const angle = (Math.random() * 0.6 - 0.3) - Math.PI / 2;
+      ball.dx = ball.speed * Math.cos(angle);
+      ball.dy = ball.speed * Math.sin(angle);
+    });
+    ballLaunched = true;
+  }
+
+  function formatTime(t) {
+    const m = Math.floor(t / 60);
+    const s = t - m * 60;
+    return m + ':' + s.toFixed(1).padStart(4, '0');
+  }
+
+  function renderLeaderboard() {
+    if (leaderboard.length === 0) {
+      lbListEl.innerHTML = '<li class="lb-empty">まだ記録が<br>ありません</li>';
+      return;
+    }
+    lbListEl.innerHTML = leaderboard.map((entry, i) => {
+      const rankClass = i === 0 ? 'rank1' : i === 1 ? 'rank2' : i === 2 ? 'rank3' : i === 3 ? 'rank4' : '';
+      const trophy = (entry.time >= 60 && entry.time <= 120) ? '🏆 ' : '';
+      return `<li class="${rankClass}"><span class="lb-rank">${i + 1}</span><span class="lb-name">${trophy}${entry.name}</span><span class="lb-time">${formatTime(entry.time)}</span><span class="lb-score">${entry.score}点</span></li>`;
+    }).join('');
+  }
+
+  function initGame() {
+    stopBgm();
+    confetti = [];
+    stage = 1;
+    stageTimes = [];
+    stageAdvancing = false;
+    stageTransitionSession++;
+    blocks = initBlocks();
+    items = [];
+    bullets = [];
+    particles = [];
+    score = 0;
+    lives = 3;
+    paused = false;
+    powerState = { expand: false, multi: false, laser: false, giant: false, huge: false, iron: false, rare: false };
+    luckyStacks = { expand: 0, giant: 0, laser: 0 };
+    megaFastStacks = 0;
+    currentBallSpeed = BALL_BASE_SPEED;
+    timeMultiplier = 1;
+    dinos = [];
+    lastDinoHitTime = 0;
+    dinoWave1Spawned = false;
+    dinoWave2Spawned = false;
+    paddleWidth = PADDLE_WIDTH_BASE;
+    paddleX = (W - paddleWidth) / 2;
+    lastShotTime = 0;
+    resetBalls();
+    running = true;
+    startTime = performance.now();
+    stageStartTime = startTime;
+    elapsedTime = 0;
+    timeFrozen = false;
+    pendingWinTime = null;
+    pendingWinScore = null;
+    messageEl.textContent = '';
+    restartBtn.style.display = 'none';
+    nameEntryEl.style.display = 'none';
+    nameInputEl.value = '';
+    timerEl.textContent = formatTime(0);
+    updateHUD();
+    updateBadges();
+  }
+
+  function updateHUD() {
+    stageNumEl.textContent = stage;
+    scoreEl.textContent = score;
+    livesEl.textContent = lives;
+  }
+
+  function updateBadges() {
+    Object.keys(badgeEls).forEach(k => {
+      if (powerState[k]) badgeEls[k].classList.add('active');
+      else badgeEls[k].classList.remove('active');
+    });
+  }
+
+  function blockColor(block) {
+    const def = BLOCK_TYPES[block.type];
+    const idx = def.hits - block.hitsLeft;
+    return def.colors[Math.min(idx, def.colors.length - 1)];
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawBlocks() {
+    blocks.forEach(b => {
+      if (!b.alive) return;
+      ctx.fillStyle = blockColor(b);
+      ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+      ctx.lineWidth = 1;
+      roundRect(ctx, b.x, b.y, b.w, b.h, 4);
+      ctx.fill();
+      ctx.stroke();
+      if (b.type === 'diamond') {
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(b.x + b.w / 2, b.y + 2);
+        ctx.lineTo(b.x + b.w / 2, b.y + b.h - 2);
+        ctx.moveTo(b.x + 4, b.y + b.h / 2);
+        ctx.lineTo(b.x + b.w - 4, b.y + b.h / 2);
+        ctx.stroke();
+      } else if (b.type === 'black') {
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath();
+        ctx.arc(b.x + b.w / 2, b.y + b.h / 2, 3, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (b.type === 'red') {
+        ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+        ctx.lineWidth = 2;
+        const cx = b.x + b.w / 2, cy = b.y + b.h / 2, s = 5;
+        ctx.beginPath();
+        ctx.moveTo(cx - s, cy - s);
+        ctx.lineTo(cx + s, cy + s);
+        ctx.moveTo(cx + s, cy - s);
+        ctx.lineTo(cx - s, cy + s);
+        ctx.stroke();
+      }
+    });
+  }
+
+  function drawPaddle() {
+    if (powerState.laser) {
+      ctx.fillStyle = '#1a2a6c';
+      roundRect(ctx, paddleX, PADDLE_Y, paddleWidth, PADDLE_HEIGHT, 6);
+      ctx.fill();
+      ctx.fillStyle = '#ffd35c';
+      const cannonW = 8, cannonH = 10;
+      ctx.fillRect(paddleX + 6, PADDLE_Y - cannonH, cannonW, cannonH);
+      ctx.fillRect(paddleX + paddleWidth - 6 - cannonW, PADDLE_Y - cannonH, cannonW, cannonH);
+    } else {
+      ctx.fillStyle = '#4c5bd4';
+      roundRect(ctx, paddleX, PADDLE_Y, paddleWidth, PADDLE_HEIGHT, 6);
+      ctx.fill();
+    }
+  }
+
+  function drawBalls() {
+    balls.forEach(ball => {
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fillStyle = ball.color || '#ffd35c';
+      ctx.shadowColor = ball.color || '#ffd35c';
+      ctx.shadowBlur = 10;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+  }
+
+  function drawStar(cx, cy, outerR, innerR, spikes) {
+    ctx.beginPath();
+    let rot = Math.PI / 2 * 3;
+    const step = Math.PI / spikes;
+    ctx.moveTo(cx, cy - outerR);
+    for (let i = 0; i < spikes; i++) {
+      let x = cx + Math.cos(rot) * outerR, y = cy + Math.sin(rot) * outerR;
+      ctx.lineTo(x, y); rot += step;
+      x = cx + Math.cos(rot) * innerR; y = cy + Math.sin(rot) * innerR;
+      ctx.lineTo(x, y); rot += step;
+    }
+    ctx.lineTo(cx, cy - outerR);
+    ctx.closePath();
+  }
+
+  function drawItems() {
+    const now = performance.now();
+    items.forEach(it => {
+      if (it.lucky && it.kind === 'rare') {
+        // ⑦超激レア：通常の2倍サイズのきらきら光る星
+        const twinkle = 0.6 + 0.4 * Math.sin(now / 150);
+        ctx.save();
+        ctx.shadowColor = '#fff9c4';
+        ctx.shadowBlur = 20 * twinkle;
+        ctx.fillStyle = '#ffe066';
+        ctx.strokeStyle = '#a9790a';
+        ctx.lineWidth = 2.5;
+        drawStar(it.x, it.y, 20, 9, 5);
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // 周囲にきらめく光の線
+        ctx.strokeStyle = `rgba(255,255,255,${0.5 + 0.5 * twinkle})`;
+        ctx.lineWidth = 1.5;
+        const sparkleR1 = 26, sparkleR2 = 34;
+        [0, Math.PI / 2, Math.PI, Math.PI * 1.5].forEach((baseAngle, i) => {
+          const angle = baseAngle + now / 800;
+          const sx1 = it.x + Math.cos(angle) * sparkleR1;
+          const sy1 = it.y + Math.sin(angle) * sparkleR1;
+          const sx2 = it.x + Math.cos(angle) * sparkleR2;
+          const sy2 = it.y + Math.sin(angle) * sparkleR2;
+          ctx.beginPath();
+          ctx.moveTo(sx1, sy1);
+          ctx.lineTo(sx2, sy2);
+          ctx.stroke();
+        });
+      } else if (it.lucky && it.kind === 'extraLife') {
+        // ⑧残り球数+1（最大5個）：ハート型のアイコン
+        const pulse = 0.85 + 0.15 * Math.sin(now / 180);
+        ctx.save();
+        ctx.shadowColor = '#ff8fa3';
+        ctx.shadowBlur = 10 * pulse;
+        ctx.fillStyle = '#ff5c7a';
+        ctx.strokeStyle = '#9c1f36';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        const hx = it.x, hy = it.y + 3;
+        ctx.moveTo(hx, hy);
+        ctx.bezierCurveTo(hx - 11, hy - 10, hx - 6, hy - 16, hx, hy - 8);
+        ctx.bezierCurveTo(hx + 6, hy - 16, hx + 11, hy - 10, hx, hy);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      } else if (it.lucky) {
+        ctx.fillStyle = '#ffd35c';
+        ctx.strokeStyle = '#8a6b1a';
+        ctx.lineWidth = 2;
+        drawStar(it.x, it.y, 10, 4.5, 5);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#c8375e';
+        ctx.strokeStyle = '#6e1a30';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(it.x, it.y - 10);
+        ctx.lineTo(it.x + 8, it.y);
+        ctx.lineTo(it.x, it.y + 10);
+        ctx.lineTo(it.x - 8, it.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', it.x, it.y + 1);
+      }
+    });
+  }
+
+  function drawBullets() {
+    ctx.save();
+    ctx.shadowColor = '#4fc3ff';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#1e6fff';
+    bullets.forEach(bu => {
+      ctx.fillRect(bu.x - 3.5, bu.y - 12, 7, 20);
+    });
+    ctx.restore();
+  }
+
+  // かわいい恐竜と、口から吐く火を描画する（複数体対応）
+  function drawDinos() {
+    dinos.forEach(drawSingleDino);
+  }
+
+  function drawSingleDino(dino) {
+    const { x, y, size, facing } = dino;
+    const bob = Math.sin(dino.wobble) * 3;
+
+    ctx.save();
+    ctx.translate(x, y + bob);
+    ctx.scale(facing, 1);
+
+    // 脚
+    ctx.fillStyle = '#3fa34d';
+    ctx.beginPath();
+    ctx.ellipse(-size * 0.4, size * 0.7, size * 0.22, size * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(size * 0.3, size * 0.7, size * 0.22, size * 0.3, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // しっぽ
+    ctx.fillStyle = '#4dbb63';
+    ctx.beginPath();
+    ctx.moveTo(-size * 0.9, size * 0.1);
+    ctx.quadraticCurveTo(-size * 1.5, -size * 0.2, -size * 1.15, -size * 0.55);
+    ctx.quadraticCurveTo(-size * 0.95, -size * 0.1, -size * 0.7, size * 0.1);
+    ctx.closePath();
+    ctx.fill();
+
+    // 胴体
+    ctx.fillStyle = '#4dbb63';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 0.85, size * 0.65, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // おなか
+    ctx.fillStyle = '#bff2c8';
+    ctx.beginPath();
+    ctx.ellipse(0, size * 0.15, size * 0.55, size * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 背中のトゲトゲ
+    ctx.fillStyle = '#2f8f45';
+    for (let i = -1; i <= 1; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * size * 0.3 - size * 0.08, -size * 0.55);
+      ctx.lineTo(i * size * 0.3, -size * 0.9);
+      ctx.lineTo(i * size * 0.3 + size * 0.08, -size * 0.55);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 頭
+    ctx.fillStyle = '#4dbb63';
+    ctx.beginPath();
+    ctx.ellipse(size * 0.75, -size * 0.25, size * 0.45, size * 0.38, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 口・マズル
+    ctx.fillStyle = '#3fa34d';
+    ctx.beginPath();
+    ctx.ellipse(size * 1.05, -size * 0.15, size * 0.2, size * 0.14, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 目
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(size * 0.9, -size * 0.35, size * 0.15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#222';
+    ctx.beginPath();
+    ctx.arc(size * 0.95, -size * 0.35, size * 0.07, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ほっぺ
+    ctx.fillStyle = 'rgba(255,140,140,0.55)';
+    ctx.beginPath();
+    ctx.arc(size * 0.72, -size * 0.05, size * 0.11, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+
+    // 火の玉
+    dino.fireballs.forEach(f => {
+      const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * 1.8);
+      grad.addColorStop(0, '#fff3b0');
+      grad.addColorStop(0.5, '#ff9d4d');
+      grad.addColorStop(1, 'rgba(255,92,42,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.r * 1.8, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  function drawParticles() {
+    particles.forEach(p => {
+      const alpha = Math.max(0, p.life / p.maxLife);
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+  }
+
+  function spawnFirework(x, y) {
+    const count = 22;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.5 + Math.random() * 4;
+      const maxLife = 28 + Math.random() * 18;
+      particles.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: maxLife,
+        maxLife,
+        size: 1.5 + Math.random() * 2,
+        color: FIREWORK_PALETTE[Math.floor(Math.random() * FIREWORK_PALETTE.length)]
+      });
+    }
+  }
+
+  // ================= クリア演出：画面いっぱいのクラッカー(紙吹雪) =================
+  const CONFETTI_COLORS = ['#ff5c7a', '#ffd35c', '#4dff88', '#4d94ff', '#ff9d4d', '#c77dff', '#ffffff'];
+
+  function spawnConfettiPiece(x, y, vx, vy) {
+    confetti.push({
+      x, y, vx, vy,
+      rot: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.35,
+      w: 5 + Math.random() * 4,
+      h: 8 + Math.random() * 6,
+      color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+      life: 220 + Math.random() * 80
+    });
+  }
+
+  // 画面全体を彩るクラッカー演出（左右の下から打ち上がり、上からも降り注ぐ）
+  function spawnConfettiBurst() {
+    // 左下・右下のクラッカーが扇状に打ち上がる
+    for (let i = 0; i < 90; i++) {
+      const fromLeft = i % 2 === 0;
+      const originX = fromLeft ? 10 : W - 10;
+      const angle = fromLeft ? rand(-1.3, -0.3) : rand(-Math.PI + 0.3, -Math.PI + 1.3);
+      const speed = rand(4, 10);
+      spawnConfettiPiece(originX, H - 10, Math.cos(angle) * speed, Math.sin(angle) * speed);
+    }
+    // 画面上部からも紙吹雪が降ってくる
+    for (let i = 0; i < 70; i++) {
+      spawnConfettiPiece(rand(0, W), -20, rand(-1, 1), rand(1, 3));
+    }
+  }
+
+  function updateConfetti() {
+    for (let i = confetti.length - 1; i >= 0; i--) {
+      const c = confetti[i];
+      c.vy += 0.14; // 重力
+      c.vx *= 0.995;
+      c.x += c.vx;
+      c.y += c.vy;
+      c.rot += c.rotSpeed;
+      c.life -= 1;
+      if (c.life <= 0 || c.y > H + 30) confetti.splice(i, 1);
+    }
+  }
+
+  function drawConfetti() {
+    confetti.forEach(c => {
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(c.rot);
+      ctx.fillStyle = c.color;
+      ctx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+      ctx.restore();
+    });
+  }
+
+  function movePaddle() {
+    if (leftPressed) paddleX -= paddleSpeed;
+    if (rightPressed) paddleX += paddleSpeed;
+    paddleX = Math.max(0, Math.min(W - paddleWidth, paddleX));
+    if (!ballLaunched) {
+      balls.forEach(ball => { ball.x = paddleX + paddleWidth / 2; });
+    }
+  }
+
+  function spawnItemFromBlock(b) {
+    items.push({ x: b.x + b.w / 2, y: b.y + b.h / 2, dx: 0, dy: 2, lucky: b.item.lucky, kind: b.item.kind });
+  }
+
+  // 赤ブロックを壊すとアンラッキーアイテムが5個まとめて弾け出る
+  function spawnUnluckyBurst(b, count) {
+    const spread = [-3, -1.5, 0, 1.5, 3];
+    for (let i = 0; i < count; i++) {
+      const kind = UNLUCKY_KIND_LIST[Math.floor(Math.random() * UNLUCKY_KIND_LIST.length)];
+      items.push({
+        x: b.x + b.w / 2,
+        y: b.y + b.h / 2,
+        dx: spread[i % spread.length],
+        dy: 2,
+        lucky: false,
+        kind
+      });
+    }
+  }
+
+  // ラッキー系の効果（バー幅・ボール半径・レーザー・複数ボール）を全て解除して基本状態に戻す
+  function clearAllLucky() {
+    powerState.expand = false;
+    powerState.huge = false;
+    powerState.laser = false;
+    powerState.giant = false;
+    powerState.multi = false;
+    powerState.iron = false;
+    luckyStacks = { expand: 0, giant: 0, laser: 0 };
+
+    paddleWidth = PADDLE_WIDTH_BASE;
+    paddleX = Math.max(0, Math.min(W - paddleWidth, paddleX));
+
+    balls.forEach((ball, i) => {
+      ball.r = BALL_RADIUS;
+      ball.color = BALL_COLORS[i] || BALL_COLORS[0];
+    });
+    if (balls.length > 1) {
+      balls = [balls[0]];
+    }
+    updateBadges();
+  }
+
+  // アンラッキー系の効果（バー縮小・ボール高速化の蓄積）を全て解除する
+  // 現在のcurrentBallSpeed（アンラッキー分の基準速度）に、経過時間による倍率をかけて全ボールへ反映する
+  function applyCurrentSpeedToBalls() {
+    const target = currentBallSpeed * timeMultiplier;
+    balls.forEach(ball => {
+      const angle = ballLaunched ? Math.atan2(ball.dy, ball.dx) : -Math.PI / 2;
+      ball.speed = target;
+      if (ballLaunched) {
+        ball.dx = target * Math.cos(angle);
+        ball.dy = target * Math.sin(angle);
+      }
+    });
+  }
+
+  function clearAllCurses() {
+    megaFastStacks = 0;
+    currentBallSpeed = BALL_BASE_SPEED;
+    applyCurrentSpeedToBalls();
+    paddleWidth = PADDLE_WIDTH_BASE;
+    paddleX = Math.max(0, Math.min(W - paddleWidth, paddleX));
+  }
+
+  function applyLucky(kind) {
+    clearAllCurses(); // ラッキーアイテムを1つでも取ればアンラッキー状態は全解除
+
+    if (kind === 'expand') {
+      powerState.expand = true;
+      luckyStacks.expand += 1;
+      const newWidth = Math.min(PADDLE_WIDTH_EXPANDED + PADDLE_WIDTH_EXPAND_STEP * (luckyStacks.expand - 1), PADDLE_WIDTH_EXPAND_MAX);
+      paddleX = Math.max(0, Math.min(W - newWidth, paddleX - (newWidth - paddleWidth) / 2));
+      paddleWidth = newWidth;
+    } else if (kind === 'multi') {
+      powerState.multi = true;
+      if (balls.length < 5) {
+        const base = balls[0];
+        const baseAngle = ballLaunched ? Math.atan2(base.dy, base.dx) : -Math.PI / 2;
+        const spread = [-0.5, -0.25, 0, 0.25, 0.5];
+        const newBalls = spread.map((off, i) => ({
+          x: base.x, y: base.y,
+          dx: ballLaunched ? base.speed * Math.cos(baseAngle + off) : 0,
+          dy: ballLaunched ? base.speed * Math.sin(baseAngle + off) : 0,
+          speed: base.speed,
+          r: base.r,
+          color: powerState.iron ? IRON_BALL_COLOR : BALL_COLORS[i]
+        }));
+        balls = newBalls;
+      }
+    } else if (kind === 'laser') {
+      // 重ねて取るほど連射速度と弾数がアップする
+      powerState.laser = true;
+      luckyStacks.laser += 1;
+    } else if (kind === 'giant') {
+      powerState.giant = true;
+      luckyStacks.giant += 1;
+      const mult = Math.min(GIANT_MULTIPLIER + GIANT_STEP_MULTIPLIER * (luckyStacks.giant - 1), GIANT_MAX_MULTIPLIER);
+      balls.forEach(ball => { ball.r = BALL_RADIUS * mult; });
+    } else if (kind === 'huge') {
+      powerState.huge = true;
+      const newWidth = Math.min(PADDLE_WIDTH_HUGE, W - 10);
+      paddleX = Math.max(0, Math.min(W - newWidth, paddleX - (newWidth - paddleWidth) / 2));
+      paddleWidth = newWidth;
+    } else if (kind === 'iron') {
+      // 鉄球化：跳ね返らずどんなブロックも貫通して1発で破壊する
+      powerState.iron = true;
+      balls.forEach(ball => { ball.color = IRON_BALL_COLOR; });
+    } else if (kind === 'extraLife') {
+      // ⑧残り球数が1つ増える（最大5個まで）
+      lives = Math.min(5, lives + 1);
+      updateHUD();
+    } else if (kind === 'rare') {
+      // ⑦超激レア：残っている全ブロックを破壊して即クリア（黒ブロックの連鎖復活も含めて一掃する）
+      powerState.rare = true;
+      updateBadges();
+      let guard = 0;
+      while (blocks.some(b => b.alive) && guard < 20) {
+        blocks.filter(b => b.alive).forEach(b => destroyBlock(b, true));
+        guard++;
+      }
+      endGame('win');
+      return;
+    }
+    updateBadges();
+  }
+
+  function applyUnlucky(kind) {
+    clearAllLucky(); // アンラッキーアイテムを取ればラッキー状態は全解除
+
+    if (kind === 'shrink') {
+      const newWidth = Math.max(PADDLE_WIDTH_MIN, paddleWidth - PADDLE_SHRINK_STEP);
+      paddleX += (paddleWidth - newWidth) / 2;
+      paddleWidth = newWidth;
+      paddleX = Math.max(0, Math.min(W - paddleWidth, paddleX));
+    } else if (kind === 'fastball') {
+      currentBallSpeed *= 2;
+      applyCurrentSpeedToBalls();
+    } else if (kind === 'megafast') {
+      // 取るたびに追加でスタックし、どんどんボールが速くなる最悪アイテム
+      megaFastStacks += 1;
+      currentBallSpeed = BALL_BASE_SPEED * MEGAFAST_MULTIPLIER * megaFastStacks;
+      applyCurrentSpeedToBalls();
+    }
+  }
+
+  function fireBullet() {
+    if (!powerState.laser) return;
+    const now = performance.now();
+    const cooldown = Math.max(LASER_MIN_COOLDOWN, LASER_BASE_COOLDOWN - LASER_COOLDOWN_STEP * (luckyStacks.laser - 1));
+    if (now - lastShotTime < cooldown) return;
+    lastShotTime = now;
+    playLaserShotSound();
+
+    const bulletCount = LASER_BASE_BULLETS + LASER_BULLETS_STEP * (luckyStacks.laser - 1);
+    const margin = 10;
+    const usableWidth = Math.max(0, paddleWidth - margin * 2);
+    for (let i = 0; i < bulletCount; i++) {
+      const t = bulletCount === 1 ? 0.5 : i / (bulletCount - 1);
+      const x = paddleX + margin + usableWidth * t;
+      bullets.push({ x, y: PADDLE_Y - 10 });
+    }
+  }
+
+  function destroyBlock(b, instant) {
+    playBlockHitSound(b.type);
+    let justDied = false;
+
+    if (b.type === 'diamond') {
+      if (!instant) return;
+      b.alive = false;
+      score += BLOCK_TYPES.diamond.score;
+      justDied = true;
+    } else if (instant) {
+      b.alive = false;
+      score += BLOCK_TYPES[b.type].hits * 10;
+      justDied = true;
+    } else {
+      b.hitsLeft -= 1;
+      if (b.hitsLeft <= 0) {
+        b.alive = false;
+        score += BLOCK_TYPES[b.type].hits * 10;
+        justDied = true;
+      } else {
+        score += 5;
+      }
+    }
+
+    if (justDied) {
+      if (instant) {
+        spawnFirework(b.x + b.w / 2, b.y + b.h / 2);
+      }
+      if (b.item) {
+        spawnItemFromBlock(b);
+        b.item = null;
+      }
+      if (b.type === 'black') {
+        addRandomBlocks(BLOCKS_ADDED_ON_BLACK);
+      }
+      if (b.type === 'red') {
+        spawnUnluckyBurst(b, UNLUCKY_BURST_ON_RED);
+      }
+    }
+    updateHUD();
+  }
+
+  // ボールが0個になった時の共通処理（残機減少・リセットまたはゲームオーバー）
+  function checkBallsEmpty() {
+    if (balls.length === 0) {
+      playBallLostSound();
+      lives -= 1;
+      updateHUD();
+      if (lives <= 0) {
+        endGame('lose');
+      } else {
+        // ボールを全て落としたら、ラッキー・アンラッキーの効果を初期状態に戻す
+        clearAllLucky();
+        clearAllCurses();
+        resetBalls();
+      }
+    }
+  }
+
+  // 恐竜や火に当たった時、ボールを1つ落としたのと同じ効果にする
+  function loseOneBall() {
+    if (!running) return;
+    if (balls.length > 0) {
+      balls.pop();
+    }
+    checkBallsEmpty();
+  }
+
+  function moveBalls() {
+    if (!ballLaunched) return;
+
+    for (let idx = balls.length - 1; idx >= 0; idx--) {
+      const ball = balls[idx];
+      ball.x += ball.dx;
+      ball.y += ball.dy;
+
+      if (ball.x - ball.r < 0) {
+        ball.x = ball.r;
+        ball.dx *= -1;
+      } else if (ball.x + ball.r > W) {
+        ball.x = W - ball.r;
+        ball.dx *= -1;
+      }
+      if (ball.y - ball.r < 0) {
+        ball.y = ball.r;
+        ball.dy *= -1;
+      }
+
+      if (
+        ball.dy > 0 &&
+        ball.y + ball.r >= PADDLE_Y &&
+        ball.y + ball.r <= PADDLE_Y + PADDLE_HEIGHT + 6 &&
+        ball.x >= paddleX &&
+        ball.x <= paddleX + paddleWidth
+      ) {
+        const hitPos = (ball.x - (paddleX + paddleWidth / 2)) / (paddleWidth / 2);
+        const maxAngle = Math.PI / 3;
+        const angle = hitPos * maxAngle - Math.PI / 2;
+        ball.dx = ball.speed * Math.cos(angle);
+        ball.dy = ball.speed * Math.sin(angle);
+        ball.y = PADDLE_Y - ball.r - 1;
+      }
+
+      // 鉄球は恐竜にも当たると倒せる（通常のボールでは効果なし）
+      if (powerState.iron && dinos.length > 0) {
+        for (let di = dinos.length - 1; di >= 0; di--) {
+          const d = dinos[di];
+          const ddx = ball.x - d.x, ddy = ball.y - d.y;
+          if (Math.sqrt(ddx * ddx + ddy * ddy) < ball.r + d.size * 0.8) {
+            defeatDino(di);
+          }
+        }
+      }
+
+      for (const b of blocks) {
+        if (!b.alive) continue;
+        if (
+          ball.x + ball.r > b.x &&
+          ball.x - ball.r < b.x + b.w &&
+          ball.y + ball.r > b.y &&
+          ball.y - ball.r < b.y + b.h
+        ) {
+          if (powerState.iron) {
+            // 鉄球：跳ね返らず貫通し、どんなブロックも1発で破壊する
+            destroyBlock(b, true);
+            continue;
+          }
+
+          const overlapLeft = (ball.x + ball.r) - b.x;
+          const overlapRight = (b.x + b.w) - (ball.x - ball.r);
+          const overlapTop = (ball.y + ball.r) - b.y;
+          const overlapBottom = (b.y + b.h) - (ball.y - ball.r);
+          const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+
+          if (minOverlap === overlapTop || minOverlap === overlapBottom) {
+            ball.dy *= -1;
+          } else {
+            ball.dx *= -1;
+          }
+
+          if (b.type !== 'diamond') {
+            destroyBlock(b, false);
+          }
+          break;
+        }
+      }
+
+      if (ball.y - ball.r > H) {
+        balls.splice(idx, 1);
+      }
+    }
+
+    checkBallsEmpty();
+    checkStageClear();
+  }
+
+  function moveItems() {
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i];
+      it.y += it.dy;
+      if (it.dx) {
+        it.x += it.dx;
+        it.dx *= 0.96; // 徐々に横の勢いを落として自然に落下させる
+        it.x = Math.max(10, Math.min(W - 10, it.x));
+      }
+      if (
+        it.y + 10 >= PADDLE_Y &&
+        it.y - 10 <= PADDLE_Y + PADDLE_HEIGHT &&
+        it.x >= paddleX &&
+        it.x <= paddleX + paddleWidth
+      ) {
+        items.splice(i, 1);
+        if (it.lucky) applyLucky(it.kind);
+        else applyUnlucky(it.kind);
+        continue;
+      }
+      if (it.y - 10 > H) {
+        items.splice(i, 1);
+      }
+    }
+  }
+
+  function moveBullets() {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+      const bu = bullets[i];
+      bu.y -= 9;
+      let hit = false;
+
+      // レーザーは恐竜にも当たると倒せる
+      for (let di = dinos.length - 1; di >= 0; di--) {
+        const d = dinos[di];
+        const ddx = bu.x - d.x, ddy = bu.y - d.y;
+        if (Math.sqrt(ddx * ddx + ddy * ddy) < d.size * 0.8) {
+          defeatDino(di);
+          hit = true;
+          break;
+        }
+      }
+
+      if (!hit) {
+        for (const b of blocks) {
+          if (!b.alive) continue;
+          if (bu.x >= b.x && bu.x <= b.x + b.w && bu.y >= b.y && bu.y <= b.y + b.h) {
+            destroyBlock(b, true);
+            hit = true;
+            break;
+          }
+        }
+      }
+      if (hit || bu.y < 0) {
+        bullets.splice(i, 1);
+      }
+    }
+    checkStageClear();
+  }
+
+  function moveParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.06;
+      p.life -= 1;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  // 恐竜1体分のオブジェクトを生成する共通ファクトリ
+  function makeDino(x, y, areaTop, areaBottom) {
+    return {
+      x, y,
+      dx: (Math.random() < 0.5 ? -1 : 1) * DINO_SPEED,
+      dy: (Math.random() < 0.5 ? -1 : 1) * DINO_SPEED,
+      size: DINO_SIZE,
+      areaTop, areaBottom,
+      facing: 1,
+      wobble: Math.random() * 10,
+      nextFireAt: performance.now() + 1800 + Math.random() * 1200,
+      fireballs: []
+    };
+  }
+
+  function dinoArea() {
+    return {
+      areaTop: BLOCK_TOP_OFFSET + ROWS * (BLOCK_HEIGHT + BLOCK_PADDING) + 24,
+      areaBottom: PADDLE_Y - 36
+    };
+  }
+
+  // 3分経過で赤ブロックの1つから恐竜が出現する（赤ブロックが無ければ中央付近から出現）
+  function spawnDinoWave1() {
+    const { areaTop, areaBottom } = dinoArea();
+    const redBlock = blocks.find(b => b.alive && b.type === 'red');
+    let x = W / 2, y = (areaTop + areaBottom) / 2;
+    if (redBlock) {
+      x = redBlock.x + redBlock.w / 2;
+      y = Math.max(areaTop, Math.min(areaBottom, redBlock.y + redBlock.h / 2));
+      redBlock.alive = false; // 赤ブロックが恐竜に姿を変える
+    }
+    dinos.push(makeDino(x, y, areaTop, areaBottom));
+  }
+
+  // 5分経過時、まだ残っている赤ブロックがあれば、そこから最大2匹追加で恐竜が出現する
+  function spawnDinoWave2() {
+    const { areaTop, areaBottom } = dinoArea();
+    const redBlocks = blocks.filter(b => b.alive && b.type === 'red');
+    const count = Math.min(DINO_WAVE2_COUNT, redBlocks.length);
+    for (let i = 0; i < count; i++) {
+      const rb = redBlocks[i];
+      rb.alive = false;
+      const x = rb.x + rb.w / 2;
+      const y = Math.max(areaTop, Math.min(areaBottom, rb.y + rb.h / 2));
+      dinos.push(makeDino(x, y, areaTop, areaBottom));
+    }
+  }
+
+  function dinoBreatheFire(d) {
+    const targetX = paddleX + paddleWidth / 2;
+    const targetY = PADDLE_Y;
+    const angle = Math.atan2(targetY - d.y, targetX - d.x);
+    d.fireballs.push({
+      x: d.x, y: d.y,
+      dx: Math.cos(angle) * FIREBALL_SPEED,
+      dy: Math.sin(angle) * FIREBALL_SPEED,
+      r: 7
+    });
+    playFireballSound();
+    if (Math.random() < 0.3) playDinoRoarSound(); // たまに吠える
+  }
+
+  // 恐竜を倒す（鉄球・レーザーのみが呼び出す）
+  function defeatDino(index) {
+    const d = dinos[index];
+    if (!d) return;
+    spawnFirework(d.x, d.y);
+    score += 100;
+    updateHUD();
+    dinos.splice(index, 1);
+  }
+
+  function moveDinos() {
+    if (dinos.length === 0) return;
+    const now = performance.now();
+
+    for (let di = dinos.length - 1; di >= 0; di--) {
+      const d = dinos[di];
+      d.wobble += 0.15;
+      d.x += d.dx;
+      d.y += d.dy;
+
+      if (d.x - d.size < 0) { d.x = d.size; d.dx *= -1; }
+      if (d.x + d.size > W) { d.x = W - d.size; d.dx *= -1; }
+      if (d.y - d.size < d.areaTop) { d.y = d.areaTop + d.size; d.dy *= -1; }
+      if (d.y + d.size > d.areaBottom) { d.y = d.areaBottom - d.size; d.dy *= -1; }
+      d.facing = d.dx >= 0 ? 1 : -1;
+
+      if (Math.random() < 0.02) {
+        const angle = Math.atan2(d.dy, d.dx) + (Math.random() - 0.5) * 1.2;
+        d.dx = Math.cos(angle) * DINO_SPEED;
+        d.dy = Math.sin(angle) * DINO_SPEED;
+      }
+
+      if (now >= d.nextFireAt) {
+        dinoBreatheFire(d);
+        d.nextFireAt = now + FIREBALL_INTERVAL_MIN + Math.random() * (FIREBALL_INTERVAL_MAX - FIREBALL_INTERVAL_MIN);
+      }
+
+      for (let i = d.fireballs.length - 1; i >= 0; i--) {
+        const f = d.fireballs[i];
+        f.x += f.dx;
+        f.y += f.dy;
+        if (f.y > H + 20 || f.y < -20 || f.x < -20 || f.x > W + 20) {
+          d.fireballs.splice(i, 1);
+          continue;
+        }
+        if (
+          f.y + f.r >= PADDLE_Y &&
+          f.y - f.r <= PADDLE_Y + PADDLE_HEIGHT &&
+          f.x >= paddleX - f.r &&
+          f.x <= paddleX + paddleWidth + f.r
+        ) {
+          d.fireballs.splice(i, 1);
+          loseOneBall();
+          continue;
+        }
+      }
+
+      if (now - lastDinoHitTime > DINO_HIT_COOLDOWN) {
+        if (
+          d.x + d.size > paddleX &&
+          d.x - d.size < paddleX + paddleWidth &&
+          d.y + d.size > PADDLE_Y &&
+          d.y - d.size < PADDLE_Y + PADDLE_HEIGHT
+        ) {
+          lastDinoHitTime = now;
+          d.dy *= -1;
+          loseOneBall();
+        }
+      }
+    }
+  }
+
+  // 現在のステージの全ブロック(ダイヤ除く)が壊れたか判定し、次のステージへ進むか全クリア処理をする
+  function checkStageClear() {
+    if (stageAdvancing) return;
+    if (blocks.every(b => !b.alive || b.type === 'diamond')) {
+      stageAdvancing = true;
+      advanceStageOrFinish();
+    }
+  }
+
+  function advanceStageOrFinish() {
+    const now = performance.now();
+    const stageDuration = (now - stageStartTime) / 1000;
+    stageTimes.push(stageDuration);
+
+    if (stage >= STAGE_COUNT) {
+      endGame('win');
+      return;
+    }
+
+    // 次のステージへ切り替える演出
+    messageEl.textContent = '🎉 ステージ' + stage + ' クリア！（' + formatTime(stageDuration) + '） 次のステージへ…';
+    running = false;
+    const mySession = ++stageTransitionSession;
+    setTimeout(() => {
+      if (mySession !== stageTransitionSession) return; // 別のゲームに切り替わっていたら何もしない
+      stage += 1;
+      stageStartTime = performance.now();
+      blocks = initBlocks();
+      items = [];
+      bullets = [];
+      resetBalls();
+      messageEl.textContent = '';
+      running = true;
+      stageAdvancing = false;
+      updateHUD();
+    }, 1500);
+  }
+
+  function endGame(status) {
+    running = false;
+    clearDemoTimer();
+    ballLaunched = false;
+    timeFrozen = true;
+    elapsedTime = (performance.now() - startTime) / 1000;
+    timerEl.textContent = formatTime(elapsedTime);
+
+    if (status === 'win') {
+      pendingWinTime = elapsedTime;
+      pendingWinScore = score;
+      const trophyNote = (elapsedTime >= 60 && elapsedTime <= 120) ? ' 🏆 1〜2分以内クリア達成！' : '';
+      const stageBreakdown = stageTimes.map((t, i) => 'ステージ' + (i + 1) + ': ' + formatTime(t)).join(' / ');
+      messageEl.textContent = '🎉 全ステージクリア！おめでとうございます！' + trophyNote;
+      clearTimeTextEl.textContent = stageBreakdown + ' ／ 合計: ' + formatTime(elapsedTime) + '（スコア ' + score + '点）';
+      nameEntryEl.style.display = 'flex';
+      nameInputEl.focus();
+      spawnConfettiBurst();
+      startVictoryBgm();
+      setTimeout(() => { if (!running) spawnConfettiBurst(); }, 900);
+      setTimeout(() => { if (!running) spawnConfettiBurst(); }, 1800);
+    } else if (status === 'timeout') {
+      // 10分経過によるタイムオーバー：ゲーム未完結のためクリア扱いにせず、記録も残さない
+      messageEl.textContent = '⏰ タイムオーバー（10分経過）。ゲーム未完結のため無効の結果となります。';
+    } else {
+      messageEl.textContent = '💥 ゲームオーバー（ステージ' + stage + '）';
+    }
+    restartBtn.style.display = 'inline-block';
+  }
+
+  function submitScore() {
+    if (pendingWinTime === null) return;
+    let name = nameInputEl.value.trim().toUpperCase();
+    if (!name) name = 'NAME';
+    name = name.slice(0, 4);
+    leaderboard.push({ name, time: pendingWinTime, score: pendingWinScore });
+    leaderboard.sort((a, b) => {
+      const ta = Math.round(a.time * 10), tb = Math.round(b.time * 10);
+      if (ta !== tb) return ta - tb; // タイムが短いほど上位
+      return b.score - a.score;     // タイムが同じならスコアが高い方が上位
+    });
+    leaderboard = leaderboard.slice(0, MAX_LEADERBOARD);
+    renderLeaderboard();
+    nameEntryEl.style.display = 'none';
+    pendingWinTime = null;
+    pendingWinScore = null;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawBlocks();
+    drawItems();
+    drawPaddle();
+    drawBalls();
+    drawBullets();
+    drawDinos();
+    drawParticles();
+    drawConfetti();
+    if (paused) {
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#ffd35c';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('一時停止中', W / 2, H / 2);
+    }
+  }
+
+  function drawIdleScreen() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0d1226';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#8891c9';
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('右下の「ゲーム開始」ボタンを押してね', W / 2, H / 2);
+  }
+
+  // 経過時間に応じてボール速度倍率を切り替える（5分で2倍、7分で3倍）
+  function updateTimeMultiplier() {
+    let newMult = 1;
+    if (elapsedTime >= TIME_SPEEDUP_2_SEC) newMult = 3;
+    else if (elapsedTime >= TIME_SPEEDUP_1_SEC) newMult = 2;
+    if (newMult !== timeMultiplier) {
+      timeMultiplier = newMult;
+      applyCurrentSpeedToBalls();
+    }
+  }
+
+  function loop() {
+    if (!gameStarted) {
+      drawIdleScreen();
+      requestAnimationFrame(loop);
+      return;
+    }
+    if (running && !paused) {
+      movePaddle();
+      moveBalls();
+      moveItems();
+      moveBullets();
+      if (!timeFrozen) {
+        elapsedTime = (performance.now() - startTime) / 1000;
+        timerEl.textContent = formatTime(elapsedTime);
+        updateTimeMultiplier();
+        if (!dinoWave1Spawned && elapsedTime >= DINO_SPAWN_TIME_SEC) {
+          spawnDinoWave1();
+          dinoWave1Spawned = true;
+        }
+        if (!dinoWave2Spawned && elapsedTime >= DINO_SPAWN_TIME_2_SEC) {
+          spawnDinoWave2();
+          dinoWave2Spawned = true;
+        }
+        if (elapsedTime >= TIME_LIMIT_SEC && running) {
+          endGame('timeout');
+        }
+      }
+      moveDinos();
+      moveParticles();
+    }
+    updateConfetti(); // クリア後(running=falseの間)も紙吹雪は舞い続ける
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // --- 操作 ---
+  document.addEventListener('keydown', e => {
+    if (!gameStarted || paused) return;
+    if (e.key === 'ArrowLeft') leftPressed = true;
+    if (e.key === 'ArrowRight') rightPressed = true;
+    if (e.key === ' ' || e.key === 'ArrowUp') {
+      if (!ballLaunched) launchBalls();
+      else fireBullet();
+    }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft') leftPressed = false;
+    if (e.key === 'ArrowRight') rightPressed = false;
+  });
+
+  canvas.addEventListener('mousemove', e => {
+    if (!gameStarted || paused) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = W / rect.width;
+    const mouseX = (e.clientX - rect.left) * scale;
+    paddleX = Math.max(0, Math.min(W - paddleWidth, mouseX - paddleWidth / 2));
+    if (!ballLaunched) balls.forEach(ball => { ball.x = paddleX + paddleWidth / 2; });
+  });
+  canvas.addEventListener('mousedown', () => {
+    if (!gameStarted || paused) return;
+    if (!ballLaunched) launchBalls();
+    else fireBullet();
+  });
+
+  canvas.addEventListener('touchmove', e => {
+    if (!gameStarted || paused) return;
+    e.preventDefault();
+    if (e.touches.length !== 1) return; // 2本指はズーム操作に使うため、バー操作は1本指のときだけ
+    const rect = canvas.getBoundingClientRect();
+    const scale = W / rect.width;
+    const touchX = (e.touches[0].clientX - rect.left) * scale;
+    paddleX = Math.max(0, Math.min(W - paddleWidth, touchX - paddleWidth / 2));
+    if (!ballLaunched) balls.forEach(ball => { ball.x = paddleX + paddleWidth / 2; });
+  }, { passive: false });
+  canvas.addEventListener('touchstart', e => {
+    if (!gameStarted || paused) return;
+    if (e.touches.length !== 1) return; // 2本指のタッチ開始（ピンチ操作）では発射しない
+    if (!ballLaunched) launchBalls();
+    else fireBullet();
+  });
+
+  // ================= 表示の拡大縮小（iPhoneでの2本指ピンチ操作） =================
+  const canvasWrapEl = document.getElementById('canvasWrap');
+  const canvasZoomHintEl = document.getElementById('canvasZoomHint');
+  const canvasResetZoomBtn = document.getElementById('canvasResetZoomBtn');
+  let canvasZoom = 1;
+  const CANVAS_ZOOM_MIN = 0.7, CANVAS_ZOOM_MAX = 1.6;
+  let canvasPinchState = null;
+  let canvasZoomHintTimer = null;
+
+  function applyCanvasZoom() {
+    canvas.style.transform = `scale(${canvasZoom})`;
+  }
+  function resetCanvasZoom() {
+    canvasZoom = 1;
+    applyCanvasZoom();
+  }
+  function showCanvasZoomHint() {
+    canvasZoomHintEl.classList.add('show');
+    clearTimeout(canvasZoomHintTimer);
+    canvasZoomHintTimer = setTimeout(() => canvasZoomHintEl.classList.remove('show'), 1200);
+  }
+  function pinchDist(t0, t1) {
+    return Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+  }
+  canvasWrapEl.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      canvasPinchState = { startDist: pinchDist(e.touches[0], e.touches[1]), startZoom: canvasZoom };
+    }
+  }, { passive: true });
+  canvasWrapEl.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && canvasPinchState) {
+      e.preventDefault();
+      const dist = pinchDist(e.touches[0], e.touches[1]);
+      const scaleDelta = dist / canvasPinchState.startDist;
+      canvasZoom = Math.max(CANVAS_ZOOM_MIN, Math.min(CANVAS_ZOOM_MAX, canvasPinchState.startZoom * scaleDelta));
+      applyCanvasZoom();
+      showCanvasZoomHint();
+    }
+  }, { passive: false });
+  canvasWrapEl.addEventListener('touchend', e => {
+    if (e.touches.length < 2) canvasPinchState = null;
+  }, { passive: true });
+  canvasWrapEl.addEventListener('touchcancel', () => { canvasPinchState = null; }, { passive: true });
+  canvasResetZoomBtn.addEventListener('click', resetCanvasZoom);
+
+  const endBtn = document.getElementById('endBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resumeBtn = document.getElementById('resumeBtn');
+
+  startBtn.addEventListener('click', () => {
+    ensureAudio();
+    gameStarted = true;
+    gamesPlayedCount += 1;
+    hidePaywall();
+    initGame();
+    startDemoTimer();
+  });
+  pauseBtn.addEventListener('click', () => {
+    if (!gameStarted || !running) return;
+    paused = true;
+    pauseDemoTimer();
+  });
+  resumeBtn.addEventListener('click', () => {
+    if (!gameStarted || !running) return;
+    paused = false;
+    resumeDemoTimer();
+  });
+  endBtn.addEventListener('click', () => {
+    if (!gameStarted) return;
+    // 記録は残さず、ゲーム開始前の初期状態に戻す
+    clearDemoTimer();
+    initGame();
+    gameStarted = false;
+    paused = false;
+  });
+  restartBtn.addEventListener('click', () => {
+    ensureAudio();
+    gamesPlayedCount += 1;
+    hidePaywall();
+    initGame();
+    startDemoTimer();
+  });
+  submitScoreBtn.addEventListener('click', submitScore);
+  nameInputEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitScore();
+  });
+
+  loop();
+})();
+</script>
+</body>
+</html>

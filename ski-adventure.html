@@ -1,0 +1,2223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>スキーアドベンチャー</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    background: radial-gradient(circle at top, #cfe8ff, #6f9fd8 55%, #274a72);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    color: #fff;
+    padding: env(safe-area-inset-top, 10px) 10px env(safe-area-inset-bottom, 20px);
+  }
+  h1 {
+    font-size: 20px;
+    margin: 6px 0 10px;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    letter-spacing: 0.5px;
+  }
+  #hud {
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    width: 100%; max-width: 480px; margin-bottom: 8px;
+  }
+  .hud-item {
+    background: rgba(10,30,55,0.55);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12.5px;
+    font-weight: bold;
+  }
+  #lifeGaugeWrap {
+    width: 100%; max-width: 480px; height: 12px;
+    background: rgba(10,30,55,0.55);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  #lifeGaugeFill {
+    height: 100%; width: 100%;
+    background: #7ee787;
+    transition: width 0.2s, background 0.2s;
+  }
+  #charSelect {
+    max-width: 480px; width: 100%;
+    background: rgba(10,30,55,0.4);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 8px;
+  }
+  #charSelect h2 { font-size: 12px; margin: 0 0 6px; text-align: center; color: #cfe8ff; }
+  #charCards { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .char-card {
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 7px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    cursor: pointer; width: 100px;
+    touch-action: manipulation;
+  }
+  .char-card.selected { border-color: #ffd35c; background: rgba(255,211,92,0.18); }
+  .char-card canvas { display: block; }
+  #courseSelect {
+    max-width: 480px; width: 100%;
+    background: rgba(10,30,55,0.4);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 8px;
+  }
+  #courseSelect h2 { font-size: 11px; margin: 0 0 3px; text-align: center; color: #cfe8ff; }
+  #courseCards { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .course-card {
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 3px 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    cursor: pointer; width: 100px;
+    touch-action: manipulation;
+  }
+  .course-card.selected { border-color: #ffd35c; background: rgba(255,211,92,0.18); }
+  .course-card .course-name { font-size: 10px; font-weight: bold; }
+  .course-card .course-desc { font-size: 6.5px; color: #cfe8ff; text-align: center; line-height: 1.1; }
+  .course-swatch { width: 100%; height: 4px; border-radius: 2px; margin-bottom: 1px; }
+  .char-card .char-name { font-size: 12px; font-weight: bold; }
+  .char-card .char-trait { font-size: 8px; color: #ffe08a; text-align: center; line-height: 1.25; }
+
+  #mainArea { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; width: 100%; }
+  #canvasWrap { position: relative; width: 100%; max-width: 480px; touch-action: none; overflow: hidden; border-radius: 10px; }
+  #gameCanvas {
+    background: #eaf4ff;
+    border: 3px solid #1c3f66;
+    border-radius: 10px;
+    box-shadow: 0 0 30px rgba(28, 63, 102, 0.55);
+    touch-action: none;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+    will-change: transform;
+  }
+  #canvasZoomHint {
+    position: absolute; top: 6px; right: 6px; z-index: 5;
+    background: rgba(10,30,55,0.8); color: #fff; font-size: 11px;
+    padding: 5px 9px; border-radius: 8px; pointer-events: none; opacity: 0;
+    transition: opacity 0.25s;
+  }
+  #canvasZoomHint.show { opacity: 1; }
+  #canvasResetZoomBtn {
+    position: absolute; bottom: 6px; right: 6px; z-index: 5;
+    background: rgba(10,30,55,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+    font-size: 16px; border-radius: 50%; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation; cursor: pointer;
+  }
+
+  #sideColumn { display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; max-width: 480px; }
+
+  #touchControls {
+    display: flex; flex-direction: row; flex-wrap: nowrap; gap: 14px; justify-content: center; width: 100%;
+  }
+  .ctl-btn {
+    width: 74px; height: 60px;
+    border-radius: 14px;
+    border: none;
+    background: rgba(255,255,255,0.22);
+    color: #fff;
+    font-size: 26px;
+    display: flex; align-items: center; justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    flex: 0 0 auto;
+  }
+  .ctl-btn:active { background: rgba(255,255,255,0.4); transform: scale(0.95); }
+  #jumpBtn { background: rgba(255,211,92,0.35); }
+  #jumpBtn:active { background: rgba(255,211,92,0.55); }
+
+  #controlPanel {
+    display: flex; flex-direction: row; flex-wrap: nowrap; gap: 4px; flex: 1 1 auto;
+  }
+  #startBtn, #endBtn, #pauseBtn, #resumeBtn {
+    padding: 5px 4px; font-size: 9px; font-weight: bold; border: none; border-radius: 9px;
+    cursor: pointer; box-shadow: 0 3px 8px rgba(0,0,0,0.35); white-space: nowrap;
+    min-height: 34px; flex: 1 1 0; min-width: 0; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #startBtn { background: #ff5c5c; color: #fff; }
+  #pauseBtn { background: #6b8bd6; color: #fff; }
+  #resumeBtn { background: #ffd35c; color: #4a2c00; }
+  #endBtn { background: #4a4f6b; color: #fff; }
+
+  #legend {
+    max-width: 480px; width: 100%;
+    background: rgba(10,30,55,0.4);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    line-height: 1.6;
+  }
+  #message {
+    min-height: 20px; font-size: 13px; font-weight: bold; text-align: center; margin-top: 6px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  #restartBtn {
+    display: none; margin-top: 10px; padding: 10px 20px; font-size: 14px; font-weight: bold;
+    border: none; border-radius: 20px; background: #ffd35c; color: #4a2c00; cursor: pointer;
+  }
+  #nameEntry {
+    display: none; flex-direction: column; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 12px; max-width: 320px;
+    background: rgba(10,30,55,0.6); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px;
+    font-size: 13px; font-weight: bold; text-align: center;
+  }
+  #nameInput {
+    padding: 8px 12px; border-radius: 8px; border: none; font-size: 14px; width: 140px; text-align: center;
+  }
+  #submitScoreBtn {
+    padding: 8px 18px; border-radius: 16px; border: none; background: #7ee787; color: #06280e;
+    font-weight: bold; cursor: pointer; font-size: 13px;
+  }
+  #leaderboardDisplay {
+    display: none; margin-top: 10px; max-width: 320px; width: 100%;
+    background: rgba(10,30,55,0.5); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px;
+    padding: 10px 14px; font-size: 12.5px;
+  }
+  #leaderboardDisplay h3 { margin: 0 0 6px; font-size: 13px; color: #ffd35c; text-align: center; }
+  #leaderboardDisplay ol { margin: 0; padding-left: 20px; }
+  #leaderboardDisplay li { margin: 2px 0; }
+
+  #paywallOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.82);
+    z-index: 999;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #paywallBox {
+    max-width: 340px; width: 100%;
+    background: linear-gradient(180deg, #1c3a5c, #122438);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 24px 22px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  #paywallTitle { font-size: 19px; font-weight: bold; margin-bottom: 10px; }
+  #paywallText { font-size: 13px; line-height: 1.7; color: #cfe0f0; margin: 0 0 18px; }
+  #buyLink {
+    display: block; text-decoration: none;
+    background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 15px;
+    padding: 12px; border-radius: 24px;
+    margin-bottom: 18px;
+  }
+  #licenseRow { display: flex; gap: 6px; }
+  #licenseKeyInput {
+    flex: 1; min-width: 0;
+    padding: 9px 10px; border-radius: 8px; border: none; font-size: 12.5px;
+  }
+  #verifyKeyBtn {
+    padding: 9px 14px; border-radius: 8px; border: none;
+    background: #7ee787; color: #06280e; font-weight: bold; font-size: 12.5px; cursor: pointer;
+  }
+  #licenseMsg { font-size: 12px; margin-top: 10px; min-height: 16px; color: #ffb454; }
+</style>
+</head>
+<body>
+  <h1>⛷️ スキーアドベンチャー</h1>
+
+  <div id="hud">
+    <div class="hud-item">距離: <span id="hudDist">0</span>/<span id="hudGoal">0</span>km</div>
+    <div class="hud-item">スコア: <span id="hudScore">0</span></div>
+    <div class="hud-item">💪 <span id="hudLives">100</span></div>
+  </div>
+  <div id="lifeGaugeWrap"><div id="lifeGaugeFill"></div></div>
+
+  <div id="charSelect">
+    <h2>キャラクターを選択</h2>
+    <div id="charCards"></div>
+  </div>
+
+  <div id="courseSelect">
+    <h2>コースを選択</h2>
+    <div id="courseCards"></div>
+  </div>
+
+  <div id="mainArea">
+    <div id="canvasWrap">
+      <canvas id="gameCanvas" width="480" height="700"></canvas>
+      <div id="canvasZoomHint">2本指でズーム</div>
+      <button id="canvasResetZoomBtn" title="表示をリセット">⤢</button>
+    </div>
+    <div id="sideColumn">
+      <div id="touchControls">
+        <button class="ctl-btn" id="leftBtn">◀</button>
+        <div id="controlPanel">
+          <button id="startBtn">▶開始</button>
+          <button id="pauseBtn">⏸停止</button>
+          <button id="resumeBtn">▶再開</button>
+          <button id="endBtn">■終了</button>
+        </div>
+        <button class="ctl-btn" id="jumpBtn">⤴</button>
+        <button class="ctl-btn" id="rightBtn">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="message"></div>
+  <button id="restartBtn">もう一度プレイ</button>
+
+  <div id="nameEntry">
+    <div>🏆 タイムランキング入り！ 名前を入力してね</div>
+    <input id="nameInput" maxlength="10" placeholder="なまえ">
+    <button id="submitScoreBtn">登録する</button>
+  </div>
+  <div id="leaderboardDisplay"></div>
+
+  <div id="paywallOverlay">
+    <div id="paywallBox">
+      <div id="paywallTitle">⏰ 体験版はここまで！</div>
+      <p id="paywallText">製品版を購入すると、時間制限なしで全コース・全キャラで遊べます。</p>
+      <a id="buyLink" href="https://gumroad.com/l/YOUR_PRODUCT_ID" target="_blank" rel="noopener">🛒 製品版を購入する</a>
+      <div id="licenseRow">
+        <input id="licenseKeyInput" placeholder="購入済みの方はライセンスキーを入力">
+        <button id="verifyKeyBtn">解除する</button>
+      </div>
+      <div id="licenseMsg"></div>
+    </div>
+  </div>
+
+  <div id="legend">
+    <div>◀ ▶ ボタンで左右に滑れるよ。画面を押さえている間はその位置に向かってキャラが追いかけてくるように動くよ(離すとボタン操作に戻ります)。木・雪のコブ・他のスキーヤーを避けよう。だんだん斜面のスピードが上がっていくよ。</div>
+    <div>⤴ ジャンプボタン、またはマウスのダブルクリック・画面のダブルタップでジャンプ！飛び上がると地上の障害物をすべて飛び越えられるよ(着地までの間だけ無敵)。</div>
+    <div>❤️がなくなるとゲームオーバー。</div>
+    <div>コースは初級・中級・上級・モーグルから選べるよ。コースによって滑走フォームも変わるよ(中級=シュテム・パラレル、上級=足をそろえたパラレル、モーグル=前傾姿勢で足をそろえストックを脇に締めたフォーム)。</div>
+    <div>コースごとに見た目も変わるよ。コブの色は全コース共通(上級は少し大きめ)。上級・モーグルはスキーウェアも専用デザイン(男性=黒、女性=グレー、子供=白のベースに足元は炎のイメージ)になり、モーグルは帽子もヘルメット一体型のかっこいいデザイン・ゴーグルも虹色に変わるよ。</div>
+    <div>コースが難しくなるほど操作性(反応の良さ)もアップするよ(中級は初級の+3%、上級は+7%、モーグルは+10%)。</div>
+    <div>💪ライフゲージは100スタート。木に激突すると半分に(2回でゲームオーバー)、他のスキーヤーには-20(5回でゲームオーバー)。初級・中級はコブで転んで-30、上級は連続コブで転んで-30。</div>
+    <div>🍬〜🥤の食べ物・飲み物アイテムを取るとライフゲージ回復！(あめ+5、スポドリ+10、チョコ+15、ソフトクリーム+20、肉まん+30、餃子+40、ラーメン+50、ビール+60、焼肉+80、栄養ドリンク+100全回復)。ただしビールを3個取ると酔っ払い状態になり、顔が赤くなって足元がふらつき、何もない所でもランダムに転ぶよ(-10)。</div>
+    <div>各コース(初級1km・中級1.5km・上級2km・モーグル2.5km)を完走するとタイムが記録され、上位3位に入ると名前を登録できるよ。</div>
+  </div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width, H = canvas.height;
+
+  // ================= 購入・ライセンスキー（デモ制限） =================
+  // ↓ Gumroadで商品を公開したら、この2つを実際の値に書き換えてください
+  const GUMROAD_PRODUCT_ID = 'YOUR_GUMROAD_PRODUCT_ID'; // 商品編集画面のSettingsにあるProduct ID
+  const GUMROAD_BUY_URL = 'https://gumroad.com/l/YOUR_PRODUCT_ID'; // 商品ページのURL
+  const DEMO_TIME_LIMIT_MS = 60000; // デモで遊べる時間（ミリ秒）＝60秒
+  const UNLOCK_STORAGE_KEY = 'norikun_unlocked'; // 全ゲーム共通のキー名（同じドメインなら他のゲームにも引き継がれます）
+
+  document.getElementById('buyLink').href = GUMROAD_BUY_URL;
+
+  function isUnlocked() {
+    return localStorage.getItem(UNLOCK_STORAGE_KEY) === 'true';
+  }
+
+  let demoTimeoutId = null;
+  let demoRemainingMs = DEMO_TIME_LIMIT_MS;
+  let demoTimerStartedAt = null;
+  function startDemoTimer() {
+    clearDemoTimer();
+    if (isUnlocked()) return; // 購入済み・キー確認済みなら時間制限なし
+    demoRemainingMs = DEMO_TIME_LIMIT_MS;
+    demoTimerStartedAt = performance.now();
+    demoTimeoutId = setTimeout(showPaywall, demoRemainingMs);
+  }
+  function pauseDemoTimer() {
+    if (demoTimeoutId) {
+      clearTimeout(demoTimeoutId);
+      demoTimeoutId = null;
+      demoRemainingMs -= (performance.now() - demoTimerStartedAt);
+    }
+  }
+  function resumeDemoTimer() {
+    if (isUnlocked()) return;
+    if (demoRemainingMs <= 0) { showPaywall(); return; }
+    demoTimerStartedAt = performance.now();
+    demoTimeoutId = setTimeout(showPaywall, demoRemainingMs);
+  }
+  function clearDemoTimer() {
+    if (demoTimeoutId) { clearTimeout(demoTimeoutId); demoTimeoutId = null; }
+  }
+  function showPaywall() {
+    if (typeof paused !== 'undefined') paused = true;
+    document.getElementById('paywallOverlay').style.display = 'flex';
+  }
+  function hidePaywall() {
+    document.getElementById('paywallOverlay').style.display = 'none';
+  }
+
+  async function verifyLicenseKey(key) {
+    const msgEl = document.getElementById('licenseMsg');
+    if (!key) { msgEl.textContent = 'ライセンスキーを入力してください。'; return; }
+    msgEl.textContent = '確認中…';
+    try {
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: key }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem(UNLOCK_STORAGE_KEY, 'true');
+        msgEl.textContent = '';
+        clearDemoTimer();
+        hidePaywall();
+        if (typeof paused !== 'undefined') paused = false;
+      } else {
+        msgEl.textContent = 'キーが正しくないか、確認できませんでした。';
+      }
+    } catch (e) {
+      msgEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+    }
+  }
+  document.getElementById('verifyKeyBtn').addEventListener('click', () => {
+    verifyLicenseKey(document.getElementById('licenseKeyInput').value.trim());
+  });
+
+  // ================= キャラクター定義 =================
+  const CHARACTERS = [
+    {
+      id: 'man', name: '男性', color: '#3a6fd8',
+      trait: 'オールラウンド。安定した滑り',
+      baseSpeed: 1.0, turnRate: 1.0, straightBonus: 1.05, hitboxScale: 1.0, wobble: 0.5,
+    },
+    {
+      id: 'woman', name: '女性', color: '#e0559e',
+      trait: 'ターンがしなやかで得意',
+      baseSpeed: 0.95, turnRate: 1.35, straightBonus: 1.0, hitboxScale: 0.9, wobble: 0.3,
+    },
+    {
+      id: 'child', name: '子供', color: '#ffb020',
+      trait: 'ジャンプと小回りターンが得意',
+      baseSpeed: 0.85, turnRate: 1.6, straightBonus: 0.9, hitboxScale: 0.8, wobble: 0.2,
+    },
+    {
+      id: 'snowman', name: '雪だるま', color: '#e8f2ff',
+      trait: '直滑降は最速。ターンは苦手',
+      baseSpeed: 1.0, turnRate: 0.55, straightBonus: 1.3, hitboxScale: 1.3, wobble: 0.1,
+    },
+  ];
+  let selectedCharId = 'man';
+
+  // ================= コース定義 =================
+  const COURSES = [
+    { id: 'beginner', name: '初級', color: '#7ee787', obstacleDensity: 0.7, speedMultiplier: 1.1, controlMultiplier: 1.0, trackWidthBonus: 22, moguls: false, distanceKm: 2.5, desc: '広いコース・ゆっくり加速' },
+    { id: 'intermediate', name: '中級', color: '#6ec8ff', obstacleDensity: 1.05, speedMultiplier: 1.70, controlMultiplier: 1.03, trackWidthBonus: 0, moguls: false, distanceKm: 3.75, desc: '標準的な難易度' },
+    { id: 'advanced', name: '上級', color: '#ff7e6e', obstacleDensity: 1.45, speedMultiplier: 2.30, controlMultiplier: 1.07, trackWidthBonus: -16, moguls: false, distanceKm: 5.0, desc: '狭くて速い、障害物多め' },
+    { id: 'mogul', name: 'モーグル', color: '#ffd35c', obstacleDensity: 3.7, speedMultiplier: 2.85, controlMultiplier: 1.10, trackWidthBonus: -16, moguls: true, distanceKm: 6.25, desc: 'コブ斜面。ジャンプで越えよう' },
+  ];
+  let selectedCourseId = 'intermediate';
+  const COURSE_FINISH_UNITS_PER_KM = 300; // 内部distance単位と実際の距離(km)の換算スケール
+
+  // ================= ラッキーアイテム =================
+  const ITEMS = [
+    { id: 'candy', name: 'あめ', emoji: '🍬', heal: 5 },
+    { id: 'sportsdrink', name: 'スポドリ', emoji: '🧃', heal: 10 },
+    { id: 'chocolate', name: 'チョコ', emoji: '🍫', heal: 15 },
+    { id: 'softcream', name: 'ソフトクリーム', emoji: '🍦', heal: 20 },
+    { id: 'nikuman', name: '肉まん', emoji: '🥠', heal: 30 },
+    { id: 'gyoza', name: '餃子', emoji: '🥟', heal: 40 },
+    { id: 'ramen', name: 'ラーメン', emoji: '🍜', heal: 50 },
+    { id: 'beer', name: 'ビール', emoji: '🍺', heal: 60 },
+    { id: 'yakiniku', name: '焼肉', emoji: '🍖', heal: 80 },
+    { id: 'energydrink', name: '栄養ドリンク', emoji: '🥤', heal: 100 },
+  ];
+  function getCourse(id) { return COURSES.find(c => c.id === id) || COURSES[1]; }
+
+
+  function getChar(id) { return CHARACTERS.find(c => c.id === id) || CHARACTERS[0]; }
+
+  // ================= キャラクターイラスト =================
+  function drawSkierChar(ctx, charId, cx, cy, scale, leanDir, poseStyle, bumpFlex, drunkEffect, boostPush, tuckActive) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(scale, scale);
+    const lean = leanDir || 0;
+    ctx.rotate(lean * 0.18);
+
+    // コースごとの滑走フォーム（初級=default／中級=シュテム・パラレル／上級=足をそろえたパラレル／モーグル=前傾＋足をそろえてストックを脇に締める）
+    const POSE = {
+      default:  { skiX: 9,  legX: 4, armX: 14, armY: 2,  poleX: 16, poleY: 14, bodyHMult: 1, forwardLean: 0 },
+      stem:     { skiX: 6,  legX: 3, armX: 13, armY: 1,  poleX: 15, poleY: 13, bodyHMult: 1, forwardLean: 0 },
+      parallel: { skiX: 3,  legX: 2, armX: 13, armY: 1,  poleX: 15, poleY: 13, bodyHMult: 0.6, forwardLean: 0 },
+      mogul:    { skiX: 3,  legX: 2, armX: 9,  armY: 3,  poleX: 10, poleY: 11, bodyHMult: 0.36, forwardLean: 0.17 },
+    };
+    const pose = POSE[poseStyle] || POSE.default;
+    ctx.rotate(pose.forwardLean); // モーグルは前かがみのフォームを表現
+
+    if (charId === 'snowman') {
+      // 雪だるま：丸い胴体2段+帽子
+      const snowBodyColor = poseStyle === 'parallel' ? '#b5b8bd' : poseStyle === 'mogul' ? '#1a1a1a' : '#fff';
+      const snowSunglasses = poseStyle === 'mogul';
+      ctx.fillStyle = snowBodyColor;
+      ctx.strokeStyle = 'rgba(120,150,180,0.6)'; ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(0, 8, 13, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -8, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+      if (snowSunglasses) {
+        // モーグル：白い逆台形のラップアラウンド型サングラス
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.moveTo(-6.5, -11.5); ctx.lineTo(6.5, -11.5); ctx.lineTo(4, -8.5); ctx.lineTo(-4, -8.5);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = 'rgba(120,150,180,0.6)'; ctx.lineWidth = 0.6;
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = '#333';
+        ctx.beginPath(); ctx.arc(-3, -10, 1.3, 0, Math.PI*2); ctx.arc(3, -10, 1.3, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.fillStyle = '#ff9a3d';
+      ctx.beginPath(); ctx.moveTo(0,-8); ctx.lineTo(7,-6); ctx.lineTo(0,-5); ctx.closePath(); ctx.fill();
+      if (poseStyle === 'mogul') {
+        // モーグル：帽子は虹色
+        const hatGrad = ctx.createLinearGradient(-9, -20, 9, -20);
+        hatGrad.addColorStop(0, '#ff5e5e');
+        hatGrad.addColorStop(0.33, '#ffe66d');
+        hatGrad.addColorStop(0.66, '#6ec8ff');
+        hatGrad.addColorStop(1, '#b98cff');
+        ctx.fillStyle = hatGrad;
+      } else {
+        ctx.fillStyle = poseStyle === 'parallel' ? '#151515' : '#c0392b';
+      }
+      ctx.beginPath(); ctx.rect(-9, -20, 18, 5); ctx.fill();
+      ctx.beginPath(); ctx.rect(-6, -25, 12, 6); ctx.fill();
+      // 腕（枝）（上級・モーグルはコブを乗り越える際、枝をストックのように前下方へ突く）
+      const branchTurnPlant = Math.min(1, Math.abs(leanDir || 0) * 1.4);
+      const branchBumpPlant = (bumpFlex && (poseStyle === 'parallel' || poseStyle === 'mogul')) ? bumpFlex : 0;
+      const branchPlant = Math.max(branchTurnPlant, branchBumpPlant);
+      const branchPlantSide = (leanDir || 0) < 0 ? -1 : 1;
+      ctx.strokeStyle = '#6b4423'; ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(-9,-2);
+      ctx.lineTo(-17 - (branchPlantSide === -1 ? branchPlant * 4 : 0), -8 + (branchPlantSide === -1 ? branchPlant * 12 : 0));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(9,-2);
+      ctx.lineTo(17 + (branchPlantSide === 1 ? branchPlant * 4 : 0), -8 + (branchPlantSide === 1 ? branchPlant * 12 : 0));
+      ctx.stroke();
+    } else {
+      const skinColor = '#ffd9b3';
+      const isChild = charId === 'child';
+      const isWoman = charId === 'woman';
+      const isMan = charId === 'man';
+      // 上級・モーグルコースは専用のスキーウェア（男性=黒ベース／女性=グレーベース／子供=白ベース、足元は炎のイメージ）
+      const useCourseSuit = poseStyle === 'parallel' || poseStyle === 'mogul';
+      const suitColor = useCourseSuit
+        ? (isMan ? '#181818' : isWoman ? '#9a9fa8' : '#f5f5f5')
+        : getChar(charId).color;
+      const bodyH = (isChild ? 12 : 15) * pose.bodyHMult * (tuckActive ? 0.5 : 1) - (bumpFlex || 0) * 4.5;
+      // スキー板・脚のふらつき（酔っ払い状態は足とスキー板をセットで左右に揺らす）
+      const wobble = (drunkEffect || poseStyle === 'mogul') ? Math.sin(Date.now() * 0.018) * 3.5 : 0;
+      // タック姿勢（スピードブースト中）は足をぴったり閉じる
+      const tuckSkiX = tuckActive ? Math.min(pose.skiX, 1.5) : pose.skiX;
+      const tuckLegX = tuckActive ? Math.min(pose.legX, 1) : pose.legX;
+      // スキー板
+      ctx.strokeStyle = '#e8452c'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(-tuckSkiX + wobble, 16); ctx.lineTo(-tuckSkiX + wobble, 24); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(tuckSkiX + wobble, 16); ctx.lineTo(tuckSkiX + wobble, 24); ctx.stroke();
+      // 脚（コブを乗り越える時は膝をしっかり曲げる屈伸動作を表現。酔っ払い状態は足元がふらつく）
+      const flex = bumpFlex || 0;
+      ctx.strokeStyle = suitColor; ctx.lineWidth = 4.5;
+      ctx.lineJoin = 'round';
+      if (flex > 0.02) {
+        const kneeLiftL = flex * 9, kneeLiftR = flex * 9;
+        const kneeInL = -tuckLegX + flex * 4.5, kneeInR = tuckLegX - flex * 4.5;
+        ctx.beginPath();
+        ctx.moveTo(-tuckLegX, 6); ctx.lineTo(kneeInL, 11 - kneeLiftL); ctx.lineTo(-tuckSkiX + wobble, 16);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(tuckLegX, 6); ctx.lineTo(kneeInR, 11 - kneeLiftR); ctx.lineTo(tuckSkiX + wobble, 16);
+        ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.moveTo(-tuckLegX, 6); ctx.lineTo(-tuckSkiX + wobble, 16); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(tuckLegX, 6); ctx.lineTo(tuckSkiX + wobble, 16); ctx.stroke();
+      }
+      // 上級・モーグルコース：足元に炎のイメージ
+      if (useCourseSuit) {
+        const flameGrad = ctx.createLinearGradient(0, 18, 0, 6);
+        flameGrad.addColorStop(0, '#ffe066');
+        flameGrad.addColorStop(0.5, '#ff8a1e');
+        flameGrad.addColorStop(1, '#ff3d1e');
+        ctx.fillStyle = flameGrad;
+        [-1, 1].forEach(side => {
+          const fx = side * ((tuckLegX + tuckSkiX) / 2) + wobble;
+          ctx.save();
+          ctx.translate(fx, 17);
+          ctx.beginPath();
+          ctx.moveTo(0, 4);
+          ctx.quadraticCurveTo(-4, -2, -1, -7);
+          ctx.quadraticCurveTo(1, -4, 1.5, -6);
+          ctx.quadraticCurveTo(4, -2, 0, 4);
+          ctx.closePath(); ctx.fill();
+          ctx.restore();
+        });
+      }
+      // 胴体
+      ctx.fillStyle = suitColor;
+      ctx.beginPath();
+      ctx.moveTo(-7, 6); ctx.lineTo(-6, -bodyH); ctx.lineTo(6, -bodyH); ctx.lineTo(7, 6);
+      ctx.closePath(); ctx.fill();
+      // 男性：胸に走るスピードストライプでシャープな印象に
+      if (isMan) {
+        ctx.fillStyle = 'rgba(255,255,255,0.9)';
+        ctx.beginPath();
+        ctx.moveTo(-2.2, -bodyH+2); ctx.lineTo(2.8, -bodyH+2); ctx.lineTo(1.2, 4); ctx.lineTo(-3.6, 4);
+        ctx.closePath(); ctx.fill();
+      }
+      // 女性：胴体になびくスカーフ
+      if (isWoman) {
+        ctx.fillStyle = '#ff8fc7';
+        ctx.beginPath();
+        ctx.moveTo(-4, -bodyH+3); ctx.quadraticCurveTo(-12, -bodyH+5, -14, -bodyH+15);
+        ctx.quadraticCurveTo(-8, -bodyH+9, -3, -bodyH+6);
+        ctx.closePath(); ctx.fill();
+      }
+      // 腕とストック（モーグルは脇を締めて体に近づける。コブを乗り越える際はターン方向側のストックを前下方へ突く）
+      const turnPlant = Math.min(1, Math.abs(leanDir || 0) * 1.4); // ターン中は全コース・全キャラでストックを突く
+      const bumpPlant = (bumpFlex && (poseStyle === 'parallel' || poseStyle === 'mogul')) ? bumpFlex : 0;
+      const plant = Math.max(turnPlant, bumpPlant);
+      const plantSide = (leanDir || 0) < 0 ? -1 : 1; // 旋回方向側のストックを突く
+      const boost = boostPush || 0; // スピードブースト発動直後は両手で漕ぐ動き
+      const tuck = tuckActive && boost <= 0.05; // 発動直後の漕ぎが終わったら、体にストックを寄せたタック姿勢を維持
+      const boostSwing = Math.sin(Date.now() * 0.02) * boost; // 前後に漕ぐアニメーション
+      const plantArmX = plant * 2.5, plantArmY = plant * 5, plantPoleX = plant * 6, plantPoleY = plant * 10;
+      const armXL = boost > 0.05 ? -pose.armX - boostSwing * 3 : tuck ? -3 : -pose.armX - (plantSide === -1 ? plantArmX : 0);
+      const armYL = boost > 0.05 ? pose.armY + Math.abs(boostSwing) * 4 : tuck ? 1 : pose.armY + (plantSide === -1 ? plantArmY : 0);
+      const armXR = boost > 0.05 ? pose.armX + boostSwing * 3 : tuck ? 3 : pose.armX + (plantSide === 1 ? plantArmX : 0);
+      const armYR = boost > 0.05 ? pose.armY + Math.abs(boostSwing) * 4 : tuck ? 1 : pose.armY + (plantSide === 1 ? plantArmY : 0);
+      const poleXL = boost > 0.05 ? -pose.poleX - boostSwing * 6 : tuck ? -4 : -pose.poleX - (plantSide === -1 ? plantPoleX : 0);
+      const poleYL = boost > 0.05 ? pose.poleY + Math.abs(boostSwing) * 7 : tuck ? 9 : pose.poleY + (plantSide === -1 ? plantPoleY : 0);
+      const poleXR = boost > 0.05 ? pose.poleX + boostSwing * 6 : tuck ? 4 : pose.poleX + (plantSide === 1 ? plantPoleX : 0);
+      const poleYR = boost > 0.05 ? pose.poleY + Math.abs(boostSwing) * 7 : tuck ? 9 : pose.poleY + (plantSide === 1 ? plantPoleY : 0);
+      ctx.strokeStyle = suitColor; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(-6, -6); ctx.lineTo(armXL, armYL); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(6, -6); ctx.lineTo(armXR, armYR); ctx.stroke();
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(armXL, armYL); ctx.lineTo(poleXL, poleYL); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(armXR, armYR); ctx.lineTo(poleXR, poleYR); ctx.stroke();
+      // 頭（正面。顔・ゴーグルが見える）
+      ctx.fillStyle = skinColor;
+      ctx.beginPath(); ctx.arc(0, -bodyH - 5, 6, 0, Math.PI*2); ctx.fill();
+      // ほっぺの赤み（かわいさアップ、酔っ払い状態は顔全体が真っ赤に）
+      if (drunkEffect) {
+        ctx.fillStyle = 'rgba(230,40,40,0.8)';
+        ctx.beginPath(); ctx.arc(0, -bodyH - 5, 5.6, 0, Math.PI*2); ctx.fill();
+        // 頭上にふらふらした「？」マークを2つ
+        const qWobble = Date.now() * 0.006;
+        ctx.font = 'bold 6px sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)'; ctx.lineWidth = 0.6;
+        const q1x = -4 + Math.sin(qWobble) * 1.5, q1y = -bodyH - 15 + Math.sin(qWobble * 1.3) * 1.2;
+        const q2x = 4 + Math.sin(qWobble + 1.5) * 1.5, q2y = -bodyH - 17 + Math.sin(qWobble * 1.3 + 1) * 1.2;
+        ctx.strokeText('？', q1x, q1y); ctx.fillText('？', q1x, q1y);
+        ctx.strokeText('？', q2x, q2y); ctx.fillText('？', q2x, q2y);
+      }
+      ctx.fillStyle = 'rgba(255,130,140,0.55)';
+      ctx.beginPath(); ctx.arc(-3.3, -bodyH - 3.3, 1.5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(3.3, -bodyH - 3.3, 1.5, 0, Math.PI*2); ctx.fill();
+      // ヘルメット・ニット帽（モーグルコースはヘルメット一体型のかっこいいデザインに）
+      if (poseStyle === 'mogul') {
+        ctx.fillStyle = '#161616';
+        ctx.beginPath(); ctx.arc(0, -bodyH - 6, 7.4, Math.PI, 0); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(0, -bodyH - 6, 7.4, 5.2, 0, 0, Math.PI); ctx.fill();
+        const helmetStripeGrad = ctx.createLinearGradient(-5, -bodyH - 13, 5, -bodyH - 13);
+        helmetStripeGrad.addColorStop(0, '#ff5e5e');
+        helmetStripeGrad.addColorStop(0.33, '#ffe66d');
+        helmetStripeGrad.addColorStop(0.66, '#6ec8ff');
+        helmetStripeGrad.addColorStop(1, '#b98cff');
+        ctx.fillStyle = helmetStripeGrad;
+        ctx.beginPath(); ctx.ellipse(0, -bodyH - 11.2, 5.4, 1.6, 0, Math.PI, 0); ctx.fill();
+      } else {
+        ctx.fillStyle = charId === 'woman' ? '#c33e8f' : (charId === 'child' ? '#ffb020' : '#243b6b');
+        ctx.beginPath(); ctx.arc(0, -bodyH - 7.5, 6.3, Math.PI, 0); ctx.fill();
+        // 子供・女性はポンポン付きニット帽
+        if (isChild || isWoman) {
+          ctx.fillStyle = '#fff';
+          ctx.beginPath(); ctx.arc(0, -bodyH - 13.3, 2.1, 0, Math.PI*2); ctx.fill();
+        }
+      }
+      // ゴーグル（コースのレベルに合わせて色が変わる＋光の反射でキラッと）
+      const goggleGrad = ctx.createLinearGradient(-4.2, -bodyH - 6, 4.2, -bodyH - 4);
+      if (poseStyle === 'mogul') {
+        // モーグル：虹色レンズ
+        goggleGrad.addColorStop(0, 'rgba(255,94,94,0.88)');
+        goggleGrad.addColorStop(0.25, 'rgba(255,179,71,0.88)');
+        goggleGrad.addColorStop(0.5, 'rgba(255,230,109,0.88)');
+        goggleGrad.addColorStop(0.75, 'rgba(110,200,255,0.88)');
+        goggleGrad.addColorStop(1, 'rgba(185,140,255,0.88)');
+      } else if (poseStyle === 'parallel') {
+        // 上級：黒系のシャープなレンズ
+        goggleGrad.addColorStop(0, 'rgba(60,60,68,0.9)');
+        goggleGrad.addColorStop(1, 'rgba(20,20,26,0.9)');
+      } else if (poseStyle === 'stem') {
+        // 中級：青系のレンズ
+        goggleGrad.addColorStop(0, 'rgba(110,200,255,0.88)');
+        goggleGrad.addColorStop(1, 'rgba(60,140,220,0.88)');
+      } else {
+        // 初級：カラフルなパステルレンズ
+        goggleGrad.addColorStop(0, 'rgba(255,140,190,0.85)');
+        goggleGrad.addColorStop(0.5, 'rgba(150,220,255,0.85)');
+        goggleGrad.addColorStop(1, 'rgba(180,255,180,0.85)');
+      }
+      ctx.fillStyle = goggleGrad;
+      ctx.beginPath(); ctx.ellipse(0, -bodyH - 5, 4.2, 2.2, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.beginPath(); ctx.ellipse(-1.6, -bodyH - 5.8, 1.3, 0.7, -0.3, 0, Math.PI*2); ctx.fill();
+      if (charId === 'woman') {
+        ctx.strokeStyle = '#c33e8f'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.moveTo(4,-bodyH-2); ctx.quadraticCurveTo(10,-bodyH+3,9,-bodyH+9); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  // ================= キャラクター選択カード描画 =================
+  const charCardsEl = document.getElementById('charCards');
+  function renderCharCards() {
+    charCardsEl.innerHTML = '';
+    CHARACTERS.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'char-card' + (c.id === selectedCharId ? ' selected' : '');
+      const cvs = document.createElement('canvas');
+      cvs.width = 30; cvs.height = 30;
+      const cctx = cvs.getContext('2d');
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'char-name'; nameDiv.textContent = c.name;
+      const traitDiv = document.createElement('div');
+      traitDiv.className = 'char-trait'; traitDiv.textContent = c.trait;
+      card.appendChild(cvs); card.appendChild(nameDiv); card.appendChild(traitDiv);
+      card.addEventListener('click', () => {
+        selectedCharId = c.id;
+        renderCharCards();
+        startBgm();
+      });
+      charCardsEl.appendChild(card);
+      drawSkierChar(cctx, c.id, 15, 20, 0.6, 0);
+    });
+  }
+  renderCharCards();
+
+  const courseCardsEl = document.getElementById('courseCards');
+  function renderCourseCards() {
+    courseCardsEl.innerHTML = '';
+    COURSES.forEach(co => {
+      const card = document.createElement('div');
+      card.className = 'course-card' + (co.id === selectedCourseId ? ' selected' : '');
+      const swatch = document.createElement('div');
+      swatch.className = 'course-swatch'; swatch.style.background = co.color;
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'course-name'; nameDiv.textContent = co.name;
+      const descDiv = document.createElement('div');
+      descDiv.className = 'course-desc'; descDiv.textContent = co.desc;
+      card.appendChild(swatch); card.appendChild(nameDiv); card.appendChild(descDiv);
+      card.addEventListener('click', () => { selectedCourseId = co.id; renderCourseCards(); });
+      courseCardsEl.appendChild(card);
+    });
+  }
+  renderCourseCards();
+
+  // ================= ゲーム状態 =================
+  let gameStarted = false, running = false, paused = false, appEnded = false;
+  let distance = 0, score = 0;
+  let lifeGauge = 100, treeHitCount = 0, skierHitCount = 0;
+  let beerCount = 0, drunk = false, nextDrunkFallCheckAt = 0;
+  let raceStartTime = 0, finished = false;
+  let yetiActive = false, yetiGap = 0, yetiBiteCount = 0;
+  const YETI_INITIAL_GAP = 60, YETI_CATCH_GAP = 8, YETI_PASSIVE_CLOSE_RATE = 0.05;
+  let speedBoostStacks = 0;
+  const MAX_BOOST_STACKS = 3;
+  const BOOST_STAGE_MULT = [1, 1.03, 1.07, 1.10]; // 0段階=等倍、1段階=+3%、2段階=+7%、3段階(MAX)=+10%
+  const MAX_BOOST_REVERT_DIST = 30 * (COURSE_FINISH_UNITS_PER_KM / 1000); // MAX到達後、30m走行すると通常に戻る
+  let maxBoostReachedAtDistance = null;
+  let speedBoostFlashUntil = 0;
+  let finishLineCrossed = false, frozenScore = 0, frozenRaceTimeSec = 0;
+  let totalPausedMs = 0, pauseStartedAt = 0;
+  let player, obstacles, coins, particles, moguls, skiTrail;
+  let baseScrollSpeed = 3.2;
+  let elapsedFrames = 0;
+  let shakeUntil = 0;
+  let inputLeft = false, inputRight = false;
+  let prevInputLeft = false, prevInputRight = false;
+  let pointerActive = false, pointerTargetX = 0;
+  let jumping = false, jumpUntil = 0, jumpCooldownUntil = 0;
+  let nextMogulAt = 0;
+  let lastBumpCrossAt = -Infinity;
+
+  let TRACK_MARGIN = 26;
+  let currentCourse = getCourse('intermediate');
+
+  function initGame() {
+    const ch = getChar(selectedCharId);
+    currentCourse = getCourse(selectedCourseId);
+    TRACK_MARGIN = Math.max(14, 26 - currentCourse.trackWidthBonus);
+    player = { x: W/2, y: H*0.18, vx: 0, char: ch, lean: 0, kneeAbsorbUntil: 0, fallUntil: 0 };
+    obstacles = [];
+    coins = [];
+    moguls = [];
+    skiTrail = [];
+    particles = [];
+    distance = 0; score = 0;
+    lifeGauge = 100; treeHitCount = 0; skierHitCount = 0;
+    beerCount = 0; drunk = false; nextDrunkFallCheckAt = 0;
+    raceStartTime = performance.now(); finished = false;
+    finishLineCrossed = false; frozenScore = 0; frozenRaceTimeSec = 0;
+    yetiActive = false; yetiGap = 0; yetiBiteCount = 0;
+    speedBoostStacks = 0; speedBoostFlashUntil = 0; maxBoostReachedAtDistance = null;
+    totalPausedMs = 0; pauseStartedAt = 0;
+    baseScrollSpeed = 3.2;
+    elapsedFrames = 0;
+    shakeUntil = 0;
+    jumping = false; jumpUntil = 0; jumpCooldownUntil = 0;
+    pointerActive = false; pointerTargetX = W / 2;
+    nextObstacleAt = 0;
+    nextCoinAt = 0;
+    nextMogulAt = 0;
+    lastBumpCrossAt = -Infinity;
+    document.getElementById('hudGoal').textContent = currentCourse.distanceKm.toFixed(1);
+    updateHUD();
+  }
+
+  function updateHUD() {
+    document.getElementById('hudDist').textContent = (distance / COURSE_FINISH_UNITS_PER_KM).toFixed(2);
+    document.getElementById('hudScore').textContent = Math.floor(score);
+    document.getElementById('hudLives').textContent = Math.max(0, Math.round(lifeGauge));
+    const fillEl = document.getElementById('lifeGaugeFill');
+    if (fillEl) {
+      const pct = Math.max(0, Math.min(100, lifeGauge));
+      fillEl.style.width = pct + '%';
+      fillEl.style.background = pct > 50 ? '#7ee787' : pct > 20 ? '#ffd35c' : '#ff6b6b';
+    }
+  }
+
+  // ================= 障害物・アイテム生成 =================
+  let nextObstacleAt = 0, nextCoinAt = 0;
+  const OBSTACLE_TYPES = ['tree', 'bump', 'skier'];
+
+  function currentScrollSpeed() {
+    const speedUp = Math.min(2.6, elapsedFrames / 1800); // 徐々に加速、上限あり
+    const fallPenalty = (player && performance.now() < player.fallUntil) ? 0.5 : 1; // 転んでいる間は減速
+    const boostMult = BOOST_STAGE_MULT[speedBoostStacks]; // 1段階=1.2倍、2段階=1.5倍、3段階(MAX)=1.8倍
+    return (baseScrollSpeed + speedUp) * player.char.straightBonus * currentCourse.speedMultiplier * fallPenalty * boostMult;
+  }
+
+  function spawnObstacle() {
+    let pool = OBSTACLE_TYPES;
+    const maxSkiers = currentCourse.id === 'mogul' ? 3 : 1; // モーグルは他のスキーヤーが同時に複数出現できる
+    const skierCount = obstacles.filter(o => o.type === 'skier' && !o.hit).length;
+    if (skierCount >= maxSkiers) pool = OBSTACLE_TYPES.filter(t => t !== 'skier');
+    // モーグルコースはほとんどがコブ(bump)になるよう、木・スキーヤーよりも大幅に出やすくする
+    const bumpWeight = currentCourse.id === 'mogul' ? 8 : 1;
+    const treeWeight = currentCourse.id === 'advanced' ? 1.2 * 0.85 * 0.7 * 0.85 : currentCourse.id === 'mogul' ? 1.2 * 0.7 : 1.2; // 木の出現比率(上級=85%→70%からさらに15%減、モーグル=70%)
+    const skierWeight = currentCourse.id === 'mogul' ? 2.2 : 1; // モーグルは他のスキーヤーの出現数を増やす
+    const weights = pool.map(t => t === 'bump' ? bumpWeight : t === 'tree' ? treeWeight : t === 'skier' ? skierWeight : 1);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let roll = Math.random() * totalWeight;
+    let type = pool[pool.length - 1];
+    for (let i = 0; i < pool.length; i++) {
+      if (roll < weights[i]) { type = pool[i]; break; }
+      roll -= weights[i];
+    }
+    const x = TRACK_MARGIN + Math.random() * (W - TRACK_MARGIN * 2);
+    const r = type === 'tree' ? 32 : type === 'bump' ? ((currentCourse.id === 'advanced' || currentCourse.id === 'mogul') ? 26 : 20) : 12;
+    const SKIER_POSES = ['default', 'stem', 'parallel', 'mogul'];
+    const SKIER_POSE_WEIGHTS = [3, 3, 3, 11]; // モーグル風ポーズの割合を通常の120%増(25%→55%)にする
+    const skierCharId = type === 'skier' ? CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)].id : null;
+    let skierPoseStyle = null;
+    if (type === 'skier') {
+      const poseTotalWeight = SKIER_POSE_WEIGHTS.reduce((a, b) => a + b, 0);
+      let poseRoll = Math.random() * poseTotalWeight;
+      skierPoseStyle = SKIER_POSES[SKIER_POSES.length - 1];
+      for (let i = 0; i < SKIER_POSES.length; i++) {
+        if (poseRoll < SKIER_POSE_WEIGHTS[i]) { skierPoseStyle = SKIER_POSES[i]; break; }
+        poseRoll -= SKIER_POSE_WEIGHTS[i];
+      }
+    }
+    const treeVariant = type === 'tree' ? Math.floor(Math.random() * 2) : 0;
+    obstacles.push({ type, x, y: H + 40, r, driftPhase: Math.random() * 10, hit: false, skierCharId, skierPoseStyle, treeVariant });
+  }
+  function spawnCoin(fixedX, fixedY) {
+    const x = fixedX !== undefined ? fixedX : TRACK_MARGIN + Math.random() * (W - TRACK_MARGIN * 2);
+    const y = fixedY !== undefined ? fixedY : H + 30;
+    const item = ITEMS[Math.floor(Math.random() * ITEMS.length)];
+    coins.push({ x, y, r: 24, collected: false, phase: Math.random() * 10, item });
+  }
+  // 現実のモーグルコースのように、左右交互のジグザグでコブの列を作る
+  function spawnMogulLine() {
+    const centerX = W / 2;
+    const spread = Math.max(26, (W - TRACK_MARGIN * 2) * 0.26); // 左右に振れる幅（固定でそろえる）
+    const lineLength = 1 + Math.floor(Math.random() * 2); // 1列は1〜2個
+    let y = H + 30;
+    for (let i = 0; i < lineLength; i++) {
+      const side = Math.random() < 0.5 ? -1 : 1; // 左右ランダム
+      const x = centerX + side * spread;
+      moguls.push({ x, y, r: 22, jumped: false, crossed: false });
+      y += 26; // 間隔を少し空ける
+    }
+  }
+
+  // コースに応じた滑走フォームを返す（初級=default／中級=シュテム・パラレル／上級=パラレル／モーグル=モーグル）
+  function poseForCourse() {
+    if (currentCourse.id === 'intermediate') return 'stem';
+    if (currentCourse.id === 'advanced') return 'parallel';
+    if (currentCourse.id === 'mogul') return 'mogul';
+    return 'default';
+  }
+
+  // モーグル回避操作は上級・モーグルコースのみ使用できる
+  function mogulDodgeAllowed() {
+    return currentCourse.id === 'advanced' || currentCourse.id === 'mogul';
+  }
+  // キャラの手前に迫っているコブ（雪のコブ障害物・モーグルのコブ）を、左右操作で自動的によける
+  function tryMogulDodge() {
+    const DODGE_RANGE_Y = 90, DODGE_RANGE_X = 42;
+    let best = null, bestDist = Infinity, bestIsMogul = false;
+    obstacles.forEach(o => {
+      if (o.type !== 'bump' || o.hit || o.crossed) return;
+      const dy = o.y - player.y;
+      if (Math.abs(o.x - player.x) < DODGE_RANGE_X && dy > 0 && dy < DODGE_RANGE_Y && dy < bestDist) {
+        bestDist = dy; best = o; bestIsMogul = false;
+      }
+    });
+    moguls.forEach(m => {
+      if (m.jumped || m.crossed) return;
+      const dy = m.y - player.y;
+      if (Math.abs(m.x - player.x) < DODGE_RANGE_X && dy > 0 && dy < DODGE_RANGE_Y && dy < bestDist) {
+        bestDist = dy; best = m; bestIsMogul = true;
+      }
+    });
+    if (best) {
+      if (bestIsMogul) best.jumped = true; else best.hit = true;
+      score += 15;
+      playJumpOverSound();
+    }
+  }
+
+  // ================= 更新処理 =================
+  function update() {
+    elapsedFrames++;
+    const speed = currentScrollSpeed();
+    distance += speed * 0.08;
+
+    // ゴール距離に到達したら、その時点でスコア・タイムを確定（以降は加算しない）
+    const finishDistance = currentCourse.distanceKm * COURSE_FINISH_UNITS_PER_KM;
+    const LAST_RUN_DIST = 10 * (COURSE_FINISH_UNITS_PER_KM / 1000); // ラスト10m分の内部距離
+    if (!finished && !finishLineCrossed && distance >= finishDistance) {
+      finishLineCrossed = true;
+      frozenScore = score;
+      frozenRaceTimeSec = (performance.now() - raceStartTime - totalPausedMs) / 1000;
+    }
+    if (!finishLineCrossed) {
+      score += speed * 0.05;
+    }
+    // 赤いラインを過ぎてから5m走行したら、そこで正式に完走
+    if (!finished && finishLineCrossed && distance >= finishDistance + LAST_RUN_DIST) {
+      finishRun();
+      return;
+    }
+
+    // 雪男の追跡（上級・モーグルのみ、ゴールの半分を切ると出現）
+    const isYetiCourse = currentCourse.id === 'advanced' || currentCourse.id === 'mogul';
+    if (isYetiCourse && !finished && !finishLineCrossed) {
+      if (!yetiActive && distance >= finishDistance / 2) {
+        yetiActive = true;
+        yetiGap = YETI_INITIAL_GAP;
+      }
+      if (yetiActive) {
+        const boosted = speedBoostStacks > 0; // スピードブースト中は雪男に追いつかれない
+        if (!jumping && !boosted) yetiGap -= YETI_PASSIVE_CLOSE_RATE; // じわじわと追い上げてくる緊張感
+        if (yetiGap <= YETI_CATCH_GAP && !jumping && !boosted) {
+          // 追いつかれて噛まれる（ジャンプ中・スピードブースト中はかわせる）
+          yetiBiteCount++;
+          lifeGauge = Math.max(0, lifeGauge / 2);
+          updateHUD();
+          shakeUntil = performance.now() + 350;
+          playHitSound();
+          yetiGap = YETI_INITIAL_GAP * 0.65; // 振り切って少し引き離す
+          if (yetiBiteCount >= 2 || lifeGauge <= 0) endGame();
+        }
+      }
+    }
+    // スピードブーストがMAX(3段階)に到達してから30m走行したら、自動的に通常速度に戻る
+    if (speedBoostStacks >= MAX_BOOST_STACKS && maxBoostReachedAtDistance !== null &&
+        distance - maxBoostReachedAtDistance >= MAX_BOOST_REVERT_DIST) {
+      speedBoostStacks = 0;
+      maxBoostReachedAtDistance = null;
+    }
+
+    // プレイヤー操作（画面クリック/タップ中はポインタに追従、それ以外は左右ボタンで慣性移動）
+    // コースが難しいほど操作性(反応の良さ)も上がる
+    if (pointerActive) {
+      const followRate = Math.min(0.9, 0.18 * currentCourse.controlMultiplier);
+      player.x += (pointerTargetX - player.x) * followRate;
+      player.vx = Math.max(-6.5, Math.min(6.5, pointerTargetX - player.x));
+    } else {
+      const turnAccel = 0.55 * player.char.turnRate * currentCourse.controlMultiplier;
+      if (inputLeft && !inputRight) player.vx -= turnAccel;
+      else if (inputRight && !inputLeft) player.vx += turnAccel;
+      else player.vx *= 0.85;
+      player.vx = Math.max(-6.5, Math.min(6.5, player.vx));
+      player.x += player.vx;
+    }
+    player.lean = Math.max(-1, Math.min(1, player.vx / 5));
+    if (player.x < TRACK_MARGIN) { player.x = TRACK_MARGIN; player.vx = 0; }
+    if (player.x > W - TRACK_MARGIN) { player.x = W - TRACK_MARGIN; player.vx = 0; }
+
+    // 左右ボタンを「押した瞬間」に、目の前のコブをモーグルで自動回避（上級・モーグルコースのみ）
+    const leftJustPressed = inputLeft && !prevInputLeft;
+    const rightJustPressed = inputRight && !prevInputRight;
+    if ((leftJustPressed || rightJustPressed) && mogulDodgeAllowed()) {
+      tryMogulDodge();
+    }
+    prevInputLeft = inputLeft; prevInputRight = inputRight;
+
+    // 雪煙パーティクル（通常の滑走煙）
+    if (elapsedFrames % 3 === 0) {
+      particles.push({ x: player.x + (Math.random()-0.5)*10, y: player.y + 18, vx: 0, vy: -0.4, life: 22, r: 2 + Math.random()*2 });
+    }
+    // 上級・モーグルコース限定：板の後ろから常にはっきり流れる残像トレイル
+    if ((currentCourse.id === 'advanced' || currentCourse.id === 'mogul') && elapsedFrames % 2 === 0) {
+      [-1, 1].forEach(side => {
+        particles.push({
+          x: player.x + side * 6 + (Math.random()-0.5)*2,
+          y: player.y + 24,
+          vx: side * 0.3 + (Math.random()-0.5)*0.3,
+          vy: -(2.1 + Math.random()*1.1),
+          life: 17,
+          maxLife: 17,
+          r: 1.7 + Math.random()*1.3,
+          trail: true,
+        });
+      });
+    }
+    // ターン時、スキー板からの雪の残像（下から上へ、掻き分けた粉雪がシュッと飛び散るイメージ）
+    const isHardCourse = currentCourse.id === 'advanced' || currentCourse.id === 'mogul';
+    if (Math.abs(player.vx) > 1.3 && elapsedFrames % 2 === 0) {
+      const turnDir = player.vx > 0 ? 1 : -1;
+      const sprayCount = isHardCourse ? 3 : 1; // 上級・モーグルは外側の板からより迫力ある雪煙を出す
+      for (let i = 0; i < sprayCount; i++) {
+        particles.push({
+          x: player.x - turnDir * (8 + i * 2) + (Math.random()-0.5)*3,
+          y: player.y + 20 + (Math.random()-0.5)*4,
+          vx: -turnDir * (1.1 + Math.random()*0.9 + (isHardCourse ? i * 0.4 : 0)),
+          vy: -(2.4 + Math.random()*1.6 + (isHardCourse ? i * 0.5 : 0)),
+          life: isHardCourse ? 17 : 13,
+          maxLife: isHardCourse ? 17 : 13,
+          r: (isHardCourse ? 2.2 : 1.8) + Math.random()*1.6,
+          trail: true,
+        });
+      }
+    }
+    particles.forEach(p => { p.x += (p.vx || 0); p.y += p.vy - speed*0.3; p.life--; });
+    particles = particles.filter(p => p.life > 0);
+
+    // 上級・モーグルコース限定：ターンした軌跡を弧を描く雪の残像として記録する
+    if (isHardCourse && Math.abs(player.vx) > 0.6) {
+      skiTrail.push({ x: player.x, y: player.y + 21, life: 46, maxLife: 46 });
+    }
+    skiTrail.forEach(t => { t.y -= speed; t.life--; });
+    skiTrail = skiTrail.filter(t => t.life > 0 && t.y > -50);
+
+    // 障害物・コインの生成
+    nextObstacleAt -= speed;
+    if (nextObstacleAt <= 0) {
+      spawnObstacle();
+      nextObstacleAt = (46 + Math.random() * 40) / currentCourse.obstacleDensity;
+    }
+    // ラッキーアイテムの出現（コブなどの障害物とは無関係に、独立してランダムな位置・タイミングで出現する）
+    nextCoinAt -= speed;
+    if (nextCoinAt <= 0) {
+      spawnCoin();
+      nextCoinAt = 130 + Math.random() * 170;
+    }
+
+    // 酔っ払い状態：何もないところでもランダムに転ぶ
+    if (drunk && performance.now() > nextDrunkFallCheckAt && performance.now() > player.fallUntil) {
+      triggerDrunkFall();
+      nextDrunkFallCheckAt = performance.now() + 1800 + Math.random() * 2200;
+    }
+
+    // ジャンプ状態の更新
+    if (jumping && performance.now() > jumpUntil) jumping = false;
+
+    // 障害物移動・衝突判定（ジャンプ中は地上の障害物に当たらないが、木だけは例外）
+    const hitboxR = 11 * player.char.hitboxScale;
+    obstacles.forEach(o => {
+      o.y -= speed;
+      if (o.type === 'skier') o.x += Math.sin((elapsedFrames + o.driftPhase*20) * 0.02) * 0.6;
+      const jumpImmune = jumping && o.type !== 'tree'; // 木はジャンプでもかわせない
+      if (!o.hit && !o.crossed && !jumpImmune) {
+        const d = Math.hypot(o.x - player.x, o.y - (player.y));
+        if (d < o.r + hitboxR) {
+          if (o.type === 'tree') {
+            o.hit = true;
+            onHitTree();
+          } else if (o.type === 'skier') {
+            o.hit = true;
+            onHitSkier();
+          } else if (currentCourse.id === 'mogul') {
+            // モーグルはコブが連続しても難なく乗り越えるが、ライフゲージが半分以下の時は5%の確率で転ぶ
+            if (lifeGauge <= 50 && Math.random() < 0.05) {
+              o.hit = true;
+              triggerFall(true);
+            } else {
+              // コブは消えず残る
+              o.crossed = true;
+              player.kneeAbsorbUntil = performance.now() + 340;
+              score += 8;
+              playJumpOverSound();
+            }
+          } else if (currentCourse.id === 'advanced') {
+            // 上級は1個ずつなら乗り越えられるが、連続だと転んでしまう
+            const consecutive = performance.now() - lastBumpCrossAt < 700;
+            if (consecutive) {
+              o.hit = true;
+              triggerFall(true);
+            } else {
+              // 乗り越えたコブは消えず残る
+              o.crossed = true;
+              player.kneeAbsorbUntil = performance.now() + 340;
+              score += 8;
+              playJumpOverSound();
+            }
+            lastBumpCrossAt = performance.now();
+          } else {
+            // 初級・中級は転んでライフゲージ-30
+            o.hit = true;
+            triggerFall(true);
+          }
+        }
+      }
+    });
+    obstacles = obstacles.filter(o => o.y > -50 && !o.hit);
+
+    // モーグルコブの生成・移動・判定（モーグルコースのみ）
+    if (currentCourse.moguls) {
+      nextMogulAt -= speed;
+      if (nextMogulAt <= 0) {
+        if (Math.random() > 0.25) spawnMogulLine(); // 25%は生成をスキップし、出現量を約半分に抑える
+        nextMogulAt = 10 + Math.random() * 15;
+      }
+    }
+    moguls.forEach(m => {
+      m.y -= speed;
+      if (!m.jumped && !m.crossed) {
+        const d = Math.hypot(m.x - player.x, m.y - player.y);
+        if (d < m.r + hitboxR) {
+          if (jumping) {
+            m.crossed = true;
+            score += 15;
+            playJumpOverSound();
+          } else if (lifeGauge <= 50 && Math.random() < 0.05) {
+            // ライフゲージが半分以下の時は5%の確率で転ぶ
+            m.jumped = true;
+            triggerFall(true);
+          } else {
+            // モーグルコースは膝を使ってコブをダメージなく乗り越える（ターン操作もそのまま可能、コブは消えず残る）
+            m.crossed = true;
+            player.kneeAbsorbUntil = performance.now() + 340;
+            score += 8;
+            playJumpOverSound();
+          }
+        }
+      }
+    });
+    moguls = moguls.filter(m => m.y > -40 && !m.jumped);
+
+    // コイン移動・取得判定
+    coins.forEach(c => {
+      c.y -= speed;
+      if (!c.collected && !jumping) {
+        const d = Math.hypot(c.x - player.x, c.y - player.y);
+        if (d < c.r + hitboxR) {
+          c.collected = true;
+          score += 25;
+          lifeGauge = c.item.id === 'energydrink' ? 100 : Math.min(100, lifeGauge + c.item.heal);
+          if (c.item.id === 'beer') {
+            beerCount++;
+            if (beerCount >= 3 && !drunk) {
+              drunk = true;
+              nextDrunkFallCheckAt = performance.now() + 1500 + Math.random() * 1500;
+            }
+          }
+          updateHUD();
+          playCoinSound();
+        }
+      }
+    });
+    coins = coins.filter(c => c.y > -30 && !c.collected);
+
+    updateHUD();
+  }
+
+  // 木に激突：ライフゲージが半分になる（回数による死亡はなし、ライフゲージ0で死亡）
+  function onHitTree() {
+    treeHitCount++;
+    lifeGauge = lifeGauge / 2;
+    updateHUD();
+    shakeUntil = performance.now() + 300;
+    playHitSound();
+    if (lifeGauge <= 0) endGame();
+  }
+  // 他のスキーヤーに衝突：ライフゲージ-20（回数による死亡はなし、ライフゲージ0で死亡）
+  function onHitSkier() {
+    skierHitCount++;
+    lifeGauge = Math.max(0, lifeGauge - 20);
+    updateHUD();
+    shakeUntil = performance.now() + 300;
+    playHitSound();
+    if (lifeGauge <= 0) endGame();
+  }
+
+  // コブでバランスを崩して転ぶ演出（初級・中級はライフゲージ-30、上級の連続コブも同様）
+  function triggerFall(withDamage) {
+    player.fallUntil = performance.now() + 620;
+    shakeUntil = performance.now() + 200;
+    playHitSound();
+    if (withDamage) {
+      lifeGauge = Math.max(0, lifeGauge - 30);
+      updateHUD();
+      if (lifeGauge <= 0) endGame();
+    }
+  }
+  // 酔っ払い状態で何もないところで転ぶ（-10）
+  function triggerDrunkFall() {
+    player.fallUntil = performance.now() + 620;
+    shakeUntil = performance.now() + 200;
+    playHitSound();
+    lifeGauge = Math.max(0, lifeGauge - 10);
+    updateHUD();
+    if (lifeGauge <= 0) endGame();
+  }
+
+  // ================= 描画 =================
+  function drawBackground() {
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, '#eaf6ff');
+    grad.addColorStop(1, '#d3e9ff');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    // ゲレンデの縁（左右の木立ゾーン）
+    ctx.fillStyle = 'rgba(180,210,235,0.5)';
+    ctx.fillRect(0, 0, TRACK_MARGIN - 4, H);
+    ctx.fillRect(W - TRACK_MARGIN + 4, 0, TRACK_MARGIN - 4, H);
+
+    const scrollY = elapsedFrames * currentScrollSpeed() * 0.6;
+
+    // でこぼこの雪面（丸い陰影のかたまりを敷き詰めてバンピーな質感を出す）
+    const bumpSpacingY = 46, bumpSpacingX = 40;
+    const offsetY = -(scrollY % bumpSpacingY); // 下から上へ流れるように反転
+    let row = 0;
+    for (let y = -bumpSpacingY + offsetY; y < H + bumpSpacingY; y += bumpSpacingY, row++) {
+      const rowShift = (row % 2 === 0) ? 0 : bumpSpacingX / 2;
+      for (let x = TRACK_MARGIN + rowShift; x < W - TRACK_MARGIN; x += bumpSpacingX) {
+        const bumpR = 16;
+        const gradB = ctx.createRadialGradient(x - 4, y - 5, 1, x, y, bumpR);
+        gradB.addColorStop(0, 'rgba(255,255,255,0.8)');
+        gradB.addColorStop(1, 'rgba(200,225,245,0)');
+        ctx.fillStyle = gradB;
+        ctx.beginPath(); ctx.arc(x, y, bumpR, 0, Math.PI*2); ctx.fill();
+        // 影（凹み側）でさらに立体感を出す
+        const gradS = ctx.createRadialGradient(x + 5, y + 6, 1, x, y, bumpR * 0.9);
+        gradS.addColorStop(0, 'rgba(150,185,220,0.35)');
+        gradS.addColorStop(1, 'rgba(150,185,220,0)');
+        ctx.fillStyle = gradS;
+        ctx.beginPath(); ctx.arc(x, y, bumpR * 0.9, 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    // 波打つ等高線（うねりを強調してリアルな斜面らしさを出す）
+    ctx.strokeStyle = 'rgba(150,190,225,0.4)';
+    ctx.lineWidth = 1.6;
+    const waveOffset = -(scrollY % 60); // 下から上へ流れるように反転
+    for (let y = -60 + waveOffset; y < H + 60; y += 60) {
+      ctx.beginPath();
+      for (let x = TRACK_MARGIN; x <= W - TRACK_MARGIN; x += 8) {
+        const wy = y + Math.sin(x * 0.06 + y * 0.02) * 6;
+        if (x === TRACK_MARGIN) ctx.moveTo(x, wy); else ctx.lineTo(x, wy);
+      }
+      ctx.stroke();
+    }
+  }
+
+  // モーグルコース専用の地形コブ（虹色で描画）
+  // 上級・モーグルコース限定：ターンで曲がった軌跡を弧を描く残像として表示
+  // キャラクターの近くに、ミニライフゲージ(下)と距離(右)を表示する
+  function drawPlayerHud() {
+    const barW = 44, barH = 6;
+    const barX = player.x - barW / 2, barY = player.y - 48;
+    const pct = Math.max(0, Math.min(100, lifeGauge)) / 100;
+    ctx.save();
+    ctx.fillStyle = 'rgba(10,20,35,0.55)';
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(barX, barY, barW, barH, 3) : ctx.rect(barX, barY, barW, barH);
+    ctx.fill();
+    ctx.fillStyle = pct > 0.5 ? '#7ee787' : pct > 0.2 ? '#ffd35c' : '#ff6b6b';
+    const fillW = Math.max(0, barW * pct);
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(barX, barY, fillW, barH, 3); else ctx.rect(barX, barY, fillW, barH);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(barX, barY, barW, barH, 3); else ctx.rect(barX, barY, barW, barH);
+    ctx.stroke();
+
+    const km = (distance / COURSE_FINISH_UNITS_PER_KM).toFixed(2);
+    const goalKm = currentCourse.distanceKm.toFixed(1);
+    ctx.textAlign = 'left';
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(10,20,35,0.7)';
+    // 上段：今滑走している距離（腕より上に表示）
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textBaseline = 'bottom';
+    ctx.strokeText(`${km}km`, player.x + 16, player.y - 17);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${km}km`, player.x + 16, player.y - 17);
+    // 下段：コースの総距離
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textBaseline = 'top';
+    ctx.strokeText(`/ ${goalKm}km`, player.x + 16, player.y - 15);
+    ctx.fillStyle = 'rgba(255,255,255,0.75)';
+    ctx.fillText(`/ ${goalKm}km`, player.x + 16, player.y - 15);
+    // スピードブースト段階表示（全コース共通）
+    {
+      const boostMult = BOOST_STAGE_MULT[speedBoostStacks].toFixed(2);
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      for (let i = 0; i < MAX_BOOST_STACKS; i++) {
+        ctx.fillStyle = i < speedBoostStacks ? '#ffd35c' : 'rgba(255,255,255,0.25)';
+        ctx.beginPath(); ctx.arc(player.x + 16 + i * 9, player.y + 2, 3.2, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(10,20,35,0.7)';
+      ctx.strokeText(`x${boostMult}`, player.x + 16 + MAX_BOOST_STACKS * 9 + 3, player.y - 2);
+      ctx.fillStyle = '#ffd35c';
+      ctx.fillText(`x${boostMult}`, player.x + 16 + MAX_BOOST_STACKS * 9 + 3, player.y - 2);
+    }
+    ctx.restore();
+  }
+
+  // ゴール地点に近づくと、赤いゴールラインを雪面に表示する
+  // 追いかけてくる雪男を描画する（後方の距離ギャップが画面内に入ったら見える）
+  function drawYeti() {
+    if (!yetiActive) return;
+    const closeness = Math.max(0, Math.min(1, 1 - yetiGap / YETI_INITIAL_GAP)); // 近いほど1に近づく
+    const yetiY = closeness * player.y; // 画面上部(0)から徐々にキャラのY座標へ近づく
+    const yetiX = player.x + Math.sin(elapsedFrames * 0.05) * (14 - closeness * 8);
+    ctx.save();
+    ctx.translate(yetiX, yetiY);
+    const scale = 1.3 + closeness * 0.5;
+    ctx.scale(scale, scale);
+    // 影
+    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.ellipse(0, 20, 14, 4, 0, 0, Math.PI*2); ctx.fill();
+    // 胴体（白い毛並み）
+    const bodyGrad = ctx.createRadialGradient(-4, -8, 2, 0, 0, 20);
+    bodyGrad.addColorStop(0, '#ffffff');
+    bodyGrad.addColorStop(1, '#d8dee6');
+    ctx.fillStyle = bodyGrad;
+    ctx.beginPath(); ctx.ellipse(0, 4, 13, 16, 0, 0, Math.PI*2); ctx.fill();
+    // 毛のギザギザ質感
+    ctx.strokeStyle = 'rgba(190,198,210,0.7)'; ctx.lineWidth = 1;
+    for (let i = -10; i <= 10; i += 4) {
+      ctx.beginPath(); ctx.moveTo(i, -6); ctx.lineTo(i + 1.5, 0); ctx.lineTo(i - 1, 6); ctx.stroke();
+    }
+    // 腕
+    ctx.strokeStyle = '#e2e7ee'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-11, -2); ctx.lineTo(-18, 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(11, -2); ctx.lineTo(18, 10); ctx.stroke();
+    // 爪
+    ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 1.4;
+    [-19, -17].forEach(cx => { ctx.beginPath(); ctx.moveTo(cx, 9); ctx.lineTo(cx - 1, 13); ctx.stroke(); });
+    [17, 19].forEach(cx => { ctx.beginPath(); ctx.moveTo(cx, 9); ctx.lineTo(cx + 1, 13); ctx.stroke(); });
+    // 頭
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(0, -14, 9, 0, Math.PI*2); ctx.fill();
+    // 顔（怒った表情、赤い目）
+    ctx.fillStyle = '#c0392b';
+    ctx.beginPath(); ctx.ellipse(-3.5, -15, 1.6, 1.1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(3.5, -15, 1.6, 1.1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(-6, -18); ctx.lineTo(-2, -17); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(6, -18); ctx.lineTo(2, -17); ctx.stroke();
+    // 口・牙
+    ctx.fillStyle = '#7a2020';
+    ctx.beginPath(); ctx.ellipse(0, -10, 3.5, 2, 0, 0, Math.PI); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.moveTo(-2, -10.5); ctx.lineTo(-1.2, -8); ctx.lineTo(-0.4, -10.5); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(2, -10.5); ctx.lineTo(1.2, -8); ctx.lineTo(0.4, -10.5); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    // 迫っている時の警告表示
+    if (closeness > 0.55) {
+      ctx.save();
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(120,20,20,0.85)';
+      ctx.strokeText('雪男が迫っている！', player.x, yetiY - 34 * scale);
+      ctx.fillStyle = '#fff';
+      ctx.fillText('雪男が迫っている！', player.x, yetiY - 34 * scale);
+      ctx.restore();
+    }
+  }
+
+  function drawFinishLine() {
+    const finishDistance = currentCourse.distanceKm * COURSE_FINISH_UNITS_PER_KM;
+    const remainingDist = finishDistance - distance;
+    const PIXELS_PER_DIST = 1 / 0.08; // distance用の係数(0.08)から逆算した、距離→画面スクロール量の換算
+    const lineY = player.y + remainingDist * PIXELS_PER_DIST;
+    if (lineY < -60 || lineY > H + 60) return; // 画面内に入るまでは描画しない
+    ctx.save();
+    // 赤白の市松模様のバナー
+    const checkH = 10;
+    for (let cx = TRACK_MARGIN; cx < W - TRACK_MARGIN; cx += checkH) {
+      const idx = Math.floor((cx - TRACK_MARGIN) / checkH);
+      ctx.fillStyle = idx % 2 === 0 ? '#e8452c' : '#ffffff';
+      ctx.fillRect(cx, lineY - 12, checkH, 24);
+    }
+    ctx.strokeStyle = '#7a1a10'; ctx.lineWidth = 1.5;
+    ctx.strokeRect(TRACK_MARGIN, lineY - 12, W - TRACK_MARGIN * 2, 24);
+    // 「GOAL」の文字
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(10,20,35,0.8)';
+    ctx.strokeText('GOAL', W / 2, lineY - 16);
+    ctx.fillStyle = '#fff';
+    ctx.fillText('GOAL', W / 2, lineY - 16);
+    ctx.restore();
+  }
+
+  function drawSkiTrail() {
+    if (skiTrail.length < 2) return;
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (let i = 1; i < skiTrail.length; i++) {
+      const a = skiTrail[i - 1], b = skiTrail[i];
+      const alpha = Math.max(0, b.life / b.maxLife) * 0.55;
+      if (alpha <= 0) continue;
+      ctx.strokeStyle = `rgba(140,150,168,${alpha})`;
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo((a.x + b.x) / 2, (a.y + b.y) / 2, b.x, b.y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawMogulBump(m) {
+    ctx.save();
+    ctx.translate(m.x, m.y);
+    const bumpR = m.r;
+    const gradM = ctx.createRadialGradient(-bumpR*0.3, -bumpR*0.5, 1, 0, 2, bumpR*1.15);
+    gradM.addColorStop(0, '#ffffff');
+    gradM.addColorStop(0.45, '#eaf3fb');
+    gradM.addColorStop(0.8, '#c9def0');
+    gradM.addColorStop(1, '#9fb9d6');
+    ctx.fillStyle = gradM;
+    const bumps = 12;
+    const bumpPts = [];
+    for (let i = 0; i < bumps; i++) {
+      const ang = (Math.PI * 2 * i) / bumps;
+      const wob = 1 + Math.sin(ang * 3 + bumpR) * 0.05;
+      bumpPts.push([Math.cos(ang) * bumpR * wob, 3 + Math.sin(ang) * bumpR * 0.62 * wob]);
+    }
+    ctx.beginPath();
+    ctx.moveTo((bumpPts[0][0] + bumpPts[bumps-1][0]) / 2, (bumpPts[0][1] + bumpPts[bumps-1][1]) / 2);
+    for (let i = 0; i < bumps; i++) {
+      const cur = bumpPts[i], next = bumpPts[(i + 1) % bumps];
+      ctx.quadraticCurveTo(cur[0], cur[1], (cur[0] + next[0]) / 2, (cur[1] + next[1]) / 2);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#7fa8cf'; ctx.lineWidth = 2.2;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(140,170,205,0.35)';
+    ctx.beginPath(); ctx.ellipse(bumpR*0.25, 6, bumpR*0.35, bumpR*0.16, 0.3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.ellipse(-bumpR*0.32, -bumpR*0.2, bumpR*0.28, bumpR*0.15, -0.2, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawObstacle(o) {
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    if (o.type === 'tree') {
+      if (o.treeVariant === 1) {
+        // 丸みのある木（緑の部分が円形）
+        ctx.fillStyle = '#2f6a45';
+        ctx.beginPath(); ctx.arc(-14, -18, 20, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(14, -18, 20, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, -34, 22, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(0, -6, 24, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#6b4423';
+        ctx.fillRect(-8, 14, 16, 22);
+      } else {
+        ctx.fillStyle = '#2f6a45';
+        ctx.beginPath(); ctx.moveTo(0,-60); ctx.lineTo(32,6); ctx.lineTo(-32,6); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(0,-38); ctx.lineTo(40,22); ctx.lineTo(-40,22); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#6b4423';
+        ctx.fillRect(-8, 22, 16, 22);
+      }
+    } else if (o.type === 'bump') {
+      ctx.save();
+      const bumpR = o.r;
+      const gradM = ctx.createRadialGradient(-bumpR*0.3, -bumpR*0.5, 1, 0, 2, bumpR*1.15);
+      gradM.addColorStop(0, '#ffffff');
+      gradM.addColorStop(0.45, '#eaf3fb');
+      gradM.addColorStop(0.8, '#c9def0');
+      gradM.addColorStop(1, '#9fb9d6');
+      ctx.fillStyle = gradM;
+      const bumps = 12;
+      const bumpPts = [];
+      for (let i = 0; i < bumps; i++) {
+        const ang = (Math.PI * 2 * i) / bumps;
+        const wob = 1 + Math.sin(ang * 3 + bumpR) * 0.05;
+        bumpPts.push([Math.cos(ang) * bumpR * wob, 3 + Math.sin(ang) * bumpR * 0.62 * wob]);
+      }
+      ctx.beginPath();
+      ctx.moveTo((bumpPts[0][0] + bumpPts[bumps-1][0]) / 2, (bumpPts[0][1] + bumpPts[bumps-1][1]) / 2);
+      for (let i = 0; i < bumps; i++) {
+        const cur = bumpPts[i], next = bumpPts[(i + 1) % bumps];
+        ctx.quadraticCurveTo(cur[0], cur[1], (cur[0] + next[0]) / 2, (cur[1] + next[1]) / 2);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#7fa8cf'; ctx.lineWidth = 2.2;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(140,170,205,0.35)';
+      ctx.beginPath(); ctx.ellipse(bumpR*0.25, 6, bumpR*0.35, bumpR*0.16, 0.3, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.beginPath(); ctx.ellipse(-bumpR*0.32, -bumpR*0.2, bumpR*0.28, bumpR*0.15, -0.2, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    } else {
+      drawSkierChar(ctx, o.skierCharId || 'man', 0, 0, 0.85, Math.sin(elapsedFrames*0.05), o.skierPoseStyle);
+    }
+    ctx.restore();
+  }
+
+  function drawCoin(c) {
+    const bob = Math.sin((elapsedFrames + c.phase*20) * 0.1) * 2;
+    ctx.save();
+    ctx.translate(c.x, c.y + bob);
+    if (c.item.id === 'energydrink') {
+      // 周囲を光の点滅で目立たせる
+      const pulse = (Math.sin(Date.now() * 0.008) + 1) / 2; // 0〜1で明滅
+      const glowR = c.r + 6 + pulse * 7;
+      const glowGrad = ctx.createRadialGradient(0, 0, c.r * 0.6, 0, 0, glowR);
+      glowGrad.addColorStop(0, `rgba(255,230,120,${0.55 * pulse + 0.15})`);
+      glowGrad.addColorStop(1, 'rgba(255,230,120,0)');
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath(); ctx.arc(0, 0, glowR, 0, Math.PI*2); ctx.fill();
+      // 黄色い星印を点滅させながら周囲に配置
+      const drawStar = (sx, sy, size, alpha) => {
+        ctx.save();
+        ctx.translate(sx, sy);
+        ctx.fillStyle = `rgba(255,221,51,${alpha})`;
+        ctx.strokeStyle = `rgba(200,150,0,${alpha})`;
+        ctx.lineWidth = 0.4;
+        ctx.beginPath();
+        let rot = -Math.PI / 2;
+        const step = Math.PI / 5;
+        ctx.moveTo(Math.cos(rot) * size, Math.sin(rot) * size);
+        for (let i = 0; i < 5; i++) {
+          rot += step; ctx.lineTo(Math.cos(rot) * size * 0.42, Math.sin(rot) * size * 0.42);
+          rot += step; ctx.lineTo(Math.cos(rot) * size, Math.sin(rot) * size);
+        }
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      };
+      for (let i=0;i<4;i++) {
+        const ang = Date.now()*0.0025 + (Math.PI/2)*i;
+        const sx = Math.cos(ang) * (c.r + 5), sy = Math.sin(ang) * (c.r + 5);
+        const twinkle = (Math.sin(Date.now()*0.01 + i*1.7) + 1) / 2;
+        drawStar(sx, sy, 2 + twinkle * 1.2, 0.4 + 0.6 * twinkle);
+      }
+    }
+    ctx.save();
+    ctx.scale(c.r / 9, c.r / 9);
+    drawItemIcon(c.item.id);
+    ctx.restore();
+    // アイテム名のラベル
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(10,20,35,0.75)';
+    ctx.strokeText(c.item.name, 0, c.r + 3);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(c.item.name, 0, c.r + 3);
+    ctx.restore();
+  }
+
+  // ラッキーアイテムのイラスト（-9〜9の座標系。drawCoinでスケールされる）
+  function drawItemIcon(id) {
+    if (id === 'candy') {
+      ctx.fillStyle = '#ff6f91';
+      ctx.beginPath(); ctx.ellipse(0, 0, 5, 3, 0, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffd35c';
+      ctx.beginPath(); ctx.moveTo(-5,0); ctx.lineTo(-9,-3); ctx.lineTo(-9,3); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(9,-3); ctx.lineTo(9,3); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-2,-2); ctx.lineTo(2,2); ctx.stroke();
+    } else if (id === 'sportsdrink') {
+      ctx.fillStyle = '#4fc3f7';
+      ctx.beginPath(); ctx.moveTo(-3,-9); ctx.lineTo(3,-9); ctx.lineTo(3,-6); ctx.lineTo(5,-3); ctx.lineTo(5,8); ctx.lineTo(-5,8); ctx.lineTo(-5,-3); ctx.lineTo(-3,-6); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#0b6fa8'; ctx.fillRect(-3.5,-9,7,2.2);
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.fillRect(-3.5,-1,7,3);
+    } else if (id === 'chocolate') {
+      ctx.fillStyle = '#6b4423';
+      ctx.beginPath(); ctx.rect(-8,-6,16,12); ctx.fill();
+      ctx.strokeStyle = '#4a2c14'; ctx.lineWidth = 1;
+      for (let i=-8;i<=8;i+=4) { ctx.beginPath(); ctx.moveTo(i,-6); ctx.lineTo(i,6); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(-8,0); ctx.lineTo(8,0); ctx.stroke();
+    } else if (id === 'softcream') {
+      ctx.fillStyle = '#e8c98a';
+      ctx.beginPath(); ctx.moveTo(-3,2); ctx.lineTo(3,2); ctx.lineTo(0.5,9); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#fff3d6';
+      ctx.beginPath(); ctx.arc(-3,-1,3.2,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(0,-4,3.4,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(3,-1,3.2,0,Math.PI*2); ctx.fill();
+    } else if (id === 'nikuman') {
+      const bunGrad = ctx.createRadialGradient(-2,-3,1,0,1,9);
+      bunGrad.addColorStop(0, '#fffaf0');
+      bunGrad.addColorStop(0.6, '#f5ead2');
+      bunGrad.addColorStop(1, '#dcc9a0');
+      ctx.fillStyle = bunGrad;
+      ctx.beginPath(); ctx.ellipse(0,1,8,6.3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(150,120,70,0.22)';
+      ctx.beginPath(); ctx.ellipse(0,5,7,2,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#c9a86a'; ctx.lineWidth = 0.9;
+      for (let i=0;i<7;i++) {
+        const ang = (Math.PI*2*i)/7 - Math.PI/2;
+        const ex = Math.cos(ang)*6.5, ey = 1+Math.sin(ang)*5;
+        ctx.beginPath();
+        ctx.moveTo(0,-3.5);
+        ctx.quadraticCurveTo(ex*0.5,-1,ex,ey);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#c9a86a';
+      ctx.beginPath(); ctx.ellipse(0,-3.7,1.6,1,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#a8895a';
+      ctx.beginPath(); ctx.ellipse(0,-3.7,0.7,0.5,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-2,-7); ctx.quadraticCurveTo(-3,-9,-1.5,-11); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(2,-7); ctx.quadraticCurveTo(1,-9,2.5,-11); ctx.stroke();
+    } else if (id === 'gyoza') {
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(0,1,8.5,5,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#dde5ee'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.ellipse(0,1,8.5,5,0,0,Math.PI*2); ctx.stroke();
+      // 大きく見やすい餃子を1個
+      ctx.save();
+      ctx.translate(0, 0.8); ctx.scale(2, 2);
+      // 皮の本体（クリーム色のグラデーション）
+      const skinGrad = ctx.createLinearGradient(0,-3,0,1.5);
+      skinGrad.addColorStop(0, '#fbf0d8');
+      skinGrad.addColorStop(1, '#f0dca0');
+      ctx.fillStyle = skinGrad;
+      ctx.beginPath();
+      ctx.moveTo(-3.2,1); ctx.quadraticCurveTo(0,-3.2,3.2,1); ctx.quadraticCurveTo(0,2.3,-3.2,1);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#c9a45c'; ctx.lineWidth = 0.25;
+      ctx.stroke();
+      // くっきりしたひだ（プリーツ）を上端に沿って並べる
+      ctx.strokeStyle = '#b8925a'; ctx.lineWidth = 0.35;
+      for (let i=-2.6;i<=2.6;i+=0.9) {
+        ctx.beginPath(); ctx.arc(i,1.15,0.65,Math.PI,0); ctx.stroke();
+      }
+      // 焼き色のついた底（羽根つき餃子の焼き目）
+      const searGrad = ctx.createLinearGradient(0,0.6,0,1.7);
+      searGrad.addColorStop(0, 'rgba(180,110,40,0.25)');
+      searGrad.addColorStop(1, 'rgba(120,60,20,0.75)');
+      ctx.fillStyle = searGrad;
+      ctx.beginPath(); ctx.ellipse(0,1.35,3,0.75,0,0,Math.PI*2); ctx.fill();
+      // 照りのハイライト
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.beginPath(); ctx.ellipse(-1.3,-0.6,0.9,0.35,-0.3,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+      // 湯気
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-1.5,-4); ctx.quadraticCurveTo(-2.5,-6.5,-1,-8.5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(1.5,-4); ctx.quadraticCurveTo(0.5,-6.5,2,-8.5); ctx.stroke();
+    } else if (id === 'ramen') {
+      const bowlGrad = ctx.createLinearGradient(0,-1,0,8);
+      bowlGrad.addColorStop(0, '#f0452c');
+      bowlGrad.addColorStop(1, '#a82c1a');
+      ctx.fillStyle = bowlGrad;
+      ctx.beginPath();
+      ctx.moveTo(-8,-1);
+      ctx.lineTo(8,-1);
+      ctx.quadraticCurveTo(8.6,4,5,7.6);
+      ctx.quadraticCurveTo(0,9.2,-5,7.6);
+      ctx.quadraticCurveTo(-8.6,4,-8,-1);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,240,210,0.45)'; ctx.lineWidth = 0.6;
+      ctx.beginPath(); ctx.moveTo(-6.5,3); ctx.quadraticCurveTo(0,5,6.5,3); ctx.stroke();
+      ctx.fillStyle = '#ffe9b3';
+      ctx.beginPath(); ctx.ellipse(0,-1,8.6,2,0,0,Math.PI*2); ctx.fill();
+      const soupGrad = ctx.createRadialGradient(0,0,1,0,0,7);
+      soupGrad.addColorStop(0, '#ffcf6b');
+      soupGrad.addColorStop(1, '#e0902a');
+      ctx.fillStyle = soupGrad;
+      ctx.beginPath(); ctx.ellipse(0,-0.8,7.3,2,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#fff3d6'; ctx.lineWidth = 1.1;
+      [-4,-1.5,1,3.5].forEach(x => {
+        ctx.beginPath(); ctx.moveTo(x,-1.6); ctx.quadraticCurveTo(x+1.5,0.4,x,2.2); ctx.stroke();
+      });
+      ctx.fillStyle = '#fff8ec';
+      ctx.beginPath(); ctx.ellipse(-3,1,1.6,1.3,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffb347';
+      ctx.beginPath(); ctx.ellipse(-3,1.3,0.8,0.6,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#c97a4a';
+      ctx.beginPath(); ctx.ellipse(3,1.3,2,1.2,0.2,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.ellipse(3,1.3,2,1.2,0.2,0,Math.PI*2); ctx.stroke();
+      // なると（大きめの円+くっきりした渦巻き模様）
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(0.3,3,1.6,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#ff7a90'; ctx.lineWidth = 0.7; ctx.lineCap = 'round';
+      ctx.beginPath();
+      for (let t=0, first=true; t<=3.1*Math.PI; t+=0.25) {
+        const rr = t*0.16;
+        const px = 0.3+Math.cos(t)*rr, py = 3+Math.sin(t)*rr;
+        if (first) { ctx.moveTo(px,py); first=false; } else ctx.lineTo(px,py);
+      }
+      ctx.stroke();
+      ctx.fillStyle = '#6ab04c';
+      [[-1,-0.2],[1.7,-0.6],[-4.5,0.6]].forEach(([dx,dy]) => {
+        ctx.beginPath(); ctx.arc(dx,dy,0.5,0,Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-2,-3); ctx.quadraticCurveTo(-3,-6,-1.5,-9); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(2,-3); ctx.quadraticCurveTo(1,-6,2.5,-9); ctx.stroke();
+    } else if (id === 'beer') {
+      const beerGrad = ctx.createLinearGradient(-5,-2,5,7);
+      beerGrad.addColorStop(0, '#ffe066');
+      beerGrad.addColorStop(0.5, '#ffc72c');
+      beerGrad.addColorStop(1, '#e8a412');
+      ctx.fillStyle = beerGrad;
+      ctx.beginPath(); ctx.moveTo(-5,-1); ctx.lineTo(5,-1); ctx.lineTo(4.3,7); ctx.lineTo(-4.3,7); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#e8a412'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(5,0.5); ctx.quadraticCurveTo(9.5,0.5,9.5,3); ctx.quadraticCurveTo(9.5,5.5,4.6,5.5); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      [[-2,4],[0.5,5.5],[2,3],[-1,1.5]].forEach(([bx,by]) => {
+        ctx.beginPath(); ctx.arc(bx,by,0.4,0,Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(-3.5,0); ctx.lineTo(-3,6); ctx.stroke();
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.ellipse(0,-3,5.3,2.4,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.92)';
+      [[-3.5,-4.2,1.3],[-1,-4.8,1.5],[1.5,-4.6,1.4],[3.6,-3.8,1.2],[0,-2,1.6],[-2.2,-2.2,1.1],[2.3,-2.4,1.2]].forEach(([fx,fy,fr]) => {
+        ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill();
+      });
+      ctx.strokeStyle = 'rgba(220,200,140,0.4)'; ctx.lineWidth = 0.4;
+      ctx.beginPath(); ctx.ellipse(0,-3,5.3,2.4,0,0,Math.PI*2); ctx.stroke();
+    } else if (id === 'yakiniku') {
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath(); ctx.ellipse(0,4,8.5,3,0,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 0.6;
+      for (let gx=-7;gx<=7;gx+=3) { ctx.beginPath(); ctx.moveTo(gx,2); ctx.lineTo(gx,6.5); ctx.stroke(); }
+      const oneMeat = (mx, my, rot, scale) => {
+        ctx.save();
+        ctx.translate(mx, my); ctx.rotate(rot); ctx.scale(scale, scale);
+        const meatGrad = ctx.createRadialGradient(-1,-1,1,0,0,4.5);
+        meatGrad.addColorStop(0, '#d9714a');
+        meatGrad.addColorStop(0.6, '#a8452e');
+        meatGrad.addColorStop(1, '#6e2a1a');
+        ctx.fillStyle = meatGrad;
+        ctx.beginPath(); ctx.ellipse(0,0,4.2,2.6,0,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle = 'rgba(255,235,220,0.55)';
+        ctx.beginPath(); ctx.ellipse(-1.3,-1.6,2.2,0.7,-0.2,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle = 'rgba(40,15,8,0.7)'; ctx.lineWidth = 0.7;
+        ctx.beginPath(); ctx.moveTo(-3.2,-1.8); ctx.lineTo(2,1.8); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(-2,-2.4); ctx.lineTo(3.2,0.7); ctx.stroke();
+        ctx.restore();
+      };
+      oneMeat(-3.6,-2.4,-0.2,1);
+      oneMeat(2.4,-3.6,0.3,0.95);
+      oneMeat(0.6,0.8,-0.15,0.95);
+      ctx.strokeStyle = 'rgba(220,220,220,0.6)'; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.moveTo(4,-6); ctx.quadraticCurveTo(6,-9,4,-12); ctx.stroke();
+    } else if (id === 'energydrink') {
+      ctx.fillStyle = '#ff4757';
+      ctx.beginPath(); ctx.moveTo(-3,-9); ctx.lineTo(3,-9); ctx.lineTo(3,-5); ctx.lineTo(5,-2); ctx.lineTo(5,8); ctx.lineTo(-5,8); ctx.lineTo(-5,-2); ctx.lineTo(-3,-5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(-3.5,-1,7,4);
+      ctx.fillStyle = '#ffd35c';
+      ctx.beginPath();
+      ctx.moveTo(0,3); ctx.lineTo(1.2,0.5); ctx.lineTo(-0.4,0.5); ctx.lineTo(0.7,-2.5); ctx.lineTo(-1.4,1.2); ctx.lineTo(0.2,1.2); ctx.closePath(); ctx.fill();
+    }
+  }
+
+  function draw() {
+    let shakeX = 0, shakeY = 0;
+    if (performance.now() < shakeUntil) {
+      shakeX = (Math.random()-0.5) * 8;
+      shakeY = (Math.random()-0.5) * 8;
+    }
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+    drawBackground();
+    drawFinishLine();
+    drawYeti();
+    drawSkiTrail();
+
+    particles.forEach(p => {
+      if (p.trail) {
+        const t = Math.max(0, p.life / (p.maxLife || 13));
+        ctx.fillStyle = `rgba(160,170,185,${t * 0.9})`;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        const angle = Math.atan2(p.vy, p.vx || 0.001);
+        ctx.rotate(angle + Math.PI / 2);
+        const stretch = 1 + (1 - t) * 2.2; // 飛び出す瞬間は短く、後ろに向かって伸びる筋になる
+        ctx.beginPath(); ctx.ellipse(0, 0, p.r * 0.75, p.r * stretch, 0, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+      } else {
+        ctx.fillStyle = `rgba(255,255,255,${Math.max(0,p.life/22)})`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      }
+    });
+
+    moguls.forEach(drawMogulBump);
+    obstacles.forEach(drawObstacle);
+    coins.forEach(drawCoin);
+
+    if (gameStarted) {
+      {
+        const bumpT = Math.max(0, (player.kneeAbsorbUntil - performance.now()) / 340);
+        const bumpProgress = Math.min(1, bumpT);
+        const bumpEase = bumpProgress * bumpProgress * (3 - 2 * bumpProgress); // なめらかなイーズで加減速
+        const bumpLiftY = Math.sin(bumpEase * Math.PI) * 5; // ふわっとしすぎない、しっかりした乗り越え
+        const bumpFlex = Math.sin(bumpEase * Math.PI); // 膝をしっかり曲げて屈伸する動き
+        if (performance.now() < player.fallUntil) {
+          // コブでバランスを崩して転ぶアニメーション
+          const fallT = 1 - Math.max(0, player.fallUntil - performance.now()) / 620;
+          const spinAngle = fallT * Math.PI * 2.4;
+          const fallBounce = Math.abs(Math.sin(fallT * Math.PI * 3)) * 6;
+          ctx.save();
+          ctx.translate(player.x, player.y - fallBounce);
+          ctx.rotate(spinAngle);
+          drawSkierChar(ctx, player.char.id, 0, 0, 1.5 * (1 - fallT * 0.12), 0, poseForCourse());
+          ctx.restore();
+        } else if (jumping) {
+          const jumpProgress = 1 - Math.max(0, jumpUntil - performance.now()) / 1100;
+          const arc = Math.sin(Math.min(1, jumpProgress) * Math.PI); // 0→1→0の放物線
+          const liftY = arc * 52;
+          const jumpScale = 1.5 + arc * 0.22;
+          ctx.save();
+          ctx.globalAlpha = 0.28;
+          ctx.fillStyle = '#1c3f66';
+          ctx.beginPath();
+          ctx.ellipse(player.x, player.y + 20, 12 * (1 - arc * 0.5), 4 * (1 - arc * 0.5), 0, 0, Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+          drawSkierChar(ctx, player.char.id, player.x, player.y - liftY, jumpScale, player.lean, poseForCourse());
+        } else {
+          // 雪面のでこぼこに連動して、滑走中も軽く上下にバウンドする
+          const scrollY = elapsedFrames * currentScrollSpeed() * 0.6;
+          const bobPhase = ((player.y + scrollY) / 46) * Math.PI * 2;
+          const terrainBob = Math.sin(bobPhase) * 2.2 + Math.sin(bobPhase * 2.15) * 1.0;
+          const boostPush = Math.max(0, (speedBoostFlashUntil - performance.now()) / 420);
+          drawSkierChar(ctx, player.char.id, player.x, player.y + terrainBob - bumpLiftY, 1.5, player.lean, poseForCourse(), bumpFlex, drunk, boostPush, speedBoostStacks > 0);
+        }
+      }
+      drawPlayerHud();
+    }
+    ctx.restore();
+
+    if (!gameStarted) {
+      ctx.fillStyle = 'rgba(10,30,55,0.35)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('キャラクターを選んで「開始」を押してね', W/2, H/2);
+    } else if (paused) {
+      ctx.fillStyle = 'rgba(10,30,55,0.45)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 20px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('一時停止中', W/2, H/2);
+    }
+  }
+
+  // ================= 効果音 =================
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  }
+  function playTone(freq, type, dur, volume, delay) {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime + (delay||0);
+    const osc = audioCtx.createOscillator();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(volume, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t+dur);
+  }
+  function playCoinSound() { playTone(1100,'sine',0.12,0.12); playTone(1500,'sine',0.1,0.08,0.05); }
+  function playHitSound() { playTone(140,'sawtooth',0.3,0.22); }
+  function playJumpSound() { playTone(500,'sine',0.15,0.15); playTone(750,'sine',0.15,0.1,0.06); }
+  function playJumpOverSound() { playTone(900,'sine',0.1,0.14); playTone(1300,'sine',0.12,0.12,0.05); }
+  function playGameOverSound() {
+    [440,370,300,220].forEach((f,i)=>playTone(f,'triangle',0.35,0.18,i*0.15));
+  }
+  function playVictorySound() {
+    [523.25,659.25,783.99,1046.5].forEach((f,i)=>playTone(f,'triangle',0.3,0.2,i*0.12));
+  }
+
+  // ================= バックミュージック（雪山を軽快に滑るイメージ） =================
+  let bgmTimer = null;
+  let bgmGain = null;
+  let bgmStepIndex = 0;
+  const BGM_MELODY = [
+    659.25, 587.33, 523.25, 587.33, 659.25, 659.25, 659.25, 0,
+    587.33, 587.33, 587.33, 0, 659.25, 783.99, 783.99, 0,
+    659.25, 587.33, 523.25, 587.33, 659.25, 659.25, 659.25, 659.25,
+    587.33, 587.33, 659.25, 587.33, 523.25, 0, 0, 0,
+  ];
+  const BGM_BASS = [220.00, 220.00, 164.81, 164.81, 196.00, 196.00, 146.83, 146.83];
+
+  function ensureBgmGain() {
+    if (!audioCtx) return;
+    if (!bgmGain) {
+      bgmGain = audioCtx.createGain();
+      bgmGain.gain.value = 0.5;
+      bgmGain.connect(audioCtx.destination);
+    }
+  }
+  function scheduleBgmStep() {
+    if (!audioCtx || !bgmGain) return;
+    const t = audioCtx.currentTime;
+    const stepDur = 0.16; // 軽快に滑るイメージのテンポ
+
+    // ベル系のリードメロディ（雪山のきらめきをイメージ）
+    const note = BGM_MELODY[bgmStepIndex % BGM_MELODY.length];
+    if (note) {
+      const osc = audioCtx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(note, t);
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.11, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.6);
+      osc.connect(g); g.connect(bgmGain);
+      osc.start(t); osc.stop(t + stepDur * 1.7);
+
+      const osc2 = audioCtx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(note * 2, t);
+      const g2 = audioCtx.createGain();
+      g2.gain.setValueAtTime(0, t);
+      g2.gain.linearRampToValueAtTime(0.03, t + 0.01);
+      g2.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 1.1);
+      osc2.connect(g2); g2.connect(bgmGain);
+      osc2.start(t); osc2.stop(t + stepDur * 1.2);
+    }
+
+    // 軽く弾むベース（滑走のリズム感）
+    if (bgmStepIndex % 4 === 0) {
+      const bass = BGM_BASS[Math.floor(bgmStepIndex / 4) % BGM_BASS.length];
+      const bosc = audioCtx.createOscillator();
+      bosc.type = 'sine';
+      bosc.frequency.setValueAtTime(bass, t);
+      const bg = audioCtx.createGain();
+      bg.gain.setValueAtTime(0.09, t);
+      bg.gain.exponentialRampToValueAtTime(0.001, t + stepDur * 3.6);
+      bosc.connect(bg); bg.connect(bgmGain);
+      bosc.start(t); bosc.stop(t + stepDur * 3.8);
+    }
+
+    bgmStepIndex++;
+    bgmTimer = setTimeout(scheduleBgmStep, stepDur * 1000);
+  }
+  function startBgm() {
+    ensureAudio();
+    ensureBgmGain();
+    if (bgmTimer) return; // 既に再生中なら二重に開始しない
+    bgmStepIndex = 0;
+    scheduleBgmStep();
+  }
+  function stopBgm() {
+    if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  }
+  function setBgmMuted(muted) {
+    if (bgmGain) bgmGain.gain.value = muted ? 0 : 0.5;
+  }
+
+  // ================= ゲームループ =================
+  function loop() {
+    if (running && !paused) update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // ================= タイムランキング（コースごとに上位3件） =================
+  function getLeaderboard(courseId) {
+    try {
+      const raw = localStorage.getItem('skiLeaderboard_' + courseId);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+  function saveLeaderboard(courseId, list) {
+    try { localStorage.setItem('skiLeaderboard_' + courseId, JSON.stringify(list)); } catch (e) {}
+  }
+  function qualifiesForLeaderboard(courseId, time) {
+    const list = getLeaderboard(courseId);
+    if (list.length < 3) return true;
+    return time < list[list.length - 1].time;
+  }
+  function addToLeaderboard(courseId, name, time) {
+    const list = getLeaderboard(courseId);
+    list.push({ name: name || 'ノーネーム', time });
+    list.sort((a, b) => a.time - b.time);
+    const trimmed = list.slice(0, 3);
+    saveLeaderboard(courseId, trimmed);
+    return trimmed;
+  }
+  function renderLeaderboard(courseId) {
+    const list = getLeaderboard(courseId);
+    const el = document.getElementById('leaderboardDisplay');
+    if (list.length === 0) { el.style.display = 'none'; return; }
+    const medals = ['🥇', '🥈', '🥉'];
+    el.innerHTML = `<h3>${getCourse(courseId).name}コース タイムランキング</h3><ol>` +
+      list.map((e, i) => `<li>${medals[i] || ''} ${e.name} - ${e.time.toFixed(2)}秒</li>`).join('') +
+      '</ol>';
+    el.style.display = 'block';
+  }
+
+  let pendingFinishTime = 0;
+  function finishRun() {
+    finished = true;
+    running = false;
+    appEnded = true;
+    clearDemoTimer();
+    playVictorySound();
+    const raceTimeSec = frozenRaceTimeSec;
+    document.getElementById('message').textContent =
+      `🏁 完走！ ${currentCourse.name}コース タイム: ${raceTimeSec.toFixed(2)}秒`;
+    if (qualifiesForLeaderboard(currentCourse.id, raceTimeSec)) {
+      pendingFinishTime = raceTimeSec;
+      document.getElementById('nameEntry').style.display = 'flex';
+      document.getElementById('nameInput').value = '';
+    } else {
+      document.getElementById('restartBtn').style.display = 'inline-block';
+      renderLeaderboard(currentCourse.id);
+    }
+  }
+
+  function endGame() {
+    running = false;
+    appEnded = true;
+    clearDemoTimer();
+    playGameOverSound();
+    document.getElementById('message').textContent =
+      `💥 ゲームオーバー！ 距離${Math.floor(distance)}m スコア${Math.floor(score)}点`;
+    document.getElementById('restartBtn').style.display = 'inline-block';
+  }
+
+  // ================= ボタン・操作 =================
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resumeBtn = document.getElementById('resumeBtn');
+  const endBtn = document.getElementById('endBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
+
+  startBtn.addEventListener('click', () => {
+    ensureAudio();
+    gameStarted = true; running = true; paused = false; appEnded = false;
+    document.getElementById('message').textContent = '';
+    restartBtn.style.display = 'none';
+    document.getElementById('nameEntry').style.display = 'none';
+    document.getElementById('leaderboardDisplay').style.display = 'none';
+    hidePaywall();
+    initGame();
+    startDemoTimer();
+  });
+  pauseBtn.addEventListener('click', () => { if (gameStarted && running) { paused = true; pauseStartedAt = performance.now(); setBgmMuted(true); pauseDemoTimer(); } });
+  resumeBtn.addEventListener('click', () => { if (gameStarted && running) { paused = false; totalPausedMs += performance.now() - pauseStartedAt; setBgmMuted(false); resumeDemoTimer(); } });
+  endBtn.addEventListener('click', () => {
+    if (!gameStarted) return;
+    running = false; paused = false;
+    document.getElementById('message').textContent = `ゲーム終了：距離${Math.floor(distance)}m スコア${Math.floor(score)}点`;
+  });
+  restartBtn.addEventListener('click', () => {
+    ensureAudio();
+    gameStarted = true; running = true; paused = false; appEnded = false;
+    document.getElementById('message').textContent = '';
+    restartBtn.style.display = 'none';
+    document.getElementById('nameEntry').style.display = 'none';
+    document.getElementById('leaderboardDisplay').style.display = 'none';
+    hidePaywall();
+    initGame();
+    startDemoTimer();
+  });
+  document.getElementById('submitScoreBtn').addEventListener('click', () => {
+    const name = document.getElementById('nameInput').value.trim().slice(0, 10);
+    addToLeaderboard(currentCourse.id, name, pendingFinishTime);
+    document.getElementById('nameEntry').style.display = 'none';
+    renderLeaderboard(currentCourse.id);
+    restartBtn.style.display = 'inline-block';
+  });
+
+  function bindHold(el, onDown, onUp) {
+    el.addEventListener('mousedown', e => { e.preventDefault(); onDown(); });
+    el.addEventListener('mouseup', () => onUp());
+    el.addEventListener('mouseleave', () => onUp());
+    el.addEventListener('touchstart', e => { e.preventDefault(); onDown(); }, { passive:false });
+    el.addEventListener('touchend', e => { e.preventDefault(); onUp(); }, { passive:false });
+    el.addEventListener('touchcancel', () => onUp());
+  }
+  bindHold(leftBtn, () => inputLeft = true, () => inputLeft = false);
+  bindHold(rightBtn, () => inputRight = true, () => inputRight = false);
+
+  function tryJump() {
+    if (!gameStarted || !running || paused) return;
+    const now = performance.now();
+    if (!jumping && now > jumpCooldownUntil) {
+      jumping = true;
+      jumpUntil = now + 1100;
+      jumpCooldownUntil = now + 1300;
+      playJumpSound();
+    }
+  }
+  // ストック（両手）で漕いでスピードアップ（上級・モーグル限定、2回クリック/タップで発動、3回でmax1.5倍）
+  function triggerSpeedBoost() {
+    if (!gameStarted || !running || paused) return;
+    if (speedBoostStacks < MAX_BOOST_STACKS) {
+      speedBoostStacks++;
+      if (speedBoostStacks === MAX_BOOST_STACKS) maxBoostReachedAtDistance = distance;
+    }
+    speedBoostFlashUntil = performance.now() + 420;
+    playJumpOverSound();
+  }
+  const jumpBtn = document.getElementById('jumpBtn');
+  jumpBtn.addEventListener('click', e => { e.preventDefault(); tryJump(); });
+  jumpBtn.addEventListener('touchstart', e => { e.preventDefault(); tryJump(); }, { passive:false });
+
+  // 画面（キャンバス）はスカイストライカーと同じ「触れた位置に追従する」操作方式
+  function pointerXFromClientX(clientX) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width;
+    return (clientX - rect.left) * scaleX;
+  }
+  function beginPointerControl(clientX) {
+    pointerTargetX = pointerXFromClientX(clientX);
+    pointerActive = true;
+    if (mogulDodgeAllowed()) tryMogulDodge(); // クリック/タップの開始も、目の前のコブのモーグル回避操作として扱う
+  }
+  function movePointerControl(clientX) { pointerTargetX = pointerXFromClientX(clientX); }
+  function endPointerControl() { pointerActive = false; }
+
+  canvas.addEventListener('mousedown', e => { beginPointerControl(e.clientX); });
+  canvas.addEventListener('mousemove', e => { if (e.buttons === 1) movePointerControl(e.clientX); });
+  canvas.addEventListener('mouseup', endPointerControl);
+  canvas.addEventListener('mouseleave', endPointerControl);
+  // マウス：ダブルクリックでジャンプ（上級・モーグルはスピードブーストも発動）
+  canvas.addEventListener('dblclick', e => { e.preventDefault(); tryJump(); triggerSpeedBoost(); });
+
+  // タッチ：素早いタップ（ほぼ動かさず短時間で離す）はジャンプ、押し続けるとポインタ追従で移動
+  let touchStartTime = 0, touchStartX = 0, touchMovedFar = false;
+  let lastTapTime = 0;
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      touchStartTime = performance.now();
+      touchStartX = e.touches[0].clientX;
+      touchMovedFar = false;
+      beginPointerControl(e.touches[0].clientX);
+    }
+  }, { passive: true });
+  canvas.addEventListener('touchmove', e => {
+    if (e.touches.length === 1) {
+      if (Math.abs(e.touches[0].clientX - touchStartX) > 14) touchMovedFar = true;
+      movePointerControl(e.touches[0].clientX);
+    }
+  }, { passive: true });
+  canvas.addEventListener('touchend', () => {
+    const now = performance.now();
+    const heldMs = now - touchStartTime;
+    if (heldMs < 220 && !touchMovedFar) {
+      // 素早いタップが短い間隔で2回続いたら（ダブルタップ）ジャンプ＋上級・モーグルはスピードブースト
+      if (now - lastTapTime < 320) { tryJump(); triggerSpeedBoost(); lastTapTime = 0; }
+      else { lastTapTime = now; }
+    }
+    endPointerControl();
+  });
+  canvas.addEventListener('touchcancel', endPointerControl);
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') inputLeft = true;
+    if (e.key === 'ArrowRight') inputRight = true;
+    if (e.key === 'ArrowUp' || e.key === ' ') { e.preventDefault(); tryJump(); }
+  });
+  document.addEventListener('keyup', e => {
+    if (e.key === 'ArrowLeft') inputLeft = false;
+    if (e.key === 'ArrowRight') inputRight = false;
+  });
+
+  // ================= 表示の拡大縮小（iPhoneでの2本指ピンチ操作） =================
+  const canvasWrapEl = document.getElementById('canvasWrap');
+  const canvasZoomHintEl = document.getElementById('canvasZoomHint');
+  const canvasResetZoomBtn = document.getElementById('canvasResetZoomBtn');
+  let canvasZoom = 1;
+  const CANVAS_ZOOM_MIN = 0.7, CANVAS_ZOOM_MAX = 1.6;
+  let canvasPinchState = null;
+  let canvasZoomHintTimer = null;
+
+  function applyCanvasZoom() { canvas.style.transform = `scale(${canvasZoom})`; }
+  function resetCanvasZoom() { canvasZoom = 1; applyCanvasZoom(); }
+  function showCanvasZoomHint() {
+    canvasZoomHintEl.classList.add('show');
+    clearTimeout(canvasZoomHintTimer);
+    canvasZoomHintTimer = setTimeout(() => canvasZoomHintEl.classList.remove('show'), 1200);
+  }
+  function pinchDist(t0, t1) { return Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY); }
+  canvasWrapEl.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      canvasPinchState = { startDist: pinchDist(e.touches[0], e.touches[1]), startZoom: canvasZoom };
+    }
+  }, { passive:true });
+  canvasWrapEl.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && canvasPinchState) {
+      e.preventDefault();
+      const dist = pinchDist(e.touches[0], e.touches[1]);
+      const scaleDelta = dist / canvasPinchState.startDist;
+      canvasZoom = Math.max(CANVAS_ZOOM_MIN, Math.min(CANVAS_ZOOM_MAX, canvasPinchState.startZoom*scaleDelta));
+      applyCanvasZoom(); showCanvasZoomHint();
+    }
+  }, { passive:false });
+  canvasWrapEl.addEventListener('touchend', e => { if (e.touches.length < 2) canvasPinchState = null; }, { passive:true });
+  canvasWrapEl.addEventListener('touchcancel', () => { canvasPinchState = null; }, { passive:true });
+  canvasResetZoomBtn.addEventListener('click', resetCanvasZoom);
+
+  initGame();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

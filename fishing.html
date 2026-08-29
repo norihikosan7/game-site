@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>のりくんの釣りゲーム</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background: radial-gradient(ellipse 900px 600px at 50% -10%, rgba(100,180,255,0.10), transparent 60%), #0b1220;
+    color: #eef1f7;
+    font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 30px; }
+
+  h1 {
+    font-size: 21px; margin: 6px 0 2px; text-align: center;
+    background: linear-gradient(180deg, #fff 10%, #cfe8ff 60%, #5cb8ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { font-size: 11.5px; color: #9aa3b8; margin-bottom: 10px; text-align: center; }
+
+  .screen { display: none; width: 100%; max-width: 480px; }
+  .screen.active { display: block; }
+
+  .section-title { font-size: 13.5px; font-weight: bold; color: #ffd35c; margin: 16px 4px 8px; }
+
+  /* ---- 選択カード共通 ---- */
+  .choice-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .choice-card {
+    flex: 1 1 auto; min-width: 76px;
+    background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 10px 8px; text-align: center; cursor: pointer;
+    transition: transform 140ms, border-color 140ms; outline: none;
+  }
+  .choice-card:hover, .choice-card.selected { transform: translateY(-2px); border-color: #5cb8ff; background: rgba(92,184,255,0.12); }
+  .choice-card .cc-emoji { font-size: 22px; }
+  .choice-card .cc-label { font-size: 11px; font-weight: bold; margin-top: 3px; }
+  .choice-card .cc-desc { font-size: 9.5px; color: #9aa3b8; margin-top: 2px; line-height: 1.4; }
+  .choice-card.disabled { opacity: 0.35; cursor: not-allowed; }
+
+  #charGrid { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  #charGrid .choice-card { min-width: 82px; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 6px; }
+  #charGrid .cc-emoji { width: 56px; height: 92px; display: flex; align-items: flex-end; justify-content: center; flex-shrink: 0; }
+  #charGrid .cc-label { font-size: 10px; line-height: 1.3; }
+
+  .flow-next-btn {
+    display: block; margin: 18px auto 0; padding: 11px 30px; border: none; border-radius: 22px;
+    background: #5cb8ff; color: #06283a; font-weight: bold; font-size: 14px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  .flow-next-btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* ---- 釣り場画面 ---- */
+  #fishWrap { position: relative; width: 100%; max-width: 480px; touch-action: none; }
+  #fishCanvas {
+    background: #0d1f3d; border: 3px solid #1c2c50; border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5); display: block; width: 100%; height: auto; touch-action: none;
+  }
+  #reelPanel {
+    display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap;
+  }
+  #reelPanel button {
+    padding: 10px 14px; border: none; border-radius: 14px; font-weight: bold; font-size: 12px; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  }
+  .btn-cast { background: #5cb8ff; color: #06283a; }
+  .btn-reel-fast { background: #ff8f4d; color: #3a1c00; }
+  .btn-reel-slow { background: #7ee787; color: #06280e; }
+
+  /* ---- リール画像コマンド ---- */
+  #reelDial {
+    display: none; flex-direction: column; align-items: center; gap: 4px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  }
+  #reelDial svg { display: block; }
+  #reelStopZone, #reelStartZone { transition: transform 120ms; transform-origin: 40px 42px; }
+  #reelStopZone:active, #reelStartZone:active { transform: scale(0.9); }
+  #reelDialLabel { font-size: 11px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 2px 10px; border-radius: 10px; }
+  .btn-rod-up { background: #ffd35c; color: #4a2c00; }
+  .btn-rod-down { background: #cfa8ff; color: #2a0a4a; }
+  .btn-net { background: #ff5c5c; color: #fff; }
+  .btn-hook { background: #fff566; color: #4a3c00; }
+
+  #resultOverlay {
+    display: none; position: absolute; inset: 0; background: rgba(5,8,16,0.9);
+    align-items: center; justify-content: center; border-radius: 10px; z-index: 50; flex-direction: column; text-align: center; padding: 20px;
+  }
+  #resultOverlay .r-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+  #celebrateCanvas { margin-bottom: 8px; }
+  #resultOverlay .r-sub { font-size: 13px; color: #cfe0f0; margin-bottom: 18px; }
+  #resultContinueBtn {
+    padding: 10px 26px; border: none; border-radius: 20px; background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 13px; cursor: pointer;
+  }
+
+  #legend {
+    max-width: 480px; margin-top: 16px; font-size: 11px; color: #9aa3b8; line-height: 1.8;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 14px;
+  }
+
+  #paywallOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.82);
+    z-index: 999;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #paywallBox {
+    max-width: 340px; width: 100%;
+    background: linear-gradient(180deg, #1c3a5c, #122438);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 24px 22px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    color: #fff;
+  }
+  #paywallTitle { font-size: 19px; font-weight: bold; margin-bottom: 10px; }
+  #paywallText { font-size: 13px; line-height: 1.7; color: #cfe0f0; margin: 0 0 18px; }
+  #buyLink {
+    display: block; text-decoration: none;
+    background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 15px;
+    padding: 12px; border-radius: 24px;
+    margin-bottom: 18px;
+  }
+  #licenseRow { display: flex; gap: 6px; }
+  #licenseKeyInput {
+    flex: 1; min-width: 0;
+    padding: 9px 10px; border-radius: 8px; border: none; font-size: 12.5px;
+  }
+  #verifyKeyBtn {
+    padding: 9px 14px; border-radius: 8px; border: none;
+    background: #7ee787; color: #06280e; font-weight: bold; font-size: 12.5px; cursor: pointer;
+  }
+  #licenseMsg { font-size: 12px; margin-top: 10px; min-height: 16px; color: #ffb454; }
+
+  #sessionOverOverlay {
+    display: none;
+    position: absolute; inset: 0;
+    background: rgba(5,10,20,0.9);
+    z-index: 998;
+    align-items: center; justify-content: center;
+    padding: 14px;
+  }
+  #sessionOverBox {
+    max-width: 380px; width: 100%; max-height: 94%; overflow-y: auto;
+    background: linear-gradient(180deg, #1c3a5c, #0e1c2c);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 18px 18px 16px;
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+  #sessionOverTitle { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 10px; }
+  #catchListArea { font-size: 12.5px; line-height: 1.9; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; }
+  #saveScoreRow { display: flex; gap: 6px; margin-bottom: 4px; }
+  #playerNameInput { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 8px; border: none; font-size: 12.5px; }
+  #saveScoreBtn { padding: 8px 12px; border: none; border-radius: 8px; background: #7ee787; color: #06280e; font-weight: bold; font-size: 12px; cursor: pointer; }
+  #saveScoreMsg { font-size: 11.5px; color: #ffd35c; min-height: 15px; margin-bottom: 10px; }
+  #leaderboardTitle { font-size: 13px; font-weight: bold; color: #ffd35c; margin-bottom: 6px; }
+  #leaderboardArea { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .lb-entry { background: rgba(255,255,255,0.06); border-radius: 10px; padding: 8px 10px; font-size: 11.5px; line-height: 1.7; }
+  .lb-entry .lb-rank { font-weight: bold; color: #ffd35c; }
+  .lb-entry .lb-cond { color: #9aa3b8; font-size: 10.5px; }
+  #sessionOverBtnRow { display: flex; gap: 8px; }
+  #sessionOverBtnRow button { flex: 1; padding: 11px; border: none; border-radius: 20px; font-weight: bold; font-size: 13px; cursor: pointer; }
+  #sessionRestartBtn { background: #5cb8ff; color: #06283a; }
+  #sessionEndBtn { background: #4a4f6b; color: #fff; }
+</style>
+</head>
+<body>
+
+  <h1>🎣 のりくんの釣りゲーム</h1>
+  <div class="subtitle">準備から釣り場まで本格再現した釣りシミュレーター</div>
+
+  <!-- 画面1: キャラ選択 -->
+  <div id="screenChar" class="screen active">
+    <div class="section-title">キャラクターを選んでください</div>
+    <div class="choice-grid" id="charGrid"></div>
+    <button class="flow-next-btn" id="charNextBtn" disabled>次へ →</button>
+  </div>
+
+  <!-- 画面2: 地域選択 -->
+  <div id="screenRegion" class="screen">
+    <div class="section-title">地域を選んでください</div>
+    <div class="choice-grid" id="regionGrid"></div>
+    <div class="section-title">釣り場を選んでください</div>
+    <div class="choice-grid" id="spotGrid"></div>
+    <button class="flow-next-btn" id="regionNextBtn" disabled>次へ →</button>
+  </div>
+
+  <!-- 画面3: 天候・潮見表 -->
+  <div id="screenCondition" class="screen">
+    <div class="section-title">天候を選んでください</div>
+    <div class="choice-grid" id="weatherGrid"></div>
+    <div class="section-title">潮見表を選んでください</div>
+    <div class="choice-grid" id="tideGrid"></div>
+    <button class="flow-next-btn" id="conditionNextBtn" disabled>次へ →</button>
+  </div>
+
+  <!-- 画面4: 仕掛け準備 -->
+  <div id="screenTackle" class="screen">
+    <div class="section-title">竿（ロッド）</div>
+    <div class="choice-grid" id="rodBrandGrid"></div>
+    <div class="choice-grid" id="rodLengthGrid" style="margin-top:6px;"></div>
+    <div class="choice-grid" id="rodHardnessGrid" style="margin-top:6px;"></div>
+
+    <div class="section-title">リール</div>
+    <div class="choice-grid" id="reelBrandGrid"></div>
+    <div class="choice-grid" id="reelTypeGrid" style="margin-top:6px;"></div>
+    <div class="choice-grid" id="reelGradeGrid" style="margin-top:6px;"></div>
+
+    <div class="section-title">仕掛け</div>
+    <div class="choice-grid" id="rigTypeGrid"></div>
+    <div class="choice-grid" id="rigDetailGrid" style="margin-top:6px;"></div>
+
+    <button class="flow-next-btn" id="tackleNextBtn" disabled>🎣 釣り場へ出発</button>
+  </div>
+
+  <!-- 画面5: 釣り場 -->
+  <div id="screenFish" class="screen">
+    <div id="fishWrap">
+      <canvas id="fishCanvas" width="480" height="640"></canvas>
+      <div id="resultOverlay">
+        <canvas id="celebrateCanvas" width="260" height="220" style="display:none;"></canvas>
+        <div class="r-title" id="resultTitle"></div>
+        <div class="r-sub" id="resultSub"></div>
+        <button id="resultContinueBtn">続ける →</button>
+      </div>
+      <div id="paywallOverlay">
+        <div id="paywallBox">
+          <div id="paywallTitle">⏰ 体験版はここまで！</div>
+          <p id="paywallText">製品版を購入すると、時間制限なしで遊べます。</p>
+          <a id="buyLink" href="https://gumroad.com/l/YOUR_PRODUCT_ID" target="_blank" rel="noopener">🛒 製品版を購入する</a>
+          <div id="licenseRow">
+            <input id="licenseKeyInput" placeholder="購入済みの方はライセンスキーを入力">
+            <button id="verifyKeyBtn">解除する</button>
+          </div>
+          <div id="licenseMsg"></div>
+        </div>
+      </div>
+      <div id="sessionOverOverlay">
+        <div id="sessionOverBox">
+          <div id="sessionOverTitle"></div>
+          <div id="catchListArea"></div>
+          <div id="saveScoreRow">
+            <input id="playerNameInput" placeholder="名前を入力（履歴に記録）" maxlength="10">
+            <button id="saveScoreBtn">記録する</button>
+          </div>
+          <div id="saveScoreMsg"></div>
+          <div id="leaderboardTitle">🏆 ランキング（上位3件）</div>
+          <div id="leaderboardArea"></div>
+          <div id="sessionOverBtnRow">
+            <button id="sessionRestartBtn">🔄 同じ条件で再開</button>
+            <button id="sessionEndBtn">■ 終了</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="reelPanel">
+      <button class="btn-cast" id="castBtn">🎯 キャスト</button>
+      <button class="btn-rod-up" id="rodUpBtn" style="display:none;">竿を立てる</button>
+      <button class="btn-rod-down" id="rodDownBtn" style="display:none;">竿を寝かせる</button>
+      <div id="reelDial">
+        <svg viewBox="0 0 80 80" width="66" height="66">
+          <rect x="34" y="0" width="12" height="16" rx="2" fill="#6b7280"/>
+          <circle cx="40" cy="42" r="32" fill="#22262e"/>
+          <circle cx="40" cy="42" r="26" fill="#343a42"/>
+          <circle cx="40" cy="42" r="17" fill="#c9a15a"/>
+          <circle cx="40" cy="42" r="17" fill="none" stroke="#8a6a2f" stroke-width="1.2"/>
+          <circle cx="40" cy="42" r="12.5" fill="none" stroke="#8a6a2f" stroke-width="1"/>
+          <circle cx="40" cy="42" r="8" fill="none" stroke="#8a6a2f" stroke-width="1"/>
+          <circle cx="40" cy="42" r="4" fill="#1a1a1a"/>
+          <line x1="65" y1="42" x2="76" y2="42" stroke="#1a1a1a" stroke-width="4.5" stroke-linecap="round"/>
+          <circle cx="76" cy="42" r="5.5" fill="#1a1a1a"/>
+          <circle cx="76" cy="42" r="2.2" fill="#9aa0aa"/>
+          <!-- 停止コマンド（円の内側・上部の■） -->
+          <g id="reelStopZone" style="cursor:pointer;">
+            <circle cx="40" cy="23" r="10" fill="rgba(255,92,92,0.92)" stroke="#fff" stroke-width="1.5"/>
+            <rect x="35.5" y="18.5" width="9" height="9" fill="#fff"/>
+          </g>
+          <!-- 巻き開始コマンド（円の内側・下部の↓） -->
+          <g id="reelStartZone" style="cursor:pointer;">
+            <circle cx="40" cy="61" r="10" fill="rgba(92,184,255,0.92)" stroke="#fff" stroke-width="1.5"/>
+            <text x="40" y="66" text-anchor="middle" font-size="14" fill="#fff" font-weight="bold">↓</text>
+          </g>
+        </svg>
+        <div id="reelDialLabel">下の↓をタップで巻き始め</div>
+      </div>
+      <button class="btn-hook" id="hookBtn" style="display:none;">⚡ アワセ！</button>
+    </div>
+  </div>
+
+  <div id="legend">
+    まずキャラクター・地域と釣り場・天候・潮見表・仕掛け(竿/リール/ルアーor餌)を選んでから釣りを開始します。キャンバス上の海面をタップすると、その場所に向けてキャストします。<strong>リールの画像</strong>は最初から画面に表示されており、円の下の↓をタップした回数で巻く速度が変わります(1回=ゆっくり、2回=少し速く、3回=かなり速く)。円の上の■で巻くのをいつでも止められます。1回のキャストで必ず釣れるとは限らず、<strong>リールを巻いて仕掛けを手元まで手繰り寄せても当たりがなければ、また新しくキャストし直す</strong>必要があります。「⚡ あたり！」が出たら素早く「アワセ」ボタンをタップしてください。ヒットすると効果音とともに竿がしなり、魚が暴れます。魚の引きの強さを見ながら、<strong>「竿を立てる／寝かせる」</strong>と巻く速度を正しく選んでください。判断を誤ると、魚が逃げてしまうことがあります(1〜2割程度)。引き寄せて魚が足元まで来たら、<strong>まずその付近をタップしてたも網を構え、もう一度タップするとすくってキャッチ</strong>します(こちらもタイミングを外すと1〜2割程度の確率で逃げます)。うまくキャッチできると、祝福の音楽とともに、キャラクターが竿とリール、釣り上げた魚を掲げて喜ぶ演出が表示されます。24時間の時間経過と潮見表・天候によって、当たりの出やすさや釣れる魚の種類が変わります。
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ================= 効果音・音楽 =================
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    } else if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+  // ヒット（アワセ成功）した瞬間の効果音
+  function playHitSound() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    osc.type = 'square'; osc.frequency.setValueAtTime(200, t);
+    osc.frequency.exponentialRampToValueAtTime(520, t + 0.08);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.28, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.23);
+    const t2 = t + 0.05;
+    const osc2 = audioCtx.createOscillator(); const g2 = audioCtx.createGain();
+    osc2.type = 'sine'; osc2.frequency.setValueAtTime(660, t2);
+    g2.gain.setValueAtTime(0.0001, t2);
+    g2.gain.exponentialRampToValueAtTime(0.2, t2 + 0.02);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.2);
+    osc2.connect(g2); g2.connect(audioCtx.destination);
+    osc2.start(t2); osc2.stop(t2 + 0.21);
+  }
+  // 釣り上げ成功時の祝福ファンファーレ
+  function playCelebrationMusic() {
+    if (!audioCtx) return;
+    const notes = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5]; // ドミソド(オクターブ)ソド
+    const t0 = audioCtx.currentTime;
+    notes.forEach((freq, i) => {
+      const st = t0 + i * 0.14;
+      const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      osc.type = 'triangle'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.22, st + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, st + (i === notes.length - 1 ? 0.6 : 0.22));
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(st); osc.stop(st + (i === notes.length - 1 ? 0.62 : 0.24));
+    });
+  }
+
+  // ================= 購入・ライセンスキー（デモ制限） =================
+  const GUMROAD_PRODUCT_ID = '-vv3ffdtD9ZWTCxhGgFhcA==';
+  const GUMROAD_BUY_URL = 'https://norihiko1.gumroad.com/l/game-plaza-pass';
+  const DEMO_TIME_LIMIT_MS = 60000;
+  const UNLOCK_STORAGE_KEY = 'norikun_unlocked';
+  document.getElementById('buyLink').href = GUMROAD_BUY_URL;
+  function isUnlocked() { return localStorage.getItem(UNLOCK_STORAGE_KEY) === 'true'; }
+  let demoTimeoutId = null;
+  function startDemoTimer() {
+    clearDemoTimer();
+    if (isUnlocked()) return;
+    demoTimeoutId = setTimeout(showPaywall, DEMO_TIME_LIMIT_MS);
+  }
+  function clearDemoTimer() { if (demoTimeoutId) { clearTimeout(demoTimeoutId); demoTimeoutId = null; } }
+  function showPaywall() { document.getElementById('paywallOverlay').style.display = 'flex'; }
+  function hidePaywall() { document.getElementById('paywallOverlay').style.display = 'none'; }
+  async function verifyLicenseKey(key) {
+    const msgEl = document.getElementById('licenseMsg');
+    if (!key) { msgEl.textContent = 'ライセンスキーを入力してください。'; return; }
+    msgEl.textContent = '確認中…';
+    try {
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: key }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem(UNLOCK_STORAGE_KEY, 'true');
+        msgEl.textContent = ''; clearDemoTimer(); hidePaywall();
+      } else { msgEl.textContent = 'キーが正しくないか、確認できませんでした。'; }
+    } catch (e) { msgEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。'; }
+  }
+  document.getElementById('verifyKeyBtn').addEventListener('click', () => {
+    verifyLicenseKey(document.getElementById('licenseKeyInput').value.trim());
+  });
+
+  // ================= データ定義 =================
+  // アニメ風の顔アイコンをSVGで生成（絵文字の表示崩れを避けつつ、カッコ可愛い雰囲気に）
+  function buildFaceSVG(opt) {
+    const { skin, hair, hairStyle, accessory, cheek, vest, pants } = opt;
+    let hairShape = '';
+    if (hairStyle === 'spiky') {
+      hairShape = `<path d="M6 20 Q4 6 16 4 Q28 6 26 20 Q24 10 20 12 Q18 6 16 10 Q14 6 12 12 Q8 10 6 20Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'short') {
+      hairShape = `<path d="M5 19 Q4 5 16 4 Q28 5 27 19 Q27 10 16 9 Q5 10 5 19Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'beard') {
+      hairShape = `<path d="M6 18 Q5 5 16 4 Q27 5 26 18 Q25 9 16 8 Q7 9 6 18Z" fill="${hair}"/><path d="M9 21 Q16 27 23 21 Q22 25 16 26 Q10 25 9 21Z" fill="${hair}" opacity="0.85"/>`;
+    } else if (hairStyle === 'pony') {
+      hairShape = `<path d="M5 18 Q4 5 16 3 Q28 5 27 18 Q26 8 16 7 Q6 8 5 18Z" fill="${hair}"/><path d="M25 12 Q31 16 28 26 Q26 20 24 15Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'bob') {
+      hairShape = `<path d="M5 21 Q3 5 16 3 Q29 5 27 21 Q27 12 24 12 Q24 20 21 20 L21 12 Q16 10 11 12 L11 20 Q8 20 8 12 Q5 12 5 21Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'wave') {
+      hairShape = `<path d="M4 19 Q2 4 16 3 Q30 4 28 19 Q27 9 22 11 Q24 6 19 8 Q20 5 16 6 Q12 5 13 8 Q8 6 10 11 Q5 9 4 19Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'kid') {
+      hairShape = `<path d="M6 18 Q5 6 16 5 Q27 6 26 18 Q25 9 16 10 Q7 9 6 18Z" fill="${hair}"/><circle cx="16" cy="4" r="2.6" fill="${hair}"/>`;
+    }
+    let acc = '';
+    if (accessory === 'headband') acc = `<rect x="4" y="12" width="24" height="3" rx="1.5" fill="#ffd35c"/>`;
+    else if (accessory === 'sunglasses') acc = `<rect x="7" y="15" width="8" height="5" rx="2" fill="#1a1a2a"/><rect x="17" y="15" width="8" height="5" rx="2" fill="#1a1a2a"/><rect x="15" y="16.5" width="2" height="1.6" fill="#1a1a2a"/>`;
+    else if (accessory === 'cap') acc = `<path d="M4 15 Q16 6 28 15 L28 12 Q16 4 4 12Z" fill="#ff5c5c"/><ellipse cx="16" cy="15" rx="13" ry="2.4" fill="#ff5c5c"/>`;
+    else if (accessory === 'hat') acc = `<ellipse cx="16" cy="14" rx="15" ry="3" fill="#c9a15a"/><path d="M9 14 Q9 5 16 5 Q23 5 23 14Z" fill="#d9b46a"/>`;
+
+    const eyeY = 19, eyeDX = 5.2;
+    const eyes = accessory === 'sunglasses' ? '' : `
+      <ellipse cx="${16-eyeDX}" cy="${eyeY}" rx="2.6" ry="3.1" fill="#2a2a3a"/>
+      <ellipse cx="${16+eyeDX}" cy="${eyeY}" rx="2.6" ry="3.1" fill="#2a2a3a"/>
+      <circle cx="${16-eyeDX+0.9}" cy="${eyeY-1}" r="0.9" fill="#fff"/>
+      <circle cx="${16+eyeDX+0.9}" cy="${eyeY-1}" r="0.9" fill="#fff"/>`;
+
+    const head = `
+      <circle cx="16" cy="19" r="12.5" fill="${skin}"/>
+      <circle cx="8.5" cy="21" r="2" fill="${cheek}" opacity="0.55"/>
+      <circle cx="23.5" cy="21" r="2" fill="${cheek}" opacity="0.55"/>
+      ${eyes}
+      <path d="M13.5 25 Q16 27 18.5 25" stroke="#7a4a3a" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+      ${hairShape}
+      ${acc}`;
+
+    // 胴体（釣り用ベスト）・腕・脚・釣り竿を追加し、全身を表現する
+    const body = `
+      <line x1="16" y1="30" x2="16" y2="34" stroke="${skin}" stroke-width="4"/>
+      <path d="M4 40 Q3 33 16 32 Q29 33 28 40 L27 58 Q16 61 5 58Z" fill="${vest}"/>
+      <path d="M11 34 L13 55 M21 34 L19 55" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+      <path d="M6 38 Q-1 44 2 54" stroke="${skin}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M26 38 Q34 42 30 50" stroke="${skin}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      <path d="M9 58 L7 76 L13 76 L14 60Z" fill="${pants}"/>
+      <path d="M23 58 L25 76 L19 76 L18 60Z" fill="${pants}"/>
+      <rect x="5" y="75" width="9" height="3" rx="1.5" fill="#3a2a1a"/>
+      <rect x="18" y="75" width="9" height="3" rx="1.5" fill="#3a2a1a"/>`;
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 80" width="52" height="86">${body}${head}</svg>`;
+  }
+  const FACE_OPTS = {
+    man_novice:   { skin: '#ffdcb8', hair: '#3a2a1a', hairStyle: 'spiky', accessory: 'headband', cheek: '#ff9e9e', vest: '#5cb8ff', pants: '#3a4a5a' },
+    man_mid:      { skin: '#ffdcb8', hair: '#2a2a2a', hairStyle: 'short', accessory: null, cheek: '#ff9e9e', vest: '#4a9e5a', pants: '#3a3a3a' },
+    man_vet:      { skin: '#f0c8a0', hair: '#555', hairStyle: 'beard', accessory: 'sunglasses', cheek: '#ff9e9e', vest: '#c98a3a', pants: '#3a2a1a' },
+    woman_novice: { skin: '#ffe4c8', hair: '#7a3a2a', hairStyle: 'pony', accessory: null, cheek: '#ffb0c0', vest: '#ff8fb0', pants: '#5a4a6a' },
+    woman_mid:    { skin: '#ffe4c8', hair: '#c98a3a', hairStyle: 'bob', accessory: 'hat', cheek: '#ffb0c0', vest: '#ffd35c', pants: '#4a5a4a' },
+    woman_vet:    { skin: '#f0d4b0', hair: '#8a6a4a', hairStyle: 'wave', accessory: 'sunglasses', cheek: '#ffb0c0', vest: '#9a7ac9', pants: '#3a3a4a' },
+    kid:          { skin: '#ffe4c8', hair: '#4a3a2a', hairStyle: 'kid', accessory: 'cap', cheek: '#ffb0c0', vest: '#ff5c5c', pants: '#5cb8ff' },
+  };
+
+  const CHARACTERS = [
+    { id: 'man_novice', name: '男性(素人)', level: 'novice' },
+    { id: 'man_mid', name: '男性(中級)', level: 'mid' },
+    { id: 'man_vet', name: '男性(ベテラン)', level: 'vet' },
+    { id: 'woman_novice', name: '女性(素人)', level: 'novice' },
+    { id: 'woman_mid', name: '女性(中級)', level: 'mid' },
+    { id: 'woman_vet', name: '女性(ベテラン)', level: 'vet' },
+    { id: 'kid', name: '子供', level: 'novice' },
+  ];
+  const CANVAS_EMOJI = {
+    man_novice: '🧑', man_mid: '👨', man_vet: '🧔',
+    woman_novice: '👩', woman_mid: '👱', woman_vet: '👵', kid: '🧒',
+  };
+  function svgToImage(svgString) {
+    const img = new Image();
+    img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+    return img;
+  }
+  CHARACTERS.forEach(c => { c.emoji = CANVAS_EMOJI[c.id]; c.faceSvg = buildFaceSVG(FACE_OPTS[c.id]); c.bodyImage = svgToImage(c.faceSvg); });
+  const LEVEL_SKILL = { novice: 0.75, mid: 1.0, vet: 1.3 };
+  // 逃げられる確率：キャラのレベルが高いほど、同じ判断ミスでも逃げにくい（技術で補える）
+  function escapeChanceFor(fish) {
+    const base = 0.10 + fish.diff * 0.015; // 約1〜2割が基準
+    return base / (LEVEL_SKILL[pickedChar.level] || 1);
+  }
+
+  const REGIONS = [
+    { id: 'kanto', name: '関東', emoji: '🗻', spots: ['伊豆', '大黒', '浦安', '市原', '館山', '九十九里'] },
+    { id: 'kansai', name: '関西', emoji: '⛩️', spots: [], comingSoon: true },
+    { id: 'nanyou', name: '南洋', emoji: '🌴', spots: [], comingSoon: true },
+  ];
+
+  const WEATHERS = [
+    { id: 'sunny', name: '晴れ', emoji: '☀️', biteMult: 1.3 },
+    { id: 'cloudy', name: '曇り', emoji: '☁️', biteMult: 1.0 },
+    { id: 'rainy', name: '雨', emoji: '🌧️', biteMult: 0.7 },
+    { id: 'storm', name: '嵐', emoji: '⛈️', biteMult: 0.3 },
+  ];
+  const TIDES = [
+    { id: 'oo', name: '大潮', emoji: '🌊', biteMult: 1.3 },
+    { id: 'naka', name: '中潮', emoji: '🌊', biteMult: 1.15 },
+    { id: 'naga', name: '長潮', emoji: '🌊', biteMult: 1.0 },
+    { id: 'ko', name: '小潮', emoji: '🌊', biteMult: 0.9 },
+  ];
+
+  const FISH = [
+    { id: 'aji',    name: 'アジ',   diff: 1, rig: 'both', size: 2 },
+    { id: 'iwashi', name: 'イワシ', diff: 1, rig: 'bait', size: 1 },
+    { id: 'haze',   name: 'ハゼ',   diff: 1, rig: 'bait', size: 1 },
+    { id: 'kisu',   name: 'キス',   diff: 1, rig: 'bait', size: 1 },
+    { id: 'saba',   name: 'サバ',   diff: 2, rig: 'both', size: 2 },
+    { id: 'mebaru', name: 'メバル', diff: 2, rig: 'both', size: 2 },
+    { id: 'ika',    name: 'イカ',   diff: 2, rig: 'lure', size: 2 },
+    { id: 'tako',   name: 'タコ',   diff: 2, rig: 'both', size: 3 },
+    { id: 'anago',  name: 'アナゴ', diff: 2, rig: 'bait', size: 3 },
+    { id: 'kurodai',name: 'クロダイ', diff: 3, rig: 'bait', size: 3 },
+    { id: 'mejina', name: 'メジナ', diff: 3, rig: 'bait', size: 3 },
+    { id: 'seabass',name: 'シーバス', diff: 3, rig: 'lure', size: 4 },
+    { id: 'tachiuo',name: '太刀魚', diff: 3, rig: 'both', size: 4 },
+    { id: 'tai',    name: '鯛',     diff: 4, rig: 'both', size: 4 },
+    { id: 'hirame', name: 'ヒラメ', diff: 4, rig: 'lure', size: 4 },
+    { id: 'hiramasa', name: 'ヒラマサ', diff: 4, rig: 'lure', size: 5 },
+    { id: 'katsuo', name: 'カツオ', diff: 5, rig: 'lure', size: 5 },
+    { id: 'maguro', name: 'マグロ', diff: 5, rig: 'lure', size: 5 },
+  ];
+
+  // 釣り場ごとに釣れない魚（指定がない場所は全種類釣れる）
+  const SPOT_EXCLUSIONS = {
+    '伊豆': [],
+    '大黒': ['maguro', 'anago', 'hirame', 'haze'],
+    '浦安': ['maguro', 'anago', 'hirame', 'hiramasa', 'tai', 'katsuo', 'tachiuo'],
+    '市原': ['maguro', 'anago', 'hirame', 'hiramasa', 'tai', 'katsuo', 'tachiuo'],
+    '館山': [],
+    '九十九里': [],
+  };
+
+  // ================= 選択状態 =================
+  let pickedCharId = null, pickedChar = null;
+  let pickedRegionId = null, pickedSpot = null;
+  let pickedWeather = null, pickedTide = null;
+  let tackle = {
+    rodBrand: null, rodLength: null, rodHardness: null,
+    reelBrand: null, reelType: null, reelGrade: null,
+    rigType: null, rigDetail: null,
+  };
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ---- キャラ選択 ----
+  const charGrid = document.getElementById('charGrid');
+  CHARACTERS.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'choice-card';
+    card.innerHTML = `<div class="cc-emoji">${c.faceSvg}</div><div class="cc-label">${c.name}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#charGrid .choice-card').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      pickedCharId = c.id; pickedChar = c;
+      document.getElementById('charNextBtn').disabled = false;
+    });
+    charGrid.appendChild(card);
+  });
+  document.getElementById('charNextBtn').addEventListener('click', () => { ensureAudio(); showScreen('screenRegion'); });
+
+  // ---- 地域・釣り場選択 ----
+  const regionGrid = document.getElementById('regionGrid');
+  const spotGrid = document.getElementById('spotGrid');
+  REGIONS.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'choice-card' + (r.comingSoon ? ' disabled' : '');
+    card.innerHTML = `<div class="cc-emoji">${r.emoji}</div><div class="cc-label">${r.name}</div>` + (r.comingSoon ? '<div class="cc-desc">近日公開</div>' : '');
+    if (!r.comingSoon) {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#regionGrid .choice-card').forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        pickedRegionId = r.id;
+        renderSpotGrid(r);
+      });
+    }
+    regionGrid.appendChild(card);
+  });
+  function renderSpotGrid(region) {
+    spotGrid.innerHTML = '';
+    pickedSpot = null;
+    document.getElementById('regionNextBtn').disabled = true;
+    region.spots.forEach(spotName => {
+      const card = document.createElement('div');
+      card.className = 'choice-card';
+      card.innerHTML = `<div class="cc-emoji">📍</div><div class="cc-label">${spotName}</div>`;
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#spotGrid .choice-card').forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        pickedSpot = spotName;
+        document.getElementById('regionNextBtn').disabled = false;
+      });
+      spotGrid.appendChild(card);
+    });
+  }
+  document.getElementById('regionNextBtn').addEventListener('click', () => showScreen('screenCondition'));
+
+  // ---- 天候・潮見表選択 ----
+  function buildSimpleGrid(containerId, list, onPick, nextBtnId) {
+    const grid = document.getElementById(containerId);
+    list.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'choice-card';
+      card.innerHTML = `<div class="cc-emoji">${item.emoji}</div><div class="cc-label">${item.name}</div>`;
+      card.addEventListener('click', () => {
+        document.querySelectorAll(`#${containerId} .choice-card`).forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        onPick(item);
+        checkConditionReady();
+      });
+      grid.appendChild(card);
+    });
+  }
+  buildSimpleGrid('weatherGrid', WEATHERS, (w) => { pickedWeather = w; });
+  buildSimpleGrid('tideGrid', TIDES, (t) => { pickedTide = t; });
+  function checkConditionReady() {
+    document.getElementById('conditionNextBtn').disabled = !(pickedWeather && pickedTide);
+  }
+  document.getElementById('conditionNextBtn').addEventListener('click', () => showScreen('screenTackle'));
+
+  // ---- 仕掛け準備 ----
+  function buildTackleGrid(containerId, options, key) {
+    const grid = document.getElementById(containerId);
+    options.forEach(opt => {
+      const card = document.createElement('div');
+      card.className = 'choice-card';
+      card.innerHTML = `<div class="cc-label">${opt}</div>`;
+      card.addEventListener('click', () => {
+        document.querySelectorAll(`#${containerId} .choice-card`).forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        tackle[key] = opt;
+        checkTackleReady();
+      });
+      grid.appendChild(card);
+    });
+  }
+  buildTackleGrid('rodBrandGrid', ['S社製', 'D社製'], 'rodBrand');
+  buildTackleGrid('rodLengthGrid', ['1.5m', '1.8m', '2m', '2.5m'], 'rodLength');
+  buildTackleGrid('rodHardnessGrid', ['硬い', '普通', '柔らかい'], 'rodHardness');
+  buildTackleGrid('reelBrandGrid', ['S社製', 'D社製'], 'reelBrand');
+  buildTackleGrid('reelTypeGrid', ['ベイトリール', 'スピニングリール'], 'reelType');
+  buildTackleGrid('reelGradeGrid', ['高級', '中級', '初級'], 'reelGrade');
+
+  const rigTypeGrid = document.getElementById('rigTypeGrid');
+  ['ルアー', '餌'].forEach(opt => {
+    const card = document.createElement('div');
+    card.className = 'choice-card';
+    card.innerHTML = `<div class="cc-label">${opt}</div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('#rigTypeGrid .choice-card').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      tackle.rigType = opt;
+      tackle.rigDetail = null;
+      renderRigDetailGrid();
+      checkTackleReady();
+    });
+    rigTypeGrid.appendChild(card);
+  });
+  function renderRigDetailGrid() {
+    const grid = document.getElementById('rigDetailGrid');
+    grid.innerHTML = '';
+    const options = tackle.rigType === 'ルアー'
+      ? ['10cm・よく動く', '10cm・普通', '10cm・ゆっくり', '15cm・よく動く', '15cm・普通', '15cm・ゆっくり', '20cm・よく動く', '20cm・普通', '20cm・ゆっくり']
+      : ['疑似餌', '生エサ'];
+    options.forEach(opt => {
+      const card = document.createElement('div');
+      card.className = 'choice-card';
+      card.innerHTML = `<div class="cc-label" style="font-size:10px;">${opt}</div>`;
+      card.addEventListener('click', () => {
+        document.querySelectorAll('#rigDetailGrid .choice-card').forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        tackle.rigDetail = opt;
+        checkTackleReady();
+      });
+      grid.appendChild(card);
+    });
+  }
+  function checkTackleReady() {
+    const ready = tackle.rodBrand && tackle.rodLength && tackle.rodHardness &&
+      tackle.reelBrand && tackle.reelType && tackle.reelGrade &&
+      tackle.rigType && tackle.rigDetail;
+    document.getElementById('tackleNextBtn').disabled = !ready;
+  }
+  document.getElementById('tackleNextBtn').addEventListener('click', () => {
+    showScreen('screenFish');
+    initFishingSession();
+    startDemoTimer();
+  });
+
+  // ================= 釣り場ロジック =================
+  const canvas = document.getElementById('fishCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const SHORE_Y = H - 90; // 自分（岸）の位置
+  const WATER_TOP = 60;
+
+  let gameTime = 6 * 60; // 24時間を分で管理。朝6時スタート
+  const SESSION_LENGTH_MIN = 5 * 60; // 釣りを楽しむ時間：5時間(分換算)
+  let sessionStartTime = 6 * 60;
+  let sessionOver = false;
+  let caughtFish = [];
+  let state = 'idle'; // idle, waiting, biteWindow, fighting, netWindow
+  let castPoint = null;
+  let rigPos = null; // 現在の仕掛けの位置
+  let biteTimer = 0, biteWindowTimer = 0;
+  let targetFish = null;
+  let fightStamina = 100; // 魚の体力
+  let fightProgress = 0; // 取り込み進捗
+  let fishPullStrong = false; // 現在、魚が強く引いているか
+  let currentReelSpeed = null; // null(停止) | 'slow' | 'medium' | 'fast'
+  let reelTapCount = 0, reelTapResetTimer = null;
+  let reelTickTimer = 0; // 巻いている間の判定間隔用
+  let rodState = 'up'; // up or down（プレイヤーの選択）
+  let netWindowTimer = 0;
+  let netAppeared = false; // たも網を構えたかどうか（1回目のタップで true）
+  let celebrate = 0;
+
+  function rigTypeCategory() {
+    return tackle.rigType === 'ルアー' ? 'lure' : 'bait';
+  }
+  // ルアーのサイズに応じて、大きい魚ほど大きいルアーで狙いやすくなる倍率を返す（15cmを基準）
+  function lureSizeMultFor(fishSize) {
+    if (tackle.rigType !== 'ルアー' || !tackle.rigDetail) return 1;
+    const cm = parseFloat(tackle.rigDetail) || 15;
+    return Math.max(0.3, 1 + (fishSize - 3) * (cm - 15) * 0.04);
+  }
+  // 生エサは疑似餌より食いつきが5%良い
+  function baitBonusMult() {
+    if (tackle.rigType !== '餌') return 1;
+    return tackle.rigDetail === '生エサ' ? 1.05 : 1.0;
+  }
+  // 竿の長さ・硬さによる、魚のサイズとの相性（長くて硬いほど大物向き、短くて柔らかいほど小物向き）
+  function rodSizeMultFor(fishSize) {
+    const len = parseFloat(tackle.rodLength) || 1.8;
+    const lenFactor = Math.max(0.3, 1 + (fishSize - 3) * (len - 1.8) * 0.25);
+    const hardnessScore = tackle.rodHardness === '硬い' ? 1 : tackle.rodHardness === '柔らかい' ? -1 : 0;
+    const hardFactor = Math.max(0.3, 1 + (fishSize - 3) * hardnessScore * 0.15);
+    return lenFactor * hardFactor;
+  }
+  // リールのグレード：高級は中級の+5%、初級は中級の-5%
+  function reelGradeMult() {
+    if (tackle.reelGrade === '高級') return 1.05;
+    if (tackle.reelGrade === '初級') return 0.95;
+    return 1.0; // 中級
+  }
+
+  function eligibleFish() {
+    const cat = rigTypeCategory();
+    const excluded = SPOT_EXCLUSIONS[pickedSpot] || [];
+    return FISH.filter(f => (f.rig === 'both' || f.rig === cat) && !excluded.includes(f.id));
+  }
+
+  function initFishingSession() {
+    gameTime = 6 * 60;
+    sessionStartTime = 6 * 60;
+    sessionOver = false;
+    caughtFish = [];
+    state = 'idle';
+    document.getElementById('resultOverlay').style.display = 'none';
+    document.getElementById('sessionOverOverlay').style.display = 'none';
+    setPanelForState();
+    requestAnimationFrame(loop);
+  }
+
+  // ================= セッション終了・ランキング =================
+  const LEADERBOARD_KEY = 'norikun_fishing_leaderboard';
+  function aggregateCatch() {
+    const counts = {};
+    caughtFish.forEach(f => { counts[f.name] = (counts[f.name] || 0) + 1; });
+    return Object.entries(counts).map(([name, count]) => ({ name, count }));
+  }
+  function loadLeaderboard() {
+    try {
+      const raw = localStorage.getItem(LEADERBOARD_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  }
+  function saveLeaderboard(list) {
+    try { localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  function renderLeaderboard() {
+    const list = loadLeaderboard();
+    const area = document.getElementById('leaderboardArea');
+    area.innerHTML = '';
+    if (list.length === 0) {
+      area.innerHTML = '<div class="lb-entry">まだ記録がありません</div>';
+      return;
+    }
+    list.slice(0, 3).forEach((entry, i) => {
+      const div = document.createElement('div');
+      div.className = 'lb-entry';
+      const catchText = entry.catches.length
+        ? entry.catches.map(c => `${c.name}×${c.count}`).join('、')
+        : 'ボーズ';
+      div.innerHTML = `<span class="lb-rank">${i + 1}位　${entry.name}</span>（合計${entry.total}匹）<br>${catchText}<br><span class="lb-cond">${entry.spot}・${entry.weather}・${entry.tide}</span>`;
+      area.appendChild(div);
+    });
+  }
+  document.getElementById('saveScoreBtn').addEventListener('click', () => {
+    const nameInput = document.getElementById('playerNameInput');
+    const name = nameInput.value.trim() || '名無し';
+    const catches = aggregateCatch();
+    const total = caughtFish.length;
+    const list = loadLeaderboard();
+    list.push({
+      name, catches, total,
+      spot: pickedSpot, weather: pickedWeather.name, tide: pickedTide.name,
+    });
+    list.sort((a, b) => b.total - a.total);
+    saveLeaderboard(list.slice(0, 3));
+    document.getElementById('saveScoreMsg').textContent = '記録しました！';
+    nameInput.value = '';
+    renderLeaderboard();
+  });
+
+  // 5時間(実時間5分)が経過した時点でセッションを終了する
+  function endSession() {
+    if (sessionOver) return;
+    sessionOver = true;
+    const total = caughtFish.length;
+    const titleEl = document.getElementById('sessionOverTitle');
+    if (total === 0) {
+      titleEl.textContent = '🎣 ボーズ…';
+      titleEl.style.color = '#ff8f8f';
+    } else {
+      titleEl.textContent = `⏰ 終了！ 釣果 ${total}匹`;
+      titleEl.style.color = '#ffd35c';
+    }
+    const catches = aggregateCatch();
+    const listArea = document.getElementById('catchListArea');
+    listArea.innerHTML = catches.length
+      ? catches.map(c => `${c.name}：${c.count}匹`).join('<br>')
+      : '今回は何も釣れませんでした。';
+    document.getElementById('saveScoreMsg').textContent = '';
+    document.getElementById('playerNameInput').value = '';
+    renderLeaderboard();
+    document.getElementById('resultOverlay').style.display = 'none';
+    document.getElementById('sessionOverOverlay').style.display = 'flex';
+  }
+  document.getElementById('sessionRestartBtn').addEventListener('click', () => {
+    document.getElementById('sessionOverOverlay').style.display = 'none';
+    initFishingSession(); // 同じキャラ・釣り場・天候・潮見表・仕掛けのまま再開
+  });
+  document.getElementById('sessionEndBtn').addEventListener('click', () => {
+    document.getElementById('sessionOverOverlay').style.display = 'none';
+    showScreen('screenChar');
+    pickedCharId = null; pickedChar = null;
+    pickedRegionId = null; pickedSpot = null;
+    pickedWeather = null; pickedTide = null;
+    tackle = { rodBrand: null, rodLength: null, rodHardness: null, reelBrand: null, reelType: null, reelGrade: null, rigType: null, rigDetail: null };
+    document.getElementById('spotGrid').innerHTML = '';
+    document.getElementById('rigDetailGrid').innerHTML = '';
+    document.getElementById('regionNextBtn').disabled = true;
+    document.getElementById('conditionNextBtn').disabled = true;
+    document.getElementById('tackleNextBtn').disabled = true;
+    document.getElementById('charNextBtn').disabled = true;
+    document.querySelectorAll('.choice-card.selected').forEach(el => el.classList.remove('selected'));
+  });
+
+  // ---- キャスト ----
+  document.getElementById('castBtn').addEventListener('click', () => {
+    if (state !== 'idle') return;
+    if (!castPoint) castPoint = { x: W / 2, y: WATER_TOP + 60 };
+    rigPos = { x: castPoint.x, y: castPoint.y };
+    state = 'waiting';
+    biteTimer = 0;
+    currentReelSpeed = null;
+    reelTapCount = 0;
+    updateReelDialLabel();
+    setPanelForState();
+  });
+  canvas.addEventListener('mousedown', e => handleCanvasClick(getCanvasPos(e.clientX, e.clientY)));
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    handleCanvasClick(getCanvasPos(t.clientX, t.clientY));
+  }, { passive: false });
+  function getCanvasPos(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+  function handleCanvasClick(pos) {
+    if (state === 'idle' && pos.y > WATER_TOP && pos.y < SHORE_Y - 40) {
+      castPoint = { x: Math.max(30, Math.min(W - 30, pos.x)), y: pos.y };
+    } else if (state === 'netWindow') {
+      const d = Math.hypot(pos.x - rigPos.x, pos.y - rigPos.y);
+      if (d < 60) {
+        if (!netAppeared) {
+          netAppeared = true; // 1回目のタップ：たも網を構える
+        } else {
+          tryNet(); // 2回目のタップ：すくってキャッチ
+        }
+      }
+    }
+  }
+
+  // ---- 待機中：仕掛けが手前に流れてくる ----
+  function updateWaiting(dt) {
+    biteTimer += dt;
+    // 仕掛けは、リールを巻いている間だけ手前（プレイヤー側）に近づく
+    if (currentReelSpeed) {
+      const speedPxPerSec = currentReelSpeed === 'slow' ? 10 : currentReelSpeed === 'medium' ? 22 : 38;
+      rigPos.y += dt * speedPxPerSec;
+      rigPos.x += (W / 2 - rigPos.x) * Math.min(1, dt * 1.5);
+    }
+    if (rigPos.y > SHORE_Y - 30) {
+      // 仕掛けが手元まで戻ってきた。ヒットがなければ再びキャストが必要
+      state = 'idle';
+      castPoint = null;
+      currentReelSpeed = null;
+      updateReelDialLabel();
+      setPanelForState();
+      return;
+    }
+    const weatherMult = pickedWeather.biteMult;
+    const tideMult = pickedTide.biteMult;
+    const reelBoost = currentReelSpeed ? 1.4 : 1.0; // 巻いている間はあたりが出やすい
+    const baseChancePerSec = 0.09 * weatherMult * tideMult * LEVEL_SKILL[pickedChar.level] * reelBoost * baitBonusMult() * reelGradeMult();
+    if (Math.random() < baseChancePerSec * dt) {
+      triggerBite();
+    }
+  }
+  function triggerBite() {
+    const pool = eligibleFish();
+    // ベテランほど難しい(=大きい)魚に当たりやすく、素人・中級・子供は大物になかなか出会えない
+    const skillCurveBase = { novice: 0.55, mid: 0.8, vet: 1.35 }[pickedChar.level] || 0.8;
+    const weights = pool.map(f => {
+      const baseWeight = Math.max(1, 6 - f.diff); // 難しい魚ほど出現の土台は低め
+      const skillMatch = Math.pow(skillCurveBase, f.diff * 0.5); // レベル差を難易度に応じて拡大する
+      const lureMatch = lureSizeMultFor(f.size); // ルアーが大きいほど大きい魚が出やすくなる
+      const rodMatch = rodSizeMultFor(f.size); // 竿が長く硬いほど大きい魚が出やすくなる
+      return { fish: f, weight: baseWeight * skillMatch * lureMatch * rodMatch };
+    });
+    const totalWeight = weights.reduce((sum, w) => sum + w.weight, 0);
+    let r = Math.random() * totalWeight;
+    let picked = weights[0].fish;
+    for (const w of weights) {
+      if (r < w.weight) { picked = w.fish; break; }
+      r -= w.weight;
+    }
+    targetFish = picked;
+    state = 'biteWindow';
+    biteWindowTimer = 1800; // ミリ秒
+    setPanelForState();
+  }
+  function updateBiteWindow(dt) {
+    biteWindowTimer -= dt * 1000;
+    if (biteWindowTimer <= 0) {
+      // アワセに間に合わなかった。魚は逃げ、また待機（リールを巻いての手繰り寄せ）に戻る
+      targetFish = null;
+      state = 'waiting';
+      setPanelForState();
+    }
+  }
+  document.getElementById('hookBtn').addEventListener('click', () => {
+    if (state !== 'biteWindow') return;
+    startFight();
+  });
+  function startFight() {
+    playHitSound();
+    state = 'fighting';
+    fightStamina = 60 + targetFish.diff * 12;
+    fightProgress = 0;
+    rodState = 'up';
+    fishPullStrong = Math.random() < 0.5;
+    currentReelSpeed = null;
+    reelTapCount = 0;
+    reelTickTimer = 0;
+    updateReelDialLabel();
+    setPanelForState();
+  }
+  function updateFighting(dt) {
+    // 一定間隔で魚の引きの強さが切り替わる
+    fightStamina -= dt * 3;
+    if (Math.random() < 0.01) fishPullStrong = !fishPullStrong;
+    updateReeling(dt);
+    if (fightStamina <= 0) {
+      // 取り込み完了、足元まで引き寄せ
+      state = 'netWindow';
+      netWindowTimer = 3200;
+      netAppeared = false;
+      rigPos = { x: W / 2, y: SHORE_Y - 40 };
+      setPanelForState();
+    }
+  }
+  // リールボタンをタップした回数で速度を決める：1回=ゆっくり、2回=少し速い、3回=かなり速い
+  function handleReelTap() {
+    if (state !== 'fighting' && state !== 'waiting') return;
+    reelTapCount++;
+    if (reelTapResetTimer) clearTimeout(reelTapResetTimer);
+    reelTapResetTimer = setTimeout(() => {
+      const count = Math.min(3, reelTapCount);
+      currentReelSpeed = count === 1 ? 'slow' : count === 2 ? 'medium' : 'fast';
+      reelTapCount = 0;
+      updateReelDialLabel();
+    }, 350);
+  }
+  function stopReeling() {
+    if (state !== 'fighting' && state !== 'waiting') return;
+    currentReelSpeed = null;
+    reelTapCount = 0;
+    if (reelTapResetTimer) clearTimeout(reelTapResetTimer);
+    updateReelDialLabel();
+  }
+  function updateReelDialLabel() {
+    const label = document.getElementById('reelDialLabel');
+    if (currentReelSpeed === 'slow') label.textContent = '🐢 ゆっくり巻いています';
+    else if (currentReelSpeed === 'medium') label.textContent = '🚶 少し速く巻いています';
+    else if (currentReelSpeed === 'fast') label.textContent = '⚡ かなり速く巻いています';
+    else label.textContent = 'タップで速度を選択';
+  }
+  document.getElementById('reelStartZone').addEventListener('click', handleReelTap);
+  document.getElementById('reelStopZone').addEventListener('click', stopReeling);
+
+  // 巻いている間、一定間隔ごとに竿の向き・速度が魚の引きに合っているか判定する
+  function updateReeling(dt) {
+    if (!currentReelSpeed) return;
+    reelTickTimer += dt;
+    if (reelTickTimer < 0.7) return;
+    reelTickTimer = 0;
+    const correctRod = fishPullStrong ? 'down' : 'up';
+    const correctSpeed = fishPullStrong ? 'slow' : 'fast';
+    const rodOk = rodState === correctRod;
+    const speedOk = currentReelSpeed === correctSpeed;
+    const speedPartial = currentReelSpeed === 'medium'; // 中速はどちらの引きにもそこそこ合う
+    if (rodOk && speedOk) {
+      fightProgress += 14; fightStamina -= 9;
+    } else if (rodOk && speedPartial) {
+      fightProgress += 8; fightStamina -= 5;
+    } else {
+      fightProgress += 3;
+      const escapeChance = escapeChanceFor(targetFish); // 約1〜2割(レベルで補正)
+      if (Math.random() < escapeChance) { fishEscaped('ファイト中に'); return; }
+    }
+  }
+  document.getElementById('rodUpBtn').addEventListener('click', () => { rodState = 'up'; });
+  document.getElementById('rodDownBtn').addEventListener('click', () => { rodState = 'down'; });
+
+  function updateNetWindow(dt) {
+    netWindowTimer -= dt * 1000;
+    if (netWindowTimer <= 0) {
+      fishEscaped('たも網が届かず');
+    }
+  }
+  function tryNet() {
+    const escapeChance = escapeChanceFor(targetFish);
+    if (Math.random() < escapeChance) {
+      fishEscaped('タモ入れのタイミングが合わず');
+      return;
+    }
+    catchSuccess();
+  }
+  function catchSuccess() {
+    caughtFish.push(targetFish);
+    celebrate = 1500;
+    state = 'result';
+    playCelebrationMusic();
+    drawCelebrationScene(targetFish);
+    showResultOverlay(true, `🎉 ${targetFish.name} を釣り上げた！`, `合計 ${caughtFish.length}匹`);
+  }
+  // 祝福シーン：キャラが竿・リール・釣れた魚を掲げて喜んでいる様子を描く
+  function drawCelebrationScene(fish) {
+    const cvs = document.getElementById('celebrateCanvas');
+    cvs.style.display = 'block';
+    const cctx = cvs.getContext('2d');
+    const cw = cvs.width, ch = cvs.height;
+    cctx.clearRect(0, 0, cw, ch);
+    cctx.save();
+    cctx.translate(cw / 2, ch - 30);
+    // キャラ本体（大きめに表示）
+    const img = pickedChar ? pickedChar.bodyImage : null;
+    const bw = 78, bh = 130;
+    if (img && img.complete && img.naturalWidth > 0) {
+      cctx.drawImage(img, -bw / 2, -bh, bw, bh);
+    } else {
+      cctx.font = '52px sans-serif'; cctx.textAlign = 'center'; cctx.textBaseline = 'middle';
+      cctx.fillText(pickedChar ? pickedChar.emoji : '🧑', 0, -bh / 2);
+    }
+    // 掲げた竿・リール・釣れた魚
+    cctx.save();
+    cctx.translate(14, -96);
+    cctx.rotate(-1.15); // 高々と掲げるポーズ
+    // 竿
+    if (tackle.rodBrand === 'S社製') { cctx.strokeStyle = '#fff'; cctx.lineWidth = 6.5; cctx.lineCap = 'round'; cctx.beginPath(); cctx.moveTo(0, 8); cctx.lineTo(0, -58); cctx.stroke(); }
+    cctx.strokeStyle = rodColor(); cctx.lineWidth = 5; cctx.lineCap = 'round';
+    cctx.beginPath(); cctx.moveTo(0, 8); cctx.lineTo(0, -58); cctx.stroke();
+    // リール（握っている手元）
+    cctx.fillStyle = reelColor();
+    cctx.beginPath(); cctx.ellipse(-4, 4, 6, 8, 0, 0, Math.PI * 2); cctx.fill();
+    // 仕掛けの糸と、先についた釣れた魚
+    cctx.strokeStyle = 'rgba(255,255,255,0.7)'; cctx.lineWidth = 1.3;
+    cctx.beginPath(); cctx.moveTo(0, -58); cctx.lineTo(0, -20); cctx.stroke();
+    cctx.save();
+    cctx.translate(0, -14);
+    const fishColor = fish.size >= 4 ? '#5cb8ff' : fish.size >= 2 ? '#ffb454' : '#ff8fb0';
+    const fishLen = 10 + fish.size * 3;
+    cctx.fillStyle = fishColor;
+    cctx.beginPath();
+    cctx.ellipse(0, 0, fishLen * 0.5, fishLen * 0.28, 0, 0, Math.PI * 2);
+    cctx.fill();
+    cctx.beginPath();
+    cctx.moveTo(-fishLen * 0.5, 0); cctx.lineTo(-fishLen * 0.75, -fishLen * 0.22); cctx.lineTo(-fishLen * 0.75, fishLen * 0.22);
+    cctx.closePath(); cctx.fill();
+    cctx.restore();
+    cctx.restore();
+    cctx.restore();
+    // キラキラ・紙吹雪エフェクト
+    cctx.save();
+    cctx.font = '20px sans-serif'; cctx.textAlign = 'center';
+    ['✨', '🎉', '✨', '🎊'].forEach((em, i) => {
+      const ang = (Math.PI * 2 / 4) * i;
+      cctx.fillText(em, cw / 2 + Math.cos(ang) * 92, 46 + Math.sin(ang) * 40);
+    });
+    cctx.restore();
+  }
+  function fishEscaped(reasonPrefix) {
+    state = 'result';
+    document.getElementById('celebrateCanvas').style.display = 'none';
+    showResultOverlay(false, '💦 逃げられました…', `${reasonPrefix}魚に逃げられてしまいました`);
+  }
+  function showResultOverlay(win, title, sub) {
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultTitle').style.color = win ? '#7ee787' : '#ff8f8f';
+    document.getElementById('resultSub').textContent = sub;
+    document.getElementById('resultOverlay').style.display = 'flex';
+  }
+  document.getElementById('resultContinueBtn').addEventListener('click', () => {
+    document.getElementById('resultOverlay').style.display = 'none';
+    state = 'idle';
+    castPoint = null; rigPos = null; targetFish = null;
+    currentReelSpeed = null; reelTapCount = 0;
+    updateReelDialLabel();
+    setPanelForState();
+  });
+
+  function setPanelForState() {
+    document.getElementById('castBtn').style.display = state === 'idle' ? 'inline-block' : 'none';
+    document.getElementById('hookBtn').style.display = state === 'biteWindow' ? 'inline-block' : 'none';
+    document.getElementById('reelDial').style.display = 'flex'; // リールは最初から常に表示
+    document.getElementById('rodUpBtn').style.display = state === 'fighting' ? 'inline-block' : 'none';
+    document.getElementById('rodDownBtn').style.display = state === 'fighting' ? 'inline-block' : 'none';
+  }
+
+  // ================= 描画 =================
+  function drawScene() {
+    ctx.clearRect(0, 0, W, H);
+    // 空
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, WATER_TOP);
+    const hour = Math.floor(gameTime / 60) % 24;
+    const isNight = hour < 5 || hour >= 19;
+    skyGrad.addColorStop(0, isNight ? '#0a0e2e' : '#7ec8f0');
+    skyGrad.addColorStop(1, isNight ? '#1a1a3a' : '#cfe8ff');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(0, 0, W, WATER_TOP);
+    // 海
+    const waterGrad = ctx.createLinearGradient(0, WATER_TOP, 0, H);
+    waterGrad.addColorStop(0, isNight ? '#0a1f3a' : '#1c5a8a');
+    waterGrad.addColorStop(1, isNight ? '#040a1a' : '#0d1f3d');
+    ctx.fillStyle = waterGrad;
+    ctx.fillRect(0, WATER_TOP, W, H - WATER_TOP);
+    // 波模様
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1.5;
+    for (let row = 0; row < 6; row++) {
+      const y = WATER_TOP + 40 + row * 80 + Math.sin(performance.now() * 0.0006 + row) * 6;
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 16) {
+        const wy = y + Math.sin(x * 0.05 + performance.now() * 0.0018 + row) * 4;
+        if (x === 0) ctx.moveTo(x, wy); else ctx.lineTo(x, wy);
+      }
+      ctx.stroke();
+    }
+    // 岸
+    ctx.fillStyle = '#3a5a3a';
+    ctx.fillRect(0, SHORE_Y, W, H - SHORE_Y);
+
+    drawCastMarker();
+    drawRig();
+    drawPlayer();
+    drawHud();
+    drawBiteAlert();
+    drawFightUI();
+    drawNetPrompt();
+    drawCelebrate();
+  }
+
+  function drawCastMarker() {
+    if (state === 'idle' && castPoint) {
+      const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.005)) * 0.5;
+      ctx.save();
+      ctx.translate(castPoint.x, castPoint.y);
+      ctx.strokeStyle = `rgba(255,255,255,${0.5 + pulse * 0.4})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, 12 + pulse * 4, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawRig() {
+    if (!rigPos) return;
+    if (state === 'waiting' || state === 'biteWindow' || state === 'fighting' || state === 'netWindow') {
+      ctx.save();
+      ctx.fillStyle = '#fff566';
+      ctx.beginPath(); ctx.arc(rigPos.x, rigPos.y, 5, 0, Math.PI * 2); ctx.fill();
+      // 仕掛けまでの糸（竿先の実際の位置から出す）
+      const tip = getRodTipWorldPos();
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(tip.x, tip.y); ctx.lineTo(rigPos.x, rigPos.y); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // 竿の見た目（角度・しなり量・震え）を、状態と魚のサイズから算出する
+  // 竿・リールの色（S社製=黒、D社製=グレー）と、選んだ長さの見た目への反映
+  function rodColor() { return tackle.rodBrand === 'S社製' ? '#1a1a1a' : '#9aa0aa'; }
+  function reelColor() { return tackle.reelBrand === 'S社製' ? '#1a1a1a' : '#9aa0aa'; }
+  function rodLengthScale() {
+    const len = parseFloat(tackle.rodLength) || 1.8;
+    return len / 1.8; // 1.8mを基準に、選んだ長さに応じて竿の見た目の長さを変える
+  }
+
+  function getRodVisual() {
+    const t = performance.now();
+    let angle = -0.9;   // 竿の基本角度（構え）
+    let curve = 6;       // しなり量（大きいほど大きく曲がる）
+    let shakeA = 0;      // 揺れの角度成分
+
+    if (state === 'biteWindow' && targetFish) {
+      // あたりの大きさ：魚のサイズに応じて、竿先の震え・お辞儀の大きさが変わる
+      const sizeRatio = targetFish.size / 5;
+      const dip = Math.abs(Math.sin(t * 0.022)) * (0.12 + sizeRatio * 0.42);
+      angle = -0.9 + dip;
+      shakeA = (0.02 + sizeRatio * 0.07) * Math.sin(t * 0.09);
+      curve = 8 + sizeRatio * 22;
+    } else if (state === 'fighting' && targetFish) {
+      const sizeRatio = targetFish.size / 5;
+      const pullFactor = fishPullStrong ? 1 : 0.3;
+      const baseAngle = rodState === 'up' ? -1.3 : -0.42;
+      const wobble = Math.sin(t * (0.006 + sizeRatio * 0.003)) * (0.05 + sizeRatio * 0.06) * pullFactor;
+      angle = baseAngle + wobble;
+      curve = (10 + sizeRatio * 30) * (0.45 + pullFactor * 0.55);
+      shakeA = fishPullStrong ? (0.012 + sizeRatio * 0.025) * Math.sin(t * 0.1) : 0;
+      // 巻いている間は、速度に応じたリズムで竿先が上下する
+      if (currentReelSpeed) {
+        const reelHz = currentReelSpeed === 'fast' ? 0.032 : currentReelSpeed === 'medium' ? 0.02 : 0.011;
+        const reelAmp = currentReelSpeed === 'fast' ? 0.09 : currentReelSpeed === 'medium' ? 0.07 : 0.05;
+        angle += Math.sin(t * reelHz) * reelAmp;
+        curve += Math.abs(Math.sin(t * reelHz)) * 6;
+      }
+    } else if (state === 'waiting') {
+      angle = -0.85 + Math.sin(t * 0.0015) * 0.03; // 待機中はごくわずかに揺れる程度
+      curve = 5;
+    }
+    return { angle: angle + shakeA, curve };
+  }
+
+  // 竿先の実際の位置（ワールド座標）を計算する。糸をここから正しく出すために使う
+  function getRodTipWorldPos() {
+    const rv = getRodVisual();
+    const lenScale = rodLengthScale();
+    const originX = W / 2 + 10, originY = SHORE_Y + 10 - 46;
+    const localX = 34 * lenScale - rv.curve * 0.25, localY = -55 * lenScale + rv.curve * 0.9;
+    const cosA = Math.cos(rv.angle), sinA = Math.sin(rv.angle);
+    return {
+      x: originX + (localX * cosA - localY * sinA),
+      y: originY + (localX * sinA + localY * cosA),
+    };
+  }
+
+  function drawPlayer() {
+    ctx.save();
+    ctx.translate(W / 2, SHORE_Y + 10);
+    // 全身のイラストを描画（画像の下端がキャラの立ち位置に来るように配置）
+    const img = pickedChar ? pickedChar.bodyImage : null;
+    const bw = 50, bh = 83;
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, -bw / 2, -bh, bw, bh);
+    } else {
+      // 画像の読み込みが間に合っていない場合の代替表示（必ず何かが表示されるようにする）
+      ctx.font = '34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(pickedChar ? pickedChar.emoji : '🧑', 0, -20);
+    }
+    // 竿（しなりを持たせた曲線で描画。しなり量が大きいほど、竿先が大きく曲がる。長さ・色は選んだタックルを反映）
+    const rv = getRodVisual();
+    const lenScale = rodLengthScale();
+    const baseTipX = 34 * lenScale, baseTipY = -55 * lenScale;
+    const baseCtrlX = 18 * lenScale, baseCtrlY = -28 * lenScale;
+    const ctrlX = baseCtrlX + rv.curve * 0.35, ctrlY = baseCtrlY + rv.curve * 0.15;
+    const tipX = baseTipX - rv.curve * 0.25, tipY = baseTipY + rv.curve * 0.9;
+    ctx.save();
+    ctx.translate(10, -46);
+    ctx.rotate(rv.angle);
+    // リール：竿を握る手元の位置に、選んだメーカーの色で描画
+    ctx.save();
+    ctx.fillStyle = reelColor();
+    ctx.beginPath(); ctx.ellipse(-2, 5, 5, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = reelColor(); ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(-2, 5); ctx.lineTo(-9, 8); ctx.stroke(); // ハンドル
+    ctx.fillStyle = reelColor();
+    ctx.beginPath(); ctx.arc(-9, 8, 1.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    // 竿本体（グリップ〜穂先）。黒い竿(S社製)は背景に沈んで見えにくいため、細い白の縁取りを先に描く
+    if (tackle.rodBrand === 'S社製') {
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 4.2; ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, 6);
+      ctx.lineTo(0, 0);
+      ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = rodColor(); ctx.lineWidth = 3.2; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, 6);
+    ctx.lineTo(0, 0);
+    ctx.quadraticCurveTo(ctrlX, ctrlY, tipX, tipY);
+    ctx.stroke();
+    // 竿先を少し細く、しなりの頂点を強調する穂先を追加
+    ctx.strokeStyle = rodColor(); ctx.globalAlpha = 0.7; ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(ctrlX, ctrlY);
+    ctx.quadraticCurveTo((ctrlX + tipX) / 2 + rv.curve * 0.15, (ctrlY + tipY) / 2, tipX, tipY);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+    ctx.restore();
+  }
+
+  function drawHud() {
+    const hour = Math.floor(gameTime / 60) % 24;
+    const min = Math.floor(gameTime % 60);
+    const remainMin = Math.max(0, SESSION_LENGTH_MIN - (gameTime - sessionStartTime));
+    const remainH = Math.floor(remainMin / 60), remainM = Math.floor(remainMin % 60);
+    ctx.save();
+    ctx.fillStyle = 'rgba(5,8,16,0.6)';
+    ctx.fillRect(8, 8, 172, 90);
+    ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#fff';
+    ctx.fillText(`🕐 ${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}`, 16, 26);
+    ctx.font = '11px sans-serif'; ctx.fillStyle = '#cfe0ff';
+    ctx.fillText(`${pickedRegionId ? REGIONS.find(r=>r.id===pickedRegionId).name : ''} ${pickedSpot || ''}`, 16, 42);
+    ctx.fillText(`${pickedWeather ? pickedWeather.emoji + pickedWeather.name : ''}　${pickedTide ? pickedTide.emoji + pickedTide.name : ''}`, 16, 58);
+    ctx.fillText(`🐟 釣果: ${caughtFish.length}匹`, 16, 74);
+    ctx.fillStyle = remainMin <= 60 ? '#ff8f8f' : '#ffd35c';
+    ctx.fillText(`⏳ 残り ${remainH}時間${remainM}分`, 16, 90);
+    ctx.restore();
+  }
+
+  function drawBiteAlert() {
+    if (state !== 'biteWindow') return;
+    ctx.save();
+    ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const pulse = 0.6 + Math.abs(Math.sin(performance.now() * 0.02)) * 0.4;
+    ctx.globalAlpha = pulse;
+    ctx.fillStyle = '#ffd35c';
+    ctx.fillText('⚡ あたり！', W / 2, H / 2 - 60);
+    if (targetFish) {
+      const sizeRatio = targetFish.size / 5;
+      const hintText = sizeRatio >= 0.8 ? '💪 かなり大きなあたり！' : sizeRatio >= 0.5 ? '👊 まずまずのあたり' : '👌 小さめのあたり';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(hintText, W / 2, H / 2 - 34);
+    }
+    ctx.restore();
+  }
+
+  function drawFightUI() {
+    if (state !== 'fighting') return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(5,8,16,0.6)';
+    ctx.fillRect(W / 2 - 100, 90, 200, 46);
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.fillText(fishPullStrong ? '🐟 強く引いている！' : '🐟 引きが弱い', W / 2, 108);
+    ctx.fillStyle = fishPullStrong ? '#ff8f8f' : '#7ee787';
+    ctx.font = '10.5px sans-serif';
+    ctx.fillText(fishPullStrong ? '竿を寝かせて、ゆっくり巻こう' : '竿を立てて、素早く巻こう', W / 2, 124);
+    // 体力ゲージ
+    const barW = 180;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(W / 2 - barW / 2, 140, barW, 8);
+    const ratio = Math.max(0, fightStamina / (60 + (targetFish ? targetFish.diff * 12 : 0)));
+    ctx.fillStyle = ratio > 0.4 ? '#ff8f4d' : '#ff5c5c';
+    ctx.fillRect(W / 2 - barW / 2, 140, barW * ratio, 8);
+    ctx.restore();
+  }
+
+  // たも網：1回目のタップで構え、2回目のタップですくってキャッチする
+  function drawNetPrompt() {
+    if (state !== 'netWindow' || !rigPos) return;
+    ctx.save();
+    ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.fillText(netAppeared ? 'もう一度タップしてすくう！' : '足元をタップしてたも網を構える', W / 2, SHORE_Y - 70);
+    if (netAppeared) {
+      const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.008)) * 0.5;
+      ctx.translate(rigPos.x, rigPos.y);
+      // 網の柄
+      ctx.strokeStyle = '#c9a15a'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(14, 20); ctx.lineTo(4, 4); ctx.stroke();
+      // 網の枠
+      ctx.strokeStyle = `rgba(255,255,255,${0.6 + pulse * 0.4})`; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(0, -6, 16, 0, Math.PI * 2); ctx.stroke();
+      // 網目
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 0.8;
+      for (let i = -12; i <= 12; i += 6) {
+        ctx.beginPath(); ctx.moveTo(i, -6 - 14); ctx.lineTo(i, -6 + 14); ctx.stroke();
+      }
+    } else {
+      const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.006)) * 0.5;
+      ctx.strokeStyle = `rgba(255,255,255,${0.5 + pulse * 0.4})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(rigPos.x, rigPos.y, 14 + pulse * 4, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawCelebrate() {
+    if (state !== 'result' || celebrate <= 0) return;
+    ctx.save();
+    ctx.font = '40px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🎉', W / 2 - 40, SHORE_Y - 20);
+    ctx.fillText(pickedChar ? pickedChar.emoji : '🧑', W / 2, SHORE_Y - 10);
+    ctx.fillText('🎉', W / 2 + 40, SHORE_Y - 20);
+    ctx.restore();
+  }
+
+  // ================= メインループ =================
+  let lastT = 0;
+  function loop(t) {
+    const dt = lastT ? Math.min(0.1, (t - lastT) / 1000) : 0;
+    lastT = t;
+    if (document.getElementById('paywallOverlay').style.display !== 'flex' && !sessionOver) {
+      gameTime += dt * 1; // 実時間1秒=ゲーム内1分。5時間(300分)のプレイが実時間5分になる
+      if (gameTime - sessionStartTime >= SESSION_LENGTH_MIN) {
+        endSession();
+      }
+      if (state === 'waiting') updateWaiting(dt);
+      else if (state === 'biteWindow') updateBiteWindow(dt);
+      else if (state === 'fighting') updateFighting(dt);
+      else if (state === 'netWindow') updateNetWindow(dt);
+      if (celebrate > 0) celebrate -= dt * 1000;
+    }
+    drawScene();
+    requestAnimationFrame(loop);
+  }
+
+})();
+</script>
+</body>
+</html>

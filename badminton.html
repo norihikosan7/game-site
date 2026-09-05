@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>のりくんのバドミントン</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background: radial-gradient(ellipse 900px 600px at 50% -10%, rgba(120,160,255,0.10), transparent 60%), #10121c;
+    color: #eef1f7;
+    font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { display: flex; flex-direction: column; align-items: center; padding: 14px 10px 30px; }
+
+  h1 {
+    font-size: 21px; margin: 6px 0 2px; text-align: center;
+    background: linear-gradient(180deg, #fff 10%, #cfe0ff 60%, #7ba8ff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .subtitle { font-size: 11.5px; color: #9aa3b8; margin-bottom: 10px; text-align: center; }
+
+  .screen { display: none; width: 100%; max-width: 480px; }
+  .screen.active { display: block; }
+
+  /* ---- キャラ選択 ---- */
+  .char-grid { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .char-card {
+    display: flex; gap: 12px; align-items: center;
+    background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 14px; padding: 12px 14px; cursor: pointer;
+    transition: transform 160ms, border-color 160ms;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .char-card:focus, .char-card:focus-visible { outline: none; }
+  .char-card:hover, .char-card.selected { transform: translateY(-2px); border-color: #7ba8ff; background: rgba(123,168,255,0.1); }
+  .char-card .char-emoji { font-size: 34px; flex-shrink: 0; }
+  .char-card .char-name { font-size: 14px; font-weight: bold; margin-bottom: 3px; }
+  .char-card .char-desc { font-size: 11px; color: #9aa3b8; line-height: 1.6; }
+  .char-card .char-stats { display: flex; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+  .stat-chip { font-size: 9.5px; padding: 2px 7px; border-radius: 999px; background: rgba(123,168,255,0.18); color: #cfe0ff; }
+
+  #charStartBtn {
+    display: block; margin: 16px auto 0; padding: 11px 30px; border: none; border-radius: 22px;
+    background: #ff5c5c; color: #fff; font-weight: bold; font-size: 14px; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  }
+  #charStartBtn:disabled { opacity: 0.35; cursor: default; }
+
+  /* ---- サイコロ画面 ---- */
+  #diceScreen { text-align: center; padding: 30px 10px; }
+  #diceRow { display: flex; gap: 18px; justify-content: center; margin: 20px 0; }
+  .die {
+    width: 64px; height: 64px; border-radius: 14px; background: #fff; color: #10121c;
+    display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  }
+  #diceResultText { font-size: 15px; font-weight: bold; margin: 14px 0; min-height: 22px; color: #ffd35c; }
+  #diceRollBtn {
+    padding: 11px 30px; border: none; border-radius: 22px;
+    background: #7ba8ff; color: #0a1530; font-weight: bold; font-size: 14px; cursor: pointer;
+  }
+  #diceContinueBtn {
+    display: none; margin-top: 10px; padding: 11px 30px; border: none; border-radius: 22px;
+    background: #ffd35c; color: #4a2c00; font-weight: bold; font-size: 14px; cursor: pointer;
+  }
+
+  /* ---- 試合画面 ---- */
+  #matchWrap { position: relative; width: 100%; max-width: 480px; touch-action: none; }
+  #courtCanvas {
+    background: #0d1f3d; border: 3px solid #1c2c50; border-radius: 10px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5); display: block; width: 100%; height: auto; touch-action: none;
+  }
+  #serveControls { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+  #serveControls button {
+    padding: 10px 16px; border: none; border-radius: 16px; font-weight: bold; font-size: 12.5px; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  }
+  #shortServeBtn { background: #7ee787; color: #06280e; }
+  #longServeBtn { background: #ff8f4d; color: #3a1c00; }
+
+  #matchControls { display: flex; gap: 8px; justify-content: space-between; margin-top: 8px; }
+  #matchControls button {
+    padding: 9px 16px; border: none; border-radius: 16px; font-weight: bold; font-size: 12px;
+    cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  }
+  .match-controls-left, .match-controls-right { display: flex; gap: 8px; }
+  #matchStartBtn { background: #ff5c5c; color: #fff; }
+  #matchPauseBtn { background: #6b8bd6; color: #fff; }
+  #matchResumeBtn { background: #ffd35c; color: #4a2c00; }
+  #matchEndBtn { background: #4a4f6b; color: #fff; }
+
+  #shotMenu {
+    display: none; position: absolute; z-index: 40;
+    background: rgba(10,14,25,0.92); border: 1px solid rgba(255,255,255,0.25); border-radius: 12px;
+    padding: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  #shotMenu button {
+    display: block; width: 140px; text-align: left; padding: 8px 10px; margin: 2px 0;
+    border: none; border-radius: 8px; background: rgba(255,255,255,0.08); color: #fff;
+    font-size: 12px; cursor: pointer;
+  }
+  #shotMenu button:hover { background: rgba(123,168,255,0.3); }
+
+  #matchOverlay {
+    display: none; position: absolute; inset: 0; background: rgba(5,8,16,0.88);
+    align-items: center; justify-content: center; border-radius: 10px; z-index: 50; flex-direction: column; text-align: center; padding: 20px;
+  }
+  #matchOverlay .m-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+  #matchOverlay .m-sub { font-size: 13px; color: #cfe0f0; margin-bottom: 18px; }
+  #matchContinueBtn {
+    padding: 10px 26px; border: none; border-radius: 20px; background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 13px; cursor: pointer;
+  }
+
+  #legend {
+    max-width: 480px; margin-top: 16px; font-size: 11px; color: #9aa3b8; line-height: 1.8;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px; padding: 10px 14px;
+  }
+
+  #paywallOverlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(5,10,20,0.82);
+    z-index: 999;
+    align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  #paywallBox {
+    max-width: 340px; width: 100%;
+    background: linear-gradient(180deg, #1c3a5c, #122438);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    padding: 24px 22px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    color: #fff;
+  }
+  #paywallTitle { font-size: 19px; font-weight: bold; margin-bottom: 10px; }
+  #paywallText { font-size: 13px; line-height: 1.7; color: #cfe0f0; margin: 0 0 18px; }
+  #buyLink {
+    display: block; text-decoration: none;
+    background: #ffd35c; color: #4a2c00;
+    font-weight: bold; font-size: 15px;
+    padding: 12px; border-radius: 24px;
+    margin-bottom: 18px;
+  }
+  #licenseRow { display: flex; gap: 6px; }
+  #licenseKeyInput {
+    flex: 1; min-width: 0;
+    padding: 9px 10px; border-radius: 8px; border: none; font-size: 12.5px;
+  }
+  #verifyKeyBtn {
+    padding: 9px 14px; border-radius: 8px; border: none;
+    background: #7ee787; color: #06280e; font-weight: bold; font-size: 12.5px; cursor: pointer;
+  }
+  #licenseMsg { font-size: 12px; margin-top: 10px; min-height: 16px; color: #ffb454; }
+  #paywallCloseBtn {
+    display: block; margin: 14px auto 0; background: none; border: none;
+    color: #8891c9; font-size: 12px; cursor: pointer; text-decoration: underline;
+  }
+  #buySmallBtn {
+    position: fixed; top: 10px; right: 10px; z-index: 500;
+    padding: 7px 12px; border: none; border-radius: 16px;
+    background: rgba(255,211,92,0.92); color: #4a2c00;
+    font-size: 11.5px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  }
+</style>
+</head>
+<body>
+
+  <h1>🏸 のりくんのバドミントン</h1>
+  <div class="subtitle">上から見たコートで対戦するバドミントンシミュレーター(シングルス)</div>
+
+  <!-- 画面1: キャラ選択 -->
+  <div id="screenChar" class="screen active">
+    <div class="char-grid" id="charGrid"></div>
+    <button id="charStartBtn" disabled>🎲 サーブ順を決める</button>
+  </div>
+
+  <!-- 画面2: サイコロ -->
+  <div id="screenDice" class="screen">
+    <div id="diceScreen">
+      <div style="font-size:14px; color:#cfe0ff; margin-bottom:6px;">最初のサーブ権を決めます</div>
+      <div style="font-size:11.5px; color:#9aa3b8;">2つのサイコロを振って、合計が偶数ならあなたが先に決められます</div>
+      <div id="diceRow">
+        <div class="die" id="die1">?</div>
+        <div class="die" id="die2">?</div>
+      </div>
+      <div id="diceResultText"></div>
+      <button id="diceRollBtn">🎲 サイコロを振る</button>
+      <br>
+      <button id="diceContinueBtn">試合開始 →</button>
+    </div>
+  </div>
+
+  <!-- 画面3: 試合 -->
+  <div id="screenMatch" class="screen">
+    <div id="matchWrap">
+      <canvas id="courtCanvas" width="480" height="720"></canvas>
+      <div id="shotMenu"></div>
+      <div id="matchOverlay">
+        <div class="m-title" id="matchOverlayTitle"></div>
+        <div class="m-sub" id="matchOverlaySub"></div>
+        <button id="matchContinueBtn">次へ →</button>
+      </div>
+    </div>
+    <div id="serveControls">
+      <button id="shortServeBtn">🏸 ショートサーブ</button>
+      <button id="longServeBtn">💥 ロングサーブ</button>
+    </div>
+    <div id="matchControls">
+      <div class="match-controls-left">
+        <button id="matchStartBtn">▶ 開始</button>
+        <button id="matchPauseBtn">⏸ 一時停止</button>
+      </div>
+      <div class="match-controls-right">
+        <button id="matchResumeBtn">▶ 再開</button>
+        <button id="matchEndBtn">■ 終了</button>
+      </div>
+    </div>
+  </div>
+
+  <button id="buySmallBtn">🛒 購入/ライセンス</button>
+  <div id="paywallOverlay">
+    <div id="paywallBox">
+      <div id="paywallTitle">🎮 製品版のご案内</div>
+      <p id="paywallText">製品版を購入すると、のりくんのゲームひろばにある全ゲームが遊べるライセンスになります。</p>
+      <a id="buyLink" href="https://gumroad.com/l/YOUR_PRODUCT_ID" target="_blank" rel="noopener">🛒 製品版を購入する</a>
+      <div id="licenseRow">
+        <input id="licenseKeyInput" placeholder="購入済みの方はライセンスキーを入力">
+        <button id="verifyKeyBtn">解除する</button>
+      </div>
+      <div id="licenseMsg"></div>
+      <button id="paywallCloseBtn">閉じる</button>
+    </div>
+  </div>
+
+  <div id="legend">
+    自分の立ち位置は自陣をクリック(タップ)するとそこまでなめらかに移動します。シャトルが間合いに入ると自動で相手コートへ返球されます(オートモード、速度は今の倍になりました)。<strong>相手コートを軽くタップしてから、自分付近を2回タップ</strong>すると、その場所へスマッシュで返します。<strong>自分のラケット付近を2回タップ</strong>すると、シャトルが一時停止し、白い狙いポインタが現れます。ポインタを好きな場所に動かし、<strong>ポインタをもう一度タップ</strong>すると右側にスマッシュ・ドロップ・ヘヤピン・ハイクリアーのリストが表示されます。選ぶとシャトルが再び動き出し、キャラが打ち返す瞬間に狙った場所へそのショットで打ちます。ラケット付近を<strong>3回以上連打</strong>するとラケットが一時停止し、アウトのシャトルを見送れます。<strong>自分の頭付近を2回タップ</strong>すると、<strong>スポーツドリンクを飲むリスト</strong>が表示され、選ぶと体力ゲージが50%回復します(1ゲームにつき3回まで)。相手(CPU)も体力が切れる前に、タイミングを見計らって自動でドリンクを飲みます。足元の<strong>体力ゲージ</strong>は試合が進むにつれて減り、キャラの体力ステータスによって減るスピードが異なります。体力が0になると、そのキャラ本来のスピードから移動速度が半減します。中央の<strong>ネットは低い高さで越えようとすると引っかかり</strong>、打った側の反則負けになります。<strong>サーブ時はサーバーとレシーバーが対角(自分が右なら相手は左)に配置</strong>され、黄色くハイライトされた対角のサービスボックス内にシャトルが入らないとサーブ権が相手に移るだけで得点になりません。サーブ権のある方が勝った時だけ得点、レシーブ側が勝つとサーブ権だけ移動します。15点先取(同点時は2点差)を2ゲーム先取で勝利、1-1なら3ゲーム目で決着します。
+  </div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ================= 購入・ライセンスキー（デモ制限） =================
+  const GUMROAD_PRODUCT_ID = '-vv3ffdtD9ZWTCxhGgFhcA==';
+  const GUMROAD_BUY_URL = 'https://norihiko1.gumroad.com/l/game-plaza-pass';
+  const DEMO_TIME_LIMIT_MS = 60000; // デモで遊べる時間（ミリ秒）＝60秒
+  const UNLOCK_STORAGE_KEY = 'norikun_unlocked'; // 全ゲーム共通のキー名（同じドメインなら他のゲームにも引き継がれます）
+
+  document.getElementById('buyLink').href = GUMROAD_BUY_URL;
+
+  function isUnlocked() {
+    return localStorage.getItem(UNLOCK_STORAGE_KEY) === 'true';
+  }
+
+  let demoTimeoutId = null;
+  function startDemoTimer() {
+    clearDemoTimer();
+    if (isUnlocked()) return;
+    demoTimeoutId = setTimeout(showPaywall, DEMO_TIME_LIMIT_MS);
+  }
+  function clearDemoTimer() {
+    if (demoTimeoutId) { clearTimeout(demoTimeoutId); demoTimeoutId = null; }
+  }
+  function showPaywall() {
+    matchPaused = true;
+    document.getElementById('paywallOverlay').style.display = 'flex';
+  }
+  function hidePaywall() {
+    document.getElementById('paywallOverlay').style.display = 'none';
+  }
+  function updateBuySmallBtn() {
+    document.getElementById('buySmallBtn').textContent = isUnlocked() ? '✓ 解除済み' : '🛒 購入/ライセンス';
+  }
+  document.getElementById('buySmallBtn').addEventListener('click', showPaywall);
+  document.getElementById('paywallCloseBtn').addEventListener('click', hidePaywall);
+  updateBuySmallBtn();
+
+  async function verifyLicenseKey(key) {
+    const msgEl = document.getElementById('licenseMsg');
+    if (!key) { msgEl.textContent = 'ライセンスキーを入力してください。'; return; }
+    msgEl.textContent = '確認中…';
+    try {
+      const res = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ product_id: GUMROAD_PRODUCT_ID, license_key: key }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem(UNLOCK_STORAGE_KEY, 'true');
+        msgEl.textContent = '';
+        clearDemoTimer();
+        updateBuySmallBtn();
+        hidePaywall();
+      } else {
+        msgEl.textContent = 'キーが正しくないか、確認できませんでした。';
+      }
+    } catch (e) {
+      msgEl.textContent = '通信エラーが発生しました。時間をおいて再度お試しください。';
+    }
+  }
+  document.getElementById('verifyKeyBtn').addEventListener('click', () => {
+    verifyLicenseKey(document.getElementById('licenseKeyInput').value.trim());
+  });
+
+  // ================= キャラクターデータ =================
+  const CHARACTERS = [
+    { id: 'young_man', name: '若い男性', emoji: '👨', desc: 'スマッシュが速く力強い。体力も十分。',
+      stats: { power: 1.15, speed: 1.05, stamina: 1.1, control: 0.95 }, tags: ['スマッシュ強', '体力◎'],
+      outfit: { shirt: '#6ec8f0', bottom: '#1c2a52', bottomStripe: '#fff', isSkirt: false, shoes: '#161616' } },
+    { id: 'mid_man', name: '中年の男性', emoji: '🧔', desc: 'スマッシュは遅め、体力もすぐ切れる。ドロップ・ヘヤピンが得意。',
+      stats: { power: 0.9, speed: 0.85, stamina: 0.65, control: 1.1 }, tags: ['技巧派', '体力△'],
+      outfit: { shirt: '#3fa34d', bottom: '#1a1a1a', bottomStripe: null, isSkirt: false, shoes: '#d43b3b' } },
+    { id: 'young_woman', name: '若い女性', emoji: '👩', desc: 'スマッシュに切れと方向性。柔軟性が高くレシーブが得意。ハイクリアが得意。',
+      stats: { power: 1.0, speed: 1.0, stamina: 0.9, control: 1.15 }, tags: ['安定感', 'レシーブ◎'],
+      outfit: { shirt: '#f5c2d8', bottom: '#e893b3', bottomStripe: '#fff', isSkirt: true, shoes: '#f7f7f7' } },
+    { id: 'mid_woman', name: '中年の女性', emoji: '👵', desc: '全体的にバランスが良いが体力はやや劣る。',
+      stats: { power: 1.0, speed: 0.95, stamina: 0.8, control: 1.05 }, tags: ['バランス型'],
+      outfit: { shirt: '#d94040', bottom: '#8a8f99', bottomStripe: null, isSkirt: true, shoes: '#4a2e1a' } },
+    { id: 'kid', name: '子供', emoji: '🧒', desc: '機動力と体力は抜群。ショットはすべてやや弱め。',
+      stats: { power: 0.75, speed: 1.25, stamina: 1.3, control: 0.95 }, tags: ['俊足', '体力◎'],
+      outfit: { shirt: '#e6453f', bottom: '#a8d8f0', bottomStripe: null, isSkirt: false, shoes: 'rainbow', print: '🚗' } },
+  ];
+
+  const SHOT_TYPES = {
+    auto:    { name: 'オート', power: 1.0, arc: 1.0 },
+    smash:   { name: 'スマッシュ', power: 1.5, arc: 0.4 },
+    drop:    { name: 'ドロップ', power: 0.5, arc: 0.7 },
+    hairpin: { name: 'ヘヤピン', power: 0.35, arc: 0.5 },
+    wiper:   { name: 'ワイパーショット', power: 0.9, arc: 0.6 },
+    clear:   { name: 'ハイクリア', power: 0.85, arc: 1.6 },
+    drive:   { name: 'ドライブ', power: 1.1, arc: 0.25 },
+    jump_smash: { name: 'ジャンピングスマッシュ', power: 1.8, arc: 0.35 },
+  };
+
+  // ================= 状態 =================
+  let playerChar = null, opponentChar = null;
+  let playerStamina = 100, opponentStamina = 100;
+  let lastStaminaTick = 0;
+  const BASE_STAMINA_DECAY_PER_SEC = 0.8; // 体力ステータスが1.0のキャラが1秒あたりに失う体力(%)
+  let playerDrinksLeft = 3, opponentDrinksLeft = 3; // 1ゲームにつき3回まで
+  // 体力が切れると、そのキャラ本来のスピードから半減する
+  function staminaSpeedMultiplier(stamina) {
+    return stamina <= 0 ? 0.5 : 1;
+  }
+
+  // ================= 効果音 =================
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) {
+      try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    } else if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+  // スマッシュ：鋭い風切り音＋強い打撃音でスピード感を演出
+  function playSmashSound() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(1900, t);
+    osc.frequency.exponentialRampToValueAtTime(220, t + 0.09);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.18, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.1);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.11);
+    const t2 = t + 0.075;
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = 'square';
+    osc2.frequency.setValueAtTime(180, t2);
+    osc2.frequency.exponentialRampToValueAtTime(55, t2 + 0.08);
+    const g2 = audioCtx.createGain();
+    g2.gain.setValueAtTime(0.0001, t2);
+    g2.gain.exponentialRampToValueAtTime(0.32, t2 + 0.01);
+    g2.gain.exponentialRampToValueAtTime(0.0001, t2 + 0.16);
+    osc2.connect(g2); g2.connect(audioCtx.destination);
+    osc2.start(t2); osc2.stop(t2 + 0.17);
+  }
+  // 通常の打球音（軽いポンという音）
+  function playHitSound() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(560, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.13, t + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.1);
+  }
+  // ネットに引っかかった時の音
+  function playNetSound() {
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(300, t);
+    osc.frequency.exponentialRampToValueAtTime(120, t + 0.15);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.23);
+  }
+
+  let playerServesFirst = null; // true/false
+  let pickedCharId = null;
+
+  // ================= キャラ選択画面 =================
+  const charGrid = document.getElementById('charGrid');
+  CHARACTERS.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'char-card';
+    card.innerHTML = `
+      <div class="char-emoji">${c.emoji}</div>
+      <div>
+        <div class="char-name">${c.name}</div>
+        <div class="char-desc">${c.desc}</div>
+        <div class="char-stats">${c.tags.map(t => `<span class="stat-chip">${t}</span>`).join('')}</div>
+      </div>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+      card.classList.add('selected');
+      pickedCharId = c.id;
+      document.getElementById('charStartBtn').disabled = false;
+    });
+    charGrid.appendChild(card);
+  });
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  document.getElementById('charStartBtn').addEventListener('click', () => {
+    ensureAudio();
+    playerChar = CHARACTERS.find(c => c.id === pickedCharId);
+    const others = CHARACTERS.filter(c => c.id !== pickedCharId);
+    opponentChar = others[Math.floor(Math.random() * others.length)];
+    showScreen('screenDice');
+    document.getElementById('diceResultText').textContent = '';
+    document.getElementById('diceContinueBtn').style.display = 'none';
+    document.getElementById('diceRollBtn').style.display = 'inline-block';
+    document.getElementById('die1').textContent = '?';
+    document.getElementById('die2').textContent = '?';
+  });
+
+  // ================= サイコロ画面 =================
+  document.getElementById('diceRollBtn').addEventListener('click', () => {
+    const d1 = 1 + Math.floor(Math.random() * 6);
+    const d2 = 1 + Math.floor(Math.random() * 6);
+    document.getElementById('die1').textContent = d1;
+    document.getElementById('die2').textContent = d2;
+    const sum = d1 + d2;
+    playerServesFirst = (sum % 2 === 0);
+    document.getElementById('diceResultText').textContent =
+      `合計 ${sum}(${sum % 2 === 0 ? '偶数' : '奇数'})→ ${playerServesFirst ? 'あなた' : opponentChar.name} が先にサーブ権を持ちます！`;
+    document.getElementById('diceRollBtn').style.display = 'none';
+    document.getElementById('diceContinueBtn').style.display = 'inline-block';
+  });
+  document.getElementById('diceContinueBtn').addEventListener('click', () => {
+    showScreen('screenMatch');
+    initMatch();
+  });
+
+  // ================= 試合状態 =================
+  const canvas = document.getElementById('courtCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // コート座標（上側=相手, 下側=プレイヤー）
+  const COURT_TOP = 90, COURT_BOTTOM = H - 60;
+  const COURT_LEFT = 60, COURT_RIGHT = W - 60;
+  const NET_Y = (COURT_TOP + COURT_BOTTOM) / 2;
+  const SINGLE_LEFT = COURT_LEFT + 26, SINGLE_RIGHT = COURT_RIGHT - 26;
+  const SHORT_SERVICE_TOP = NET_Y - 130, SHORT_SERVICE_BOTTOM = NET_Y + 130;
+
+  // サーブ側の位置決定：サーバーの得点が偶数なら右側、奇数なら左側（実際のバドミントンのルール）
+  function getServerSide() {
+    return score[server] % 2 === 0 ? 'right' : 'left';
+  }
+  // レシーバーはサーバーと対角（左右反対）の位置になる
+  function getReceiverSide() {
+    return getServerSide() === 'right' ? 'left' : 'right';
+  }
+  function sideCenterX(side) {
+    return side === 'right' ? (W / 2 + SINGLE_RIGHT) / 2 : (SINGLE_LEFT + W / 2) / 2;
+  }
+  // 対角のサービスボックス（ショートサービスラインより奥・バックバウンダリーまで、左右いずれかの半分）
+  function getServiceBox(side, isTopHalf) {
+    return {
+      xMin: side === 'right' ? W / 2 : SINGLE_LEFT,
+      xMax: side === 'right' ? SINGLE_RIGHT : W / 2,
+      yMin: isTopHalf ? COURT_TOP : SHORT_SERVICE_BOTTOM,
+      yMax: isTopHalf ? SHORT_SERVICE_TOP : COURT_BOTTOM,
+    };
+  }
+  function inBox(x, y, box) {
+    return x >= box.xMin && x <= box.xMax && y >= box.yMin && y <= box.yMax;
+  }
+
+  let gamesWon = { player: 0, opponent: 0 };
+  let score = { player: 0, opponent: 0 };
+  let server = 'player'; // 'player' or 'opponent'
+  let matchOver = false, gameOver = false;
+  let matchPaused = false, matchStarted = false;
+  let isDrinking = false; // スポーツドリンクを飲んでいる間はゲームを一時停止する
+
+  let playerPos = { x: W / 2, y: COURT_BOTTOM - 80 };
+  let opponentPos = { x: W / 2, y: COURT_TOP + 80 };
+  let playerMoveTarget = null;
+  let aimTarget = null; // 相手コートをクリックして指定した「次の一打」の狙い場所
+  let playerSwing = null, opponentSwing = null;
+  const NET_CATCH_HEIGHT = 20; // ネットを越える瞬間の高さがこれ未満だとネットに引っかかる
+  // スイングアニメーションを開始する（音はここでは鳴らさず、実際にミートする瞬間に鳴らす）
+  function startSwingAnimation(who, shotKey) {
+    const isSmash = shotKey === 'smash' || shotKey === 'jump_smash';
+    const swing = { isSmash, jump: shotKey === 'jump_smash', start: performance.now(), duration: isSmash ? 380 : 260 };
+    if (who === 'player') playerSwing = swing; else opponentSwing = swing;
+    return swing;
+  }
+  function playShotSound(shotKey) {
+    if (shotKey === 'smash' || shotKey === 'jump_smash') playSmashSound(); else playHitSound();
+  }
+  // ミートする瞬間の「当たった感」の演出（フラッシュ＋衝撃線）
+  let impactEffects = []; // {x, y, life}
+  function spawnImpactEffect(x, y) {
+    impactEffects.push({ x, y, life: 14, maxLife: 14 });
+  }
+  // スポーツドリンクを飲んだ時のエフェクト（「💧+50」のテキストが浮かび上がる）
+  let drinkEffects = []; // {x, y, life, maxLife}
+  function spawnDrinkEffect(x, y) {
+    drinkEffects.push({ x, y, life: 50, maxLife: 50 });
+  }
+  function playDrinkSound() {
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    [660, 880, 1100].forEach((f, i) => {
+      const st = t0 + i * 0.07;
+      const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      osc.type = 'sine'; osc.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, st);
+      g.gain.exponentialRampToValueAtTime(0.13, st + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, st + 0.25);
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(st); osc.stop(st + 0.26);
+    });
+  }
+
+  let shuttle = null; // {x,y,z,vx,vy,vz,phase:'serve'|'rally', owner, targetShotType}
+  let rallyState = 'waiting_serve'; // waiting_serve, in_rally, point_over
+  let headTapCount = 0, headTapResetTimer = null;
+  let tapCount = 0, tapResetTimer = null, racketPaused = false;
+  let isAiming = false; // シャトルを止めて、自由に狙いポインタを動かしている間
+  let pendingSmashTarget = null; // 相手コートをタップして仮に決めたスマッシュの狙い場所
+  let selfTapCount = 0, selfTapResetTimer = null; // 自分付近でのタップ回数（狙い場所確定用）
+  let aimPointerPos = null; // 白いポインタの位置
+  let aimListVisible = false; // ポインタをクリックして出す右側のリスト
+
+  function initMatch() {
+    gamesWon = { player: 0, opponent: 0 };
+    server = playerServesFirst ? 'player' : 'opponent';
+    playerStamina = 100; opponentStamina = 100; lastStaminaTick = 0;
+    startNewGame();
+    requestAnimationFrame(loop);
+    // 時間制限なしで遊べるようにする（デモタイマーは起動しない）
+  }
+  function startNewGame() {
+    score = { player: 0, opponent: 0 };
+    gameOver = false;
+    playerDrinksLeft = 3; opponentDrinksLeft = 3; // ドリンクは1ゲームにつき3回まで
+    resetForServe();
+    if (server === 'opponent') setTimeout(opponentServe, 800);
+  }
+  function resetForServe() {
+    rallyState = 'waiting_serve';
+    shuttle = null;
+    pendingShotType = null;
+    racketPaused = false;
+    tapCount = 0;
+    headTapCount = 0;
+    isAiming = false;
+    aimListVisible = false;
+    hideAimList();
+    pendingSmashTarget = null;
+    selfTapCount = 0;
+    playerMoveTarget = null;
+    aimTarget = null;
+    // サーブ権のある方の得点の偶数/奇数で、サーバー・レシーバーの左右の立ち位置が対角になるよう配置
+    const serverSide = getServerSide();
+    const receiverSide = getReceiverSide();
+    if (server === 'player') {
+      playerPos = { x: sideCenterX(serverSide), y: COURT_BOTTOM - 80 };
+      opponentPos = { x: sideCenterX(receiverSide), y: COURT_TOP + 80 };
+    } else {
+      opponentPos = { x: sideCenterX(serverSide), y: COURT_TOP + 80 };
+      playerPos = { x: sideCenterX(receiverSide), y: COURT_BOTTOM - 80 };
+    }
+  }
+
+  // ================= サーブ =================
+  function doServe(kind) {
+    if (rallyState !== 'waiting_serve' || server !== 'player' || matchOver || gameOver || matchPaused) return;
+    const box = getServiceBox(getReceiverSide(), true); // レシーバー（相手）の対角ボックス（相手側=上半分）
+    const targetX = aimTarget ? aimTarget.x : box.xMin + Math.random() * (box.xMax - box.xMin);
+    const targetY = aimTarget ? aimTarget.y
+      : (kind === 'short' ? (box.yMax - 15 - Math.random() * 20) : (box.yMin + 15 + Math.random() * 20));
+    const shotKey = kind === 'short' ? 'hairpin' : 'drive';
+    rallyState = 'serving'; // サーブのミートを待っている間は他の処理を挟まない
+    const swing = startSwingAnimation('player', shotKey);
+    const servePos = { x: playerPos.x, y: playerPos.y };
+    setTimeout(() => {
+      if (matchOver || gameOver) return; // 待っている間に試合が終わっていたら何もしない
+      spawnImpactEffect(servePos.x, servePos.y - 20);
+      playShotSound(shotKey);
+      launchShuttle(servePos.x, servePos.y, targetX, targetY, kind === 'short' ? 0.5 : 1.3, 'player', true);
+    }, swing.duration * 0.45);
+    aimTarget = null;
+  }
+  document.getElementById('shortServeBtn').addEventListener('click', () => doServe('short'));
+  document.getElementById('longServeBtn').addEventListener('click', () => doServe('long'));
+
+  // ================= 開始・一時停止・再開・終了 =================
+  document.getElementById('matchStartBtn').addEventListener('click', () => {
+    matchStarted = true;
+    matchPaused = false;
+    hidePaywall();
+    document.getElementById('matchOverlay').style.display = 'none';
+    initMatch();
+  });
+  document.getElementById('matchPauseBtn').addEventListener('click', () => {
+    if (matchOver || matchPaused) return;
+    matchPaused = true;
+  });
+  document.getElementById('matchResumeBtn').addEventListener('click', () => {
+    if (matchOver || !matchPaused) return;
+    matchPaused = false;
+  });
+  document.getElementById('matchEndBtn').addEventListener('click', () => {
+    if (matchOver) return;
+    matchOver = true;
+    matchPaused = false;
+    clearDemoTimer();
+    document.getElementById('matchOverlay').style.display = 'none';
+    showScreen('screenChar');
+    pickedCharId = null;
+    document.getElementById('charStartBtn').disabled = true;
+    document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+  });
+
+  function opponentServe() {
+    if (matchOver) return;
+    if (matchPaused) { setTimeout(opponentServe, 400); return; }
+    const box = getServiceBox(getReceiverSide(), false); // レシーバー（プレイヤー）の対角ボックス（プレイヤー側=下半分）
+    const short = Math.random() < 0.5;
+    const targetX = box.xMin + Math.random() * (box.xMax - box.xMin);
+    const targetY = short ? (box.yMin + 15 + Math.random() * 20) : (box.yMax - 15 - Math.random() * 20);
+    const shotKey = short ? 'hairpin' : 'drive';
+    rallyState = 'serving'; // サーブのミートを待っている間は自動移動と競合させない
+    const swing = startSwingAnimation('opponent', shotKey);
+    const servePos = { x: opponentPos.x, y: opponentPos.y };
+    setTimeout(() => {
+      if (matchOver || gameOver) return;
+      spawnImpactEffect(servePos.x, servePos.y + 20);
+      playShotSound(shotKey);
+      launchShuttle(servePos.x, servePos.y, targetX, targetY, short ? 0.5 : 1.3, 'opponent', true);
+    }, swing.duration * 0.45);
+  }
+
+  // ================= シャトル物理 =================
+  function launchShuttle(fromX, fromY, toX, toY, arcHeight, owner, isServe, speedMult) {
+    const dist = Math.hypot(toX - fromX, toY - fromY);
+    const duration = Math.max(16, (dist * 0.55) / (speedMult || 1)); // フレーム数（速度倍率が高いほど短時間で到達＝速い）
+    shuttle = {
+      fromX, fromY, toX, toY, t: 0, duration, arcHeight, owner,
+      x: fromX, y: fromY, z: 0, netChecked: false, isServe: !!isServe,
+    };
+    rallyState = 'in_rally';
+  }
+
+  function updateShuttle() {
+    if (!shuttle || shuttle.landed || shuttle.frozen) return; // 既に着地処理済み、または打つ処理を待って静止中なら何もしない
+    const prevY = shuttle.y;
+    shuttle.t++;
+    const p = Math.min(1, shuttle.t / shuttle.duration);
+    shuttle.x = shuttle.fromX + (shuttle.toX - shuttle.fromX) * p;
+    shuttle.y = shuttle.fromY + (shuttle.toY - shuttle.fromY) * p;
+    shuttle.z = Math.sin(p * Math.PI) * shuttle.arcHeight * 160;
+    // ネット判定：中心のネットラインを横切る瞬間、高さが低ければネットに引っかかる
+    if (!shuttle.netChecked && shuttle.t > 2 && (prevY - NET_Y) * (shuttle.y - NET_Y) <= 0) {
+      shuttle.netChecked = true;
+      if (shuttle.z < NET_CATCH_HEIGHT) {
+        shuttle.landed = true;
+        onNetFault();
+        return;
+      }
+    }
+    if (p >= 1) {
+      shuttle.landed = true; // 着地処理は一度だけ行う
+      onShuttleLanded();
+    }
+  }
+
+  function inSingleCourt(x, y) {
+    return x >= SINGLE_LEFT && x <= SINGLE_RIGHT && y >= COURT_TOP && y <= COURT_BOTTOM;
+  }
+
+  function onShuttleLanded() {
+    const landedIn = inSingleCourt(shuttle.toX, shuttle.toY);
+    const landedOnOpponentSide = shuttle.toY < NET_Y;
+    // サーブの場合は、通常のコート内判定に加えて「対角のサービスボックス」に入っているかも必要
+    if (shuttle.isServe) {
+      const receiverSide = getReceiverSide();
+      const box = getServiceBox(receiverSide, landedOnOpponentSide);
+      const inServiceBox = landedIn && inBox(shuttle.toX, shuttle.toY, box);
+      if (!inServiceBox) {
+        // サービスボックス外＝サーブ権のない方に権利が移るだけ（得点は入らない）
+        awardPoint(shuttle.owner === 'player' ? 'opponent' : 'player', 'サーブがサービスボックスに入りませんでした');
+        return;
+      }
+    }
+    // 着地したサイドの人が拾えなければアウト/インの判定
+    if (!landedIn) {
+      awardPoint(shuttle.owner === 'player' ? 'player' : 'opponent', '相手のショットがアウトになりました');
+      return;
+    }
+    // 相手コートに正しく返っていればそのままラリー継続（次のヒットは自動処理でハンドルする）
+    rallyState = 'shuttle_down';
+    // 少し間を置いてから、着地した側が拾えなかった=失点とみなす
+    setTimeout(() => {
+      if (rallyState !== 'shuttle_down') return; // 既に処理済みなら何もしない
+      const winner = landedOnOpponentSide ? 'player' : 'opponent';
+      awardPoint(winner, '相手が拾えず得点！');
+    }, 260);
+  }
+
+  // ネットに引っかかった場合：打った側の反則負け（相手に得点）
+  function onNetFault() {
+    playNetSound();
+    const winner = shuttle.owner === 'player' ? 'opponent' : 'player';
+    awardPoint(winner, 'シャトルがネットに引っかかりました！');
+  }
+
+  function awardPoint(winner, reasonText) {
+    if (gameOver || matchOver) return;
+    rallyState = 'point_over';
+    if (winner === server) {
+      score[server]++;
+    } else {
+      server = winner; // サイドアウト：サーブ権だけ移動
+    }
+    checkGameEnd();
+    setTimeout(() => {
+      if (!gameOver && !matchOver) {
+        resetForServe();
+        if (server === 'opponent') setTimeout(opponentServe, 500);
+      }
+    }, 900);
+  }
+
+  function checkGameEnd() {
+    const p = score.player, o = score.opponent;
+    const target = 15;
+    const reachedTarget = p >= target || o >= target;
+    const diffOk = Math.abs(p - o) >= 2;
+    if (reachedTarget && diffOk) {
+      const winner = p > o ? 'player' : 'opponent';
+      gamesWon[winner]++;
+      gameOver = true;
+      if (gamesWon[winner] >= 2) {
+        matchOver = true;
+        showMatchOverlay(`🏆 ${winner === 'player' ? 'あなたの勝利！' : `${opponentChar.name}の勝利...`}`,
+          `最終ゲームカウント ${gamesWon.player} - ${gamesWon.opponent}`);
+      } else {
+        showMatchOverlay(`ゲーム終了！ ${p} - ${o}`,
+          `ゲームカウント ${gamesWon.player} - ${gamesWon.opponent}　次のゲームへ`);
+      }
+    }
+  }
+
+  function showMatchOverlay(title, sub) {
+    document.getElementById('matchOverlayTitle').textContent = title;
+    document.getElementById('matchOverlaySub').textContent = sub;
+    document.getElementById('matchOverlay').style.display = 'flex';
+  }
+  document.getElementById('matchContinueBtn').addEventListener('click', () => {
+    document.getElementById('matchOverlay').style.display = 'none';
+    if (matchOver) {
+      clearDemoTimer();
+      showScreen('screenChar');
+      pickedCharId = null;
+      document.getElementById('charStartBtn').disabled = true;
+      document.querySelectorAll('.char-card').forEach(el => el.classList.remove('selected'));
+    } else if (gameOver) {
+      startNewGame();
+    }
+  });
+
+  // ================= 自動追跡・自動返球 =================
+  const RETURN_RADIUS = 46;
+  function autoReturnCheck() {
+    if (!shuttle || rallyState !== 'in_rally' || shuttle.frozen) return; // 打つ処理が進行中なら二重発火を防ぐ
+    const onPlayerSide = shuttle.y > NET_Y;
+    if (onPlayerSide && shuttle.owner !== 'player') {
+      const d = Math.hypot(shuttle.x - playerPos.x, shuttle.y - playerPos.y);
+      if (d < RETURN_RADIUS && shuttle.t / shuttle.duration > 0.55) {
+        if (racketPaused) return; // 一時停止中は打ち返さない（アウトを見送る）
+        initiateHit('player', pendingShotType || 'auto');
+        pendingShotType = null;
+      }
+    } else if (!onPlayerSide && shuttle.owner !== 'opponent') {
+      const d = Math.hypot(shuttle.x - opponentPos.x, shuttle.y - opponentPos.y);
+      if (d < RETURN_RADIUS && shuttle.t / shuttle.duration > 0.55) {
+        initiateHit('opponent', 'auto');
+      }
+    }
+  }
+
+  // シャトルをラケットの位置で一旦静止させ、スイングが実際にミートする瞬間まで待ってから打球する
+  function initiateHit(who, shotKey) {
+    if (!shuttle) return;
+    shuttle.frozen = true;
+    const contactX = shuttle.x, contactY = shuttle.y;
+    const swing = startSwingAnimation(who, shotKey);
+    const contactDelay = swing.duration * 0.45; // 振りかぶりが終わり、ラケットが振り抜かれる瞬間
+    setTimeout(() => {
+      if (rallyState !== 'in_rally') return; // ラリーが既に終わっていれば何もしない
+      spawnImpactEffect(contactX, contactY);
+      playShotSound(shotKey);
+      performReturn(who, shotKey);
+    }, contactDelay);
+  }
+
+  let pendingShotType = null;
+  function performReturn(who, shotKey) {
+    const shot = SHOT_TYPES[shotKey] || SHOT_TYPES.auto;
+    const fromX = who === 'player' ? playerPos.x : opponentPos.x;
+    const fromY = who === 'player' ? playerPos.y : opponentPos.y;
+    const stats = (who === 'player' ? playerChar : opponentChar).stats;
+    let targetX2, targetY;
+    if (who === 'player' && aimTarget) {
+      targetX2 = aimTarget.x;
+      targetY = aimTarget.y;
+      aimTarget = null;
+    } else {
+      const targetX = SINGLE_LEFT + Math.random() * (SINGLE_RIGHT - SINGLE_LEFT) * stats.control;
+      targetX2 = Math.min(SINGLE_RIGHT, Math.max(SINGLE_LEFT, targetX));
+      if (who === 'player') {
+        targetY = shotKey === 'hairpin' ? NET_Y - 30 - Math.random() * 20
+                : shotKey === 'clear' ? COURT_TOP + 20 + Math.random() * 20
+                : COURT_TOP + 20 + Math.random() * (NET_Y - COURT_TOP - 40);
+      } else {
+        targetY = COURT_BOTTOM - 20 - Math.random() * (COURT_BOTTOM - NET_Y - 40);
+      }
+    }
+    const isSmashShot = shotKey === 'smash' || shotKey === 'jump_smash';
+    launchShuttle(fromX, fromY, targetX2, targetY, shot.arc, who, false, isSmashShot ? 2 : 1);
+  }
+
+  // ================= 入力：移動（ドラッグ） =================
+  function getCanvasPos(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = W / rect.width, scaleY = H / rect.height;
+    return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+  }
+  canvas.addEventListener('mousedown', e => {
+    if (matchPaused || matchOver || isDrinking) return;
+    const pos = getCanvasPos(e.clientX, e.clientY);
+    handlePointerDown(pos);
+  });
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (matchPaused || matchOver || isDrinking) return;
+    const t = e.touches[0]; const pos = getCanvasPos(t.clientX, t.clientY);
+    handlePointerDown(pos);
+  }, { passive: false });
+
+  function handlePointerDown(pos) {
+    if (isAiming) { handleAimingClick(pos); return; }
+    // 相手コートを軽くタップ：スマッシュの狙い場所を(仮)決定する
+    if (pos.y < NET_Y) {
+      pendingSmashTarget = {
+        x: Math.min(SINGLE_RIGHT, Math.max(SINGLE_LEFT, pos.x)),
+        y: Math.min(NET_Y - 10, Math.max(COURT_TOP + 10, pos.y)),
+      };
+      return;
+    }
+    // 狙い場所が決まっている状態で、自分付近を2回タップするとスマッシュ確定
+    const nearSelf = Math.hypot(pos.x - playerPos.x, pos.y - playerPos.y) < 40;
+    if (pendingSmashTarget && nearSelf) {
+      handleSmashConfirmTap();
+      return;
+    }
+    const headPos = { x: playerPos.x, y: playerPos.y - 20 };
+    const racketPos = { x: playerPos.x + 22, y: playerPos.y - 12 };
+    if (Math.hypot(pos.x - headPos.x, pos.y - headPos.y) < 15) {
+      handleHeadTap();
+    } else if (Math.hypot(pos.x - racketPos.x, pos.y - racketPos.y) < 14) {
+      handleRacketTap();
+    } else if (pos.y >= NET_Y) {
+      setMoveTarget(pos);
+    }
+  }
+  // 自分付近のタップ回数をカウントし、2回でスマッシュの狙い場所を確定させる
+  function handleSmashConfirmTap() {
+    selfTapCount++;
+    if (selfTapResetTimer) clearTimeout(selfTapResetTimer);
+    selfTapResetTimer = setTimeout(() => { selfTapCount = 0; }, 350);
+    if (selfTapCount >= 2) {
+      selfTapCount = 0;
+      clearTimeout(selfTapResetTimer);
+      pendingShotType = 'smash';
+      aimTarget = pendingSmashTarget;
+      pendingSmashTarget = null;
+    }
+  }
+
+  
+
+  function setMoveTarget(pos) {
+    playerMoveTarget = {
+      x: Math.min(SINGLE_RIGHT, Math.max(SINGLE_LEFT, pos.x)),
+      y: Math.min(COURT_BOTTOM - 10, Math.max(NET_Y + 15, pos.y)),
+    };
+  }
+  // プレイヤーの自動移動（クリックした地点へ、キャラのスピードに応じてなめらかに移動）
+  // 体力ゲージ：試合が進むにつれて減っていく。減るスピードはキャラの体力ステータスによって異なる
+  function updateStamina() {
+    const now = performance.now();
+    if (!lastStaminaTick) { lastStaminaTick = now; return; }
+    const dt = (now - lastStaminaTick) / 1000;
+    lastStaminaTick = now;
+    if (playerChar) playerStamina = Math.max(0, playerStamina - (BASE_STAMINA_DECAY_PER_SEC / playerChar.stats.stamina) * dt);
+    if (opponentChar) opponentStamina = Math.max(0, opponentStamina - (BASE_STAMINA_DECAY_PER_SEC / opponentChar.stats.stamina) * dt);
+  }
+
+  function updatePlayerMovement() {
+    if (rallyState === 'serving' && server === 'player') return; // サーブの構え中は自動移動と競合しないよう位置を固定
+    if (!playerMoveTarget) return;
+    const dx = playerMoveTarget.x - playerPos.x, dy = playerMoveTarget.y - playerPos.y;
+    const dist = Math.hypot(dx, dy);
+    const speed = 6.5 * ((playerChar && playerChar.stats.speed) || 1) * staminaSpeedMultiplier(playerStamina);
+    if (dist < speed) {
+      playerPos.x = playerMoveTarget.x; playerPos.y = playerMoveTarget.y;
+      playerMoveTarget = null;
+    } else {
+      playerPos.x += (dx / dist) * speed;
+      playerPos.y += (dy / dist) * speed;
+    }
+  }
+
+  // CPU（相手）：シャトルが自陣にある間は追いかけ、そうでない時はホームポジションで構える
+  function updateOpponentMovement() {
+    if (rallyState === 'serving' && server === 'opponent') return; // サーブの構え中は自動移動と競合しないよう位置を固定
+    let targetX, targetY;
+    if (shuttle && !shuttle.landed && shuttle.y < NET_Y) {
+      targetX = shuttle.x;
+      targetY = Math.min(NET_Y - 25, Math.max(COURT_TOP + 20, shuttle.y));
+    } else {
+      targetX = W / 2;
+      targetY = COURT_TOP + 80;
+    }
+    const dx = targetX - opponentPos.x, dy = targetY - opponentPos.y;
+    const dist = Math.hypot(dx, dy);
+    const speed = 5.8 * ((opponentChar && opponentChar.stats.speed) || 1) * staminaSpeedMultiplier(opponentStamina);
+    if (dist < speed) { opponentPos.x = targetX; opponentPos.y = targetY; }
+    else { opponentPos.x += (dx / dist) * speed; opponentPos.y += (dy / dist) * speed; }
+    opponentPos.x = Math.min(SINGLE_RIGHT, Math.max(SINGLE_LEFT, opponentPos.x));
+    opponentPos.y = Math.min(NET_Y - 15, Math.max(COURT_TOP + 15, opponentPos.y));
+  }
+
+  function clearHoldTimer() {
+    if (tapResetTimer) { clearTimeout(tapResetTimer); tapResetTimer = null; }
+  }
+  // 頭付近を2回タップ：ショット選択リストを開く（スマッシュ以外の5種類）
+  // 頭付近を2回タップ：スポーツドリンクを飲んで体力を回復する（1ゲームにつき3回まで）
+  function handleHeadTap() {
+    headTapCount++;
+    if (headTapResetTimer) clearTimeout(headTapResetTimer);
+    headTapResetTimer = setTimeout(() => { headTapCount = 0; }, 300);
+    if (headTapCount >= 2) {
+      headTapCount = 0;
+      clearTimeout(headTapResetTimer);
+      showDrinkMenu();
+    }
+  }
+  // 頭付近を2回タップした時に出す、スポーツドリンクを飲むためのリスト
+  function showDrinkMenu() {
+    const menu = document.getElementById('shotMenu');
+    menu.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.textContent = playerDrinksLeft > 0
+      ? `💧 スポーツドリンクを飲む(残り${playerDrinksLeft}回)`
+      : '💧 ドリンクは残っていません';
+    btn.disabled = playerDrinksLeft <= 0;
+    if (playerDrinksLeft <= 0) btn.style.opacity = '0.4';
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      drinkSportsDrink('player');
+      menu.style.display = 'none';
+    });
+    menu.appendChild(btn);
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width / W;
+    menu.style.left = (playerPos.x * scaleX - 90) + 'px';
+    menu.style.top = (playerPos.y * scaleX - 90) + 'px';
+    menu.style.display = 'block';
+    setTimeout(() => { menu.style.display = 'none'; }, 2600);
+  }
+  function drinkSportsDrink(who) {
+    if (who === 'player') {
+      if (playerDrinksLeft <= 0) return;
+      playerDrinksLeft--;
+      playerStamina = Math.min(100, playerStamina + 50);
+      spawnDrinkEffect(playerPos.x, playerPos.y - 30);
+    } else {
+      if (opponentDrinksLeft <= 0) return;
+      opponentDrinksLeft--;
+      opponentStamina = Math.min(100, opponentStamina + 50);
+      spawnDrinkEffect(opponentPos.x, opponentPos.y - 30);
+    }
+    playDrinkSound();
+    // 飲んでいる間はゲームを一時停止する
+    isDrinking = true;
+    setTimeout(() => { isDrinking = false; }, 1500);
+  }
+  // ラケット付近を2回タップ＝スマッシュモード、3回以上連打＝一時停止（見送り）モード
+  function handleRacketTap() {
+    tapCount++;
+    clearHoldTimer();
+    if (tapCount >= 3) {
+      racketPaused = true;
+      cancelAiming();
+      tapResetTimer = setTimeout(() => { tapCount = 0; }, 320);
+      return;
+    }
+    tapResetTimer = setTimeout(() => {
+      if (tapCount === 2) {
+        racketPaused = false;
+        startFreeAiming();
+      }
+      tapCount = 0;
+    }, 300);
+  }
+
+  // ラケット付近を2回タップすると、シャトルを一時停止し、自由に狙いポインタを動かせるようにする
+  function startFreeAiming() {
+    if (!shuttle || shuttle.landed || shuttle.owner === 'player') return; // 相手から来ているシャトルがなければ何もしない
+    shuttle.frozen = true;
+    isAiming = true;
+    aimListVisible = false;
+    hideAimList();
+    aimPointerPos = { x: W / 2, y: (COURT_TOP + NET_Y) / 2 }; // 初期位置は相手コート中央
+  }
+  function cancelAiming() {
+    if (shuttle) shuttle.frozen = false;
+    isAiming = false;
+    aimListVisible = false;
+    hideAimList();
+  }
+  // 狙いポインタの操作：ポインタ自身をクリックするとリストを開き、それ以外の場所なら移動させる
+  function handleAimingClick(pos) {
+    if (aimListVisible) return; // リスト表示中はポインタ操作を受け付けない（リスト側のボタンで選ぶ）
+    if (Math.hypot(pos.x - aimPointerPos.x, pos.y - aimPointerPos.y) < 20) {
+      showAimList();
+    } else {
+      aimPointerPos = {
+        x: Math.min(SINGLE_RIGHT, Math.max(SINGLE_LEFT, pos.x)),
+        y: Math.min(NET_Y - 10, Math.max(COURT_TOP + 10, pos.y)),
+      };
+    }
+  }
+  // 白いポインタをクリックした時に出す、右側のショット選択リスト
+  function showAimList() {
+    aimListVisible = true;
+    const menu = document.getElementById('shotMenu');
+    menu.innerHTML = '';
+    ['smash', 'drop', 'hairpin', 'clear'].forEach(key => {
+      const btn = document.createElement('button');
+      btn.textContent = SHOT_TYPES[key].name;
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        confirmAimedShot(key);
+      });
+      menu.appendChild(btn);
+    });
+    const rect = canvas.getBoundingClientRect();
+    menu.style.left = (rect.width - 156) + 'px';
+    menu.style.top = (rect.height / 2 - 90) + 'px';
+    menu.style.display = 'block';
+  }
+  function hideAimList() {
+    document.getElementById('shotMenu').style.display = 'none';
+  }
+  // リストから選択：狙った場所・ショットタイプを確定し、止めていたシャトルを再び動かす
+  function confirmAimedShot(shotKey) {
+    pendingShotType = shotKey;
+    aimTarget = { x: aimPointerPos.x, y: aimPointerPos.y };
+    if (shuttle) shuttle.frozen = false;
+    isAiming = false;
+    aimListVisible = false;
+    hideAimList();
+  }
+
+  // ================= 描画 =================
+  function drawCourt() {
+    ctx.fillStyle = '#0d1f3d';
+    ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5;
+    // ダブルスライン（外枠）
+    ctx.strokeRect(COURT_LEFT, COURT_TOP, COURT_RIGHT - COURT_LEFT, COURT_BOTTOM - COURT_TOP);
+    // シングルスライン（内側、太めで目立つ色にしてわかりやすく）
+    ctx.strokeStyle = '#fff566'; ctx.lineWidth = 4.5;
+    ctx.beginPath();
+    ctx.moveTo(SINGLE_LEFT, COURT_TOP); ctx.lineTo(SINGLE_LEFT, COURT_BOTTOM);
+    ctx.moveTo(SINGLE_RIGHT, COURT_TOP); ctx.lineTo(SINGLE_RIGHT, COURT_BOTTOM);
+    ctx.stroke();
+    // ネット（リアルな見た目：メッシュ柄の帯＋上下の白テープ＋支柱）
+    const netBandH = 16;
+    ctx.save();
+    ctx.fillStyle = 'rgba(20,26,45,0.55)';
+    ctx.fillRect(COURT_LEFT, NET_Y - netBandH / 2, COURT_RIGHT - COURT_LEFT, netBandH);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1;
+    for (let gx = COURT_LEFT + 6; gx < COURT_RIGHT; gx += 9) {
+      ctx.beginPath(); ctx.moveTo(gx, NET_Y - netBandH / 2); ctx.lineTo(gx - 6, NET_Y + netBandH / 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(gx, NET_Y - netBandH / 2); ctx.lineTo(gx + 6, NET_Y + netBandH / 2); ctx.stroke();
+    }
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 3.5;
+    ctx.beginPath(); ctx.moveTo(COURT_LEFT, NET_Y - netBandH / 2); ctx.lineTo(COURT_RIGHT, NET_Y - netBandH / 2); ctx.stroke();
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(COURT_LEFT, NET_Y + netBandH / 2); ctx.lineTo(COURT_RIGHT, NET_Y + netBandH / 2); ctx.stroke();
+    // 支柱（コート外側）
+    ctx.fillStyle = '#c9cfda';
+    ctx.fillRect(COURT_LEFT - 7, NET_Y - netBandH / 2 - 3, 5, netBandH + 6);
+    ctx.fillRect(COURT_RIGHT + 2, NET_Y - netBandH / 2 - 3, 5, netBandH + 6);
+    ctx.restore();
+    // ショートサービスライン
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(COURT_LEFT, SHORT_SERVICE_TOP); ctx.lineTo(COURT_RIGHT, SHORT_SERVICE_TOP);
+    ctx.moveTo(COURT_LEFT, SHORT_SERVICE_BOTTOM); ctx.lineTo(COURT_RIGHT, SHORT_SERVICE_BOTTOM);
+    ctx.stroke();
+    // センターライン
+    ctx.beginPath();
+    ctx.moveTo(W / 2, COURT_TOP); ctx.lineTo(W / 2, SHORT_SERVICE_TOP);
+    ctx.moveTo(W / 2, SHORT_SERVICE_BOTTOM); ctx.lineTo(W / 2, COURT_BOTTOM);
+    ctx.stroke();
+  }
+
+  function drawRacket(swingAngle) {
+    ctx.save();
+    ctx.translate(15, -2);
+    ctx.rotate(swingAngle);
+    // グリップ
+    ctx.strokeStyle = '#3a2a1a'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, 13); ctx.stroke();
+    // シャフト
+    ctx.strokeStyle = '#d8d8de'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -15); ctx.stroke();
+    // ラケットヘッド（枠）
+    ctx.strokeStyle = '#eceff4'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.ellipse(0, -23, 8.5, 11.5, 0, 0, Math.PI * 2); ctx.stroke();
+    // ガット（網目の簡易表現）
+    ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 0.6;
+    for (let i = -6; i <= 6; i += 3) { ctx.beginPath(); ctx.moveTo(i, -32.5); ctx.lineTo(i, -13.5); ctx.stroke(); }
+    for (let j = -32.5; j <= -13.5; j += 3.8) { ctx.beginPath(); ctx.moveTo(-7, j); ctx.lineTo(7, j); ctx.stroke(); }
+    ctx.restore();
+  }
+
+  // スイングの角度・ジャンプ量を、経過時間から算出（構え→引き→振り抜きの3段階）
+  function getSwingVisual(swing) {
+    if (!swing) return { angle: -0.35, jumpY: 0 };
+    const t = (performance.now() - swing.start) / swing.duration;
+    if (t >= 1) return { angle: -0.35, jumpY: 0 };
+    let angle;
+    if (t < 0.35) angle = -0.35 + (t / 0.35) * (swing.isSmash ? -1.1 : -0.7); // 振りかぶり
+    else angle = (-0.35 + (swing.isSmash ? -1.1 : -0.7)) + ((t - 0.35) / 0.65) * (swing.isSmash ? 2.3 : 1.6); // 振り抜き
+    const jumpY = swing.jump ? -Math.sin(Math.min(1, t) * Math.PI) * 24 : 0;
+    return { angle, jumpY };
+  }
+
+  // 服装（シャツ・ボトム・靴・腕）を描画
+  function drawBody(outfit) {
+    // 脚（素足）
+    ctx.strokeStyle = '#e8b98f'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-6, 19); ctx.lineTo(-7, 28); ctx.moveTo(6, 19); ctx.lineTo(7, 28); ctx.stroke();
+    // 靴
+    if (outfit.shoes === 'rainbow') {
+      const rc = ['#ff5c5c', '#5cb8ff'];
+      ctx.fillStyle = rc[0]; ctx.beginPath(); ctx.ellipse(-7, 29, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = rc[1]; ctx.beginPath(); ctx.ellipse(7, 29, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+      ['#ffb44d', '#ffe14d', '#5cd66c', '#a06cff'].forEach((c, i) => {
+        ctx.strokeStyle = c; ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(-7 + i * 4.6 - 4, 29, 4.4, Math.PI * 0.15 * i, Math.PI * 0.15 * i + 0.5); ctx.stroke();
+      });
+    } else {
+      ctx.fillStyle = outfit.shoes;
+      ctx.beginPath(); ctx.ellipse(-7, 29, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(7, 29, 5, 3, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    // ボトム（スカート or ショートパンツ）
+    ctx.fillStyle = outfit.bottom;
+    if (outfit.isSkirt) {
+      ctx.beginPath();
+      ctx.moveTo(-9, 8); ctx.lineTo(9, 8); ctx.lineTo(13, 20); ctx.lineTo(-13, 20); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-10, 8, 20, 12, 3); else ctx.rect(-10, 8, 20, 12);
+      ctx.fill();
+    }
+    if (outfit.bottomStripe) {
+      ctx.strokeStyle = outfit.bottomStripe; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.moveTo(-9, 12); ctx.lineTo(outfit.isSkirt ? -12 : -9, 19); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(9, 12); ctx.lineTo(outfit.isSkirt ? 12 : 9, 19); ctx.stroke();
+    }
+    // 反対側の腕（ラケットを持たない方）
+    ctx.strokeStyle = '#e8b98f'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(-11, -4); ctx.lineTo(-17, 5); ctx.stroke();
+    // 胴（ポロシャツ）
+    ctx.fillStyle = outfit.shirt;
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(-12, -11, 24, 20, 6); else ctx.rect(-12, -11, 24, 20);
+    ctx.fill();
+    if (outfit.print) {
+      ctx.font = '10px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(outfit.print, 0, -1);
+    }
+    // ラケットを持つ方の腕（ラケット位置につながる）
+    ctx.strokeStyle = '#e8b98f'; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(11, -6); ctx.lineTo(15, -2); ctx.stroke();
+  }
+
+  function drawPlayerToken(pos, emoji, isPaused, swing, outfit, stamina) {
+    const visual = getSwingVisual(swing);
+    ctx.save();
+    ctx.translate(pos.x, pos.y + visual.jumpY);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.beginPath(); ctx.ellipse(0, 28 - visual.jumpY, 20, 6, 0, 0, Math.PI * 2); ctx.fill();
+    if (isPaused) {
+      ctx.strokeStyle = '#ffd35c'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.arc(0, 4, 30, 0, Math.PI * 2); ctx.stroke();
+    }
+    drawBody(outfit);
+    drawRacket(visual.angle);
+    ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, 0, -18);
+    ctx.restore();
+    drawStaminaGauge(pos.x, pos.y + 34, stamina);
+  }
+
+  // 体力ゲージ（足元に表示。緑→黄→赤で体力の状態が一目でわかる）
+  function drawStaminaGauge(cx, cy, stamina) {
+    const w = 34, h = 5;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(cx - w / 2, cy, w, h);
+    const ratio = Math.max(0, Math.min(1, stamina / 100));
+    const color = ratio > 0.5 ? '#7ee787' : ratio > 0.25 ? '#ffd35c' : '#ff5c5c';
+    ctx.fillStyle = color;
+    ctx.fillRect(cx - w / 2, cy, w * ratio, h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 1;
+    ctx.strokeRect(cx - w / 2, cy, w, h);
+    ctx.restore();
+  }
+
+  // 相手コートに指定した「狙い場所」の目印（点滅するターゲットマーク）
+  // サーブ待ちの間、レシーバーがいる対角のサービスボックスを黄色くハイライトして分かりやすくする
+  function drawServiceBoxHighlight() {
+    if (rallyState !== 'waiting_serve') return;
+    const receiverSide = getReceiverSide();
+    const receiverIsPlayer = server === 'opponent';
+    const box = getServiceBox(receiverSide, !receiverIsPlayer);
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,211,92,0.16)';
+    ctx.fillRect(box.xMin, box.yMin, box.xMax - box.xMin, box.yMax - box.yMin);
+    ctx.strokeStyle = 'rgba(255,211,92,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([5, 4]);
+    ctx.strokeRect(box.xMin, box.yMin, box.xMax - box.xMin, box.yMax - box.yMin);
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  function drawAimMarker() {
+    if (!aimTarget) return;
+    const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.006)) * 0.5;
+    ctx.save();
+    ctx.translate(aimTarget.x, aimTarget.y);
+    ctx.strokeStyle = `rgba(255,92,92,${0.6 + pulse * 0.4})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(0, 0, 14 + pulse * 4, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(9, 0); ctx.moveTo(0, -9); ctx.lineTo(0, 9); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,92,92,0.9)';
+    ctx.beginPath(); ctx.arc(0, 0, 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  // ショット選択・スマッシュモード中：相手コート上に点滅する候補の狙い場所を表示する
+  // ラケット2回タップ後に操作する、白い狙いポインタ
+  function drawAimPointer() {
+    if (!isAiming || !aimPointerPos) return;
+    const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.006)) * 0.5;
+    ctx.save();
+    ctx.translate(aimPointerPos.x, aimPointerPos.y);
+    ctx.strokeStyle = `rgba(255,255,255,${0.7 + pulse * 0.3})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(0, 0, 16 + pulse * 3, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-10, 0); ctx.lineTo(10, 0); ctx.moveTo(0, -10); ctx.lineTo(0, 10); ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(0, 0, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.save();
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.fillText(
+      aimListVisible ? 'リストからショットを選んでください' : '好きな場所へ動かし、ポインタをもう一度タップ',
+      W / 2, COURT_TOP - 4);
+    ctx.restore();
+  }
+
+  // 相手コートをタップして決めたスマッシュの狙い場所の目印
+  function drawPendingSmashMarker() {
+    if (!pendingSmashTarget) return;
+    const pulse = 0.5 + Math.abs(Math.sin(performance.now() * 0.008)) * 0.5;
+    ctx.save();
+    ctx.translate(pendingSmashTarget.x, pendingSmashTarget.y);
+    ctx.strokeStyle = `rgba(255,92,92,${0.6 + pulse * 0.4})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.arc(0, 0, 14 + pulse * 4, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(9, 0); ctx.moveTo(0, -9); ctx.lineTo(0, 9); ctx.stroke();
+    ctx.restore();
+    ctx.save();
+    ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+    ctx.fillText('自分付近を2回タップでスマッシュ！', W / 2, COURT_TOP - 4);
+    ctx.restore();
+  }
+
+  // ラケットがシャトルにミートする瞬間のフラッシュ・衝撃線エフェクト
+  function drawImpactEffects() {
+    impactEffects.forEach(e => {
+      const t = 1 - e.life / e.maxLife;
+      ctx.save();
+      ctx.translate(e.x, e.y);
+      ctx.globalAlpha = Math.max(0, 1 - t);
+      // 中心のフラッシュ
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(0, 0, 10 * (1 - t) + 3, 0, Math.PI * 2); ctx.fill();
+      // 放射状の衝撃線
+      ctx.strokeStyle = '#ffe9a8'; ctx.lineWidth = 2.5;
+      const len = 6 + t * 16;
+      for (let i = 0; i < 6; i++) {
+        const ang = (Math.PI / 3) * i;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(ang) * (len - 6), Math.sin(ang) * (len - 6));
+        ctx.lineTo(Math.cos(ang) * len, Math.sin(ang) * len);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  // スポーツドリンクを飲んだ時の「💧+50」の浮かび上がるテキスト
+  function drawDrinkEffects() {
+    drinkEffects.forEach(e => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, e.life / e.maxLife);
+      ctx.font = 'bold 15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.strokeText('💧 体力+50', e.x, e.y);
+      ctx.fillStyle = '#7ee787';
+      ctx.fillText('💧 体力+50', e.x, e.y);
+      ctx.restore();
+    });
+  }
+
+  function drawShuttle() {
+    if (!shuttle) return;
+    ctx.save();
+    // 影：高い位置ほど小さく薄く、コートに近づくほどシャトルと同じくらいの大きさ・濃さになる
+    const maxRefHeight = 220; // この高さ以上ではこれ以上影は小さくならない（基準値）
+    const heightRatio = Math.min(1, shuttle.z / maxRefHeight);
+    const shadowScale = 1 - heightRatio * 0.7; // 高いほど最大70%まで縮む
+    const shadowOpacity = 0.4 - heightRatio * 0.22; // 高いほど薄くなる
+    ctx.fillStyle = `rgba(255,241,199,${Math.max(0.12, shadowOpacity)})`; // クリーム色
+    ctx.beginPath();
+    ctx.ellipse(shuttle.x, shuttle.y, 14 * shadowScale, 7.2 * shadowScale, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.translate(shuttle.x, shuttle.y - shuttle.z);
+    ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(0, 0, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e8452c';
+    ctx.beginPath(); ctx.moveTo(-4, -3); ctx.lineTo(0, -12); ctx.lineTo(4, -3); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawScoreboard() {
+    const bx = W / 2 - 130, by = 10, bw = 260, bh = 56;
+    ctx.fillStyle = 'rgba(5,8,16,0.75)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(bx, by, bw, bh, 10) : ctx.rect(bx, by, bw, bh);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = 'bold 22px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(`${score.opponent}  -  ${score.player}`, W / 2, by + 24);
+    ctx.font = '10px sans-serif'; ctx.fillStyle = '#9aa3b8';
+    ctx.fillText(`${opponentChar.name}          あなた`, W / 2, by + 42);
+    // サーブ権マーク
+    ctx.fillStyle = '#ffd35c';
+    ctx.beginPath();
+    if (server === 'opponent') ctx.arc(bx + 40, by + 24, 4, 0, Math.PI * 2);
+    else ctx.arc(bx + bw - 40, by + 24, 4, 0, Math.PI * 2);
+    ctx.fill();
+    // ゲームカウント
+    ctx.font = '10px sans-serif'; ctx.fillStyle = '#cfe0ff'; ctx.textAlign = 'left';
+    ctx.fillText(`GAME ${gamesWon.opponent} - ${gamesWon.player}`, bx + 6, by - 2);
+    // ドリンク残り回数（頭を2回タップで飲める）
+    ctx.textAlign = 'right'; ctx.fillStyle = '#7ee787';
+    ctx.fillText(`💧×${playerDrinksLeft}`, bx + bw - 6, by - 2);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    drawCourt();
+    drawServiceBoxHighlight();
+    drawAimMarker();
+    drawAimPointer();
+    drawPendingSmashMarker();
+    drawPlayerToken(opponentPos, opponentChar.emoji, false, opponentSwing, opponentChar.outfit, opponentStamina);
+    drawPlayerToken(playerPos, playerChar.emoji, racketPaused, playerSwing, playerChar.outfit, playerStamina);
+    drawShuttle();
+    drawImpactEffects();
+    drawDrinkEffects();
+    drawScoreboard();
+    if (rallyState === 'waiting_serve') {
+      ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ffd35c';
+      ctx.fillText(server === 'player' ? 'あなたのサーブです。下のボタンでサーブ！' : `${opponentChar.name}のサーブを待っています…`, W / 2, COURT_BOTTOM + 30);
+    }
+    if (matchPaused && !matchOver) {
+      ctx.fillStyle = 'rgba(5,8,16,0.6)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.font = 'bold 26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.strokeText('⏸ 一時停止中', W / 2, H / 2);
+      ctx.fillStyle = '#ffd35c';
+      ctx.fillText('⏸ 一時停止中', W / 2, H / 2);
+    }
+    if (isDrinking && !matchOver) {
+      ctx.fillStyle = 'rgba(5,8,16,0.55)';
+      ctx.fillRect(0, 0, W, H);
+      ctx.font = 'bold 24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.7)';
+      ctx.strokeText('🥤 水分補給中…', W / 2, H / 2);
+      ctx.fillStyle = '#7ee787';
+      ctx.fillText('🥤 水分補給中…', W / 2, H / 2);
+    }
+  }
+
+  function loop() {
+    try {
+      if (!matchOver && !matchPaused && !isDrinking && !isAiming) {
+        updatePlayerMovement();
+        updateOpponentMovement();
+        updateShuttle();
+        autoReturnCheck();
+        updateStamina();
+        // 相手(CPU)は体力が切れる前に、余裕を持って自動でドリンクを飲む
+        if (opponentStamina > 0 && opponentStamina < 45 && opponentDrinksLeft > 0 && rallyState === 'waiting_serve') {
+          drinkSportsDrink('opponent');
+        }
+        impactEffects.forEach(e => e.life--);
+        impactEffects = impactEffects.filter(e => e.life > 0);
+        drinkEffects.forEach(e => { e.life--; e.y -= 0.5; });
+        drinkEffects = drinkEffects.filter(e => e.life > 0);
+      }
+      draw();
+    } catch (e) {
+      console.error('描画中にエラーが発生しましたが、ゲームは継続します:', e);
+    }
+    requestAnimationFrame(loop);
+  }
+
+})();
+</script>
+</body>
+</html>

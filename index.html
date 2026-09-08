@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>のりくんの音楽ひろば | NORIKUN-MUSIC-PLAZA</title>
+<meta name="description" content="のりくんが Google Flow Music でつくった曲を置いているページ。洋楽と邦楽に分けて公開しています。">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#16537F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="音楽ひろば">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#D6E7F8;
+  --ink2:#C6DCF1;
+  --line:#A9C5DF;
+  --blue:#16537F;
+  --blue-deep:#2F5F86;
+  --mist:#465059;
+  --paper:#0D1822;
+  --salt:#8A5A2B;
+  --mincho:"Zen Old Mincho",serif;
+  --gothic:"Zen Kaku Gothic New",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ink);color:var(--paper);
+  font-family:var(--gothic);font-weight:400;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{width:min(880px,92vw);margin:0 auto}
+
+/* ---------- 見出し ---------- */
+header{padding:calc(68px + env(safe-area-inset-top)) 0 2px}
+h1{
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:900;
+  font-size:clamp(22px,8vw,46px);line-height:1.3;white-space:nowrap;
+  margin:0 0 10px;letter-spacing:.01em;
+}
+h1 .ln{
+  display:block;
+  background:linear-gradient(180deg,#3E86BE 10%,#1A5687 60%,#0E3A5C 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+h1 .heart{
+  -webkit-text-fill-color:initial;   /* グラデーションの塗りを解除 */
+  background:none;color:initial;
+  font-size:.82em;margin-left:.06em;
+}
+.romaji{
+  font-family:"Zen Maru Gothic",sans-serif;font-weight:900;
+  color:#C0242B;
+  font-size:15px;letter-spacing:.28em;margin:0;
+  text-shadow:0 1px 0 rgba(255,255,255,.6);
+}
+.romaji-row{
+  display:flex;align-items:center;gap:18px;
+  flex-wrap:wrap;margin:0 0 20px;
+}
+.lede{color:var(--paper);font-weight:500;font-size:15px;max-width:34em;margin:0 0 12px}
+.lede:last-child{margin-bottom:0}
+.lede a{color:var(--blue);font-size:16px}
+
+/* ---------- プレイヤー ---------- */
+.player{
+  position:sticky;top:0;z-index:20;
+  background:linear-gradient(180deg,var(--ink) 60%,rgba(214,231,248,.92));
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+  padding:calc(4px + env(safe-area-inset-top)) 0 16px;margin-bottom:6px;
+}
+.player-inner{display:grid;gap:9px}
+canvas#wave{
+  width:100%;height:59px;display:block;
+  border-radius:2px;background:var(--ink2);
+}
+
+.np-title{font-family:var(--mincho);font-size:20px;font-weight:600;letter-spacing:.04em}
+.np-title .sub{font-family:var(--gothic);font-size:13px;color:var(--mist);font-weight:400;margin-left:.6em}
+.np-msg{color:var(--salt);font-size:13px;min-height:1.2em}
+.controls{display:flex;align-items:center;gap:14px}
+button.play{
+  width:46px;height:46px;flex:0 0 auto;border-radius:50%;
+  border:1px solid var(--blue);background:transparent;color:var(--blue);
+  font-size:16px;cursor:pointer;display:grid;place-items:center;
+  transition:background .15s,color .15s;
+}
+button.play:hover,button.play:focus-visible{background:var(--blue);color:var(--ink)}
+input[type=range]{
+  flex:1;accent-color:var(--blue);height:4px;cursor:pointer;
+}
+.time{font-variant-numeric:tabular-nums;color:var(--mist);font-size:13px;min-width:88px;text-align:right}
+.modes{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mbtn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 13px;border-radius:2px;
+  border:1.5px solid #5D86AA;background:transparent;color:var(--paper);
+  font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;
+  transition:color .15s,border-color .15s,background .15s;
+}
+.mbtn:hover,.mbtn:focus-visible{border-color:var(--blue);color:var(--blue)}
+.mbtn.mode{border-color:var(--blue);color:var(--blue)}
+.mbtn.mode.active,.mbtn[aria-pressed="true"]{background:var(--blue);color:var(--ink);border-color:var(--blue)}
+.mbtn.mode.active:hover,.mbtn[aria-pressed="true"]:hover{color:var(--ink)}
+.mbtn svg{width:13px;height:13px;flex:0 0 auto}
+.mbtn.icon{padding:8px 12px;gap:0}
+.mbtn.icon svg{width:20px;height:20px}
+.mbtn:disabled{opacity:.55;cursor:default}
+.mbtn:disabled:hover{border-color:#5D86AA;color:var(--paper)}
+.modes .right{margin-left:auto;display:flex;gap:8px}
+@media(max-width:560px){
+  .modes .right{margin-left:0}
+}
+
+/* ---------- セクション見出し ---------- */
+.sec-head{
+  display:flex;align-items:baseline;gap:14px;
+  margin:34px 0 0;padding-bottom:10px;border-bottom:2.5px solid var(--blue);
+}
+.sec-head h2{
+  font-family:"Zen Maru Gothic",sans-serif;font-size:24px;font-weight:900;
+  color:var(--blue);letter-spacing:.12em;margin:0;
+}
+.sec-head svg.star{
+  width:1.15em;height:1.15em;vertical-align:-0.14em;margin-left:.18em;
+}
+.sec-head .count{margin-left:auto;color:var(--blue-deep);font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.videobox{display:none;margin:16px 0 4px}
+.videobox.on{display:block}
+.videobox .frame{background:#000;border:1px solid var(--line);border-radius:2px;text-align:center}
+.videobox video{max-width:100%;max-height:70vh;display:block;margin:0 auto}
+.videobox .cap{margin:8px 0 0;font-size:13px;color:var(--mist)}
+.videobox .cap b{font-family:var(--mincho);font-size:16px;font-weight:600;color:var(--paper);margin-right:.6em}
+
+/* ---------- トラックリスト ---------- */
+.tracks{list-style:none;margin:0;padding:0 0 8px}
+.tracks li{border-bottom:1px solid var(--line)}
+.track{
+  transition:padding .15s;
+  width:100%;display:grid;
+  grid-template-columns:38px 1fr auto;gap:16px;align-items:baseline;
+  padding:18px 4px;background:none;border:0;color:inherit;
+  font:inherit;text-align:left;cursor:pointer;
+}
+.track:hover .t-title,.track:focus-visible .t-title{color:var(--blue)}
+.track:focus-visible{outline:1px solid var(--blue);outline-offset:2px}
+.t-no{font-family:var(--mincho);color:var(--blue-deep);font-size:15px;font-variant-numeric:tabular-nums}
+.t-title{font-family:var(--mincho);font-size:19px;font-weight:600;letter-spacing:.03em;transition:color .15s}
+.t-sub{font-family:var(--gothic);font-size:12px;color:var(--mist);font-weight:400;margin-left:.5em}
+.t-tags{display:block;color:var(--mist);font-size:12.5px;margin-top:5px;letter-spacing:.02em}
+.t-time{font-variant-numeric:tabular-nums;color:var(--mist);font-size:13px}
+li.on{background:rgba(48,63,159,.10);box-shadow:inset 3px 0 0 var(--blue)}
+li.on .track{padding-left:12px}
+li.on .t-no{color:var(--blue);font-weight:700}
+li.on .t-title{color:var(--blue);font-weight:800}
+li.on .t-sub,li.on .t-tags,li.on .t-time{color:var(--blue-deep);font-weight:600}
+
+/* ---------- 右上の支援ボタン ---------- */
+.support{
+  --indigo:#303F9F;
+  display:inline-block;padding:8px 16px;border-radius:2px;
+  border:1.5px solid var(--indigo);color:var(--indigo);text-decoration:none;
+  font-size:13.5px;font-weight:700;letter-spacing:.03em;white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.support:hover,.support:focus-visible{background:var(--indigo);color:var(--ink)}
+.support:active{background:#232E77;border-color:#232E77;color:var(--ink)}
+@media(max-width:520px){
+  .support{padding:7px 12px;font-size:12.5px;letter-spacing:0}
+}
+
+footer{
+  margin-top:52px;padding:26px 0 calc(60px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+  color:var(--paper);font-size:14px;font-weight:500;
+}
+footer a{color:var(--paper);font-weight:500;text-decoration:none;border-bottom:1px solid var(--line)}
+footer a:hover,footer a:focus-visible{color:var(--blue);border-bottom-color:var(--blue)}
+.sitelinks{display:grid;gap:10px;justify-items:start;margin:0 0 22px}
+.by{margin:0;font-size:15.5px;font-weight:500;color:var(--blue-deep);text-align:center}
+.by .heart{color:#D99512;
+  text-shadow:0 0 1px rgba(90,52,0,.6);}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1><span class="ln">のりくんの音楽ひろば<span class="heart">💛</span></span></h1>
+    <div class="romaji-row">
+      <p class="romaji">★NORIKUN-MUSIC-PLAZA★</p>
+      <a class="support" href="https://ofuse.me/norikun7" target="_blank" rel="noopener">☕のりくんにひとこと＆投げ銭を送る</a>
+    </div>
+    <p class="lede">Google Flow Musicにて生成AIといろいろやり取りして、自分のイメージを曲や歌詞にしました。きれいなサウンドが好きで、気に入ったものばかりを洋楽と邦楽及びミュージックビデオに分けてそれぞれアップしました。ぜひ聴いてください。今後少しずつ増やしていけたらいいなって思ってます。音楽ファイルはMP3形式で、曲名の上でタップ(クリック)すると上のプレイヤーで再生します。</p>
+    <p class="lede">こちらもよろしくお願いします。→<a href="https://www.flowmusic.app/Norikun" target="_blank" rel="noopener">のりくんの Flow Music ページ</a>へ</p>
+  </header>
+</div>
+
+<!-- プレイヤー -->
+<div class="player">
+  <div class="wrap player-inner">
+    <canvas id="wave" aria-hidden="true"></canvas>
+    <div class="np-title" id="npTitle">曲を選んでください</div>
+    <div class="np-msg" id="npMsg"></div>
+    <div class="controls">
+      <button class="play" id="playBtn" aria-label="再生">▶</button>
+      <input type="range" id="seek" value="0" min="0" max="100" step="0.1" aria-label="再生位置">
+      <span class="time" id="time">0:00 / 0:00</span>
+    </div>
+    <div class="modes">
+      <button class="mbtn mode" id="playEn">洋楽を連続再生</button>
+      <button class="mbtn mode" id="playJa">邦楽を連続再生</button>
+      <button class="mbtn mode" id="playAll" title="全て再生">ALL</button>
+      <button class="mbtn icon" id="shuffleBtn" aria-pressed="false" aria-label="ランダム" title="ランダム"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg></button>
+      <button class="mbtn icon" id="loopBtn" aria-pressed="false" aria-label="ループ" title="ループ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></button>
+      <span class="right">
+        <button class="mbtn icon" id="prevBtn" aria-label="戻る" title="戻る"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 5.5v13L9 12z"/><rect x="5.5" y="5" width="2.5" height="14" rx="1"/></svg></button>
+        <button class="mbtn icon" id="nextBtn" aria-label="次再生" title="次再生"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5.5v13L15 12z"/><rect x="16" y="5" width="2.5" height="14" rx="1"/></svg></button>
+        <button class="mbtn icon" id="stopBtn" aria-label="終了" title="終了"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg></button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="tracks"></div>
+
+  <footer>
+    <nav class="sitelinks">
+      <a href="https://sites.google.com/view/nori-hobby-happy-hp/%E3%83%9B%E3%83%BC%E3%83%A0" target="_blank" rel="noopener">のりくんのホームページ：nori-hobby-happy-hp</a>
+      <a href="https://norihikosan7.github.io/game-site/">のりくんのゲームひろば</a>
+      <a href="https://www.flowmusic.app/Norikun" target="_blank" rel="noopener">のりくんの Flow Music ページ</a>
+      <a href="https://store.line.me/stickershop/author/6249492/ja" target="_blank" rel="noopener">のりくんのLINEスタンプ</a>
+    </nav>
+    <p class="by">made with <span class="heart">♥</span> by norikun</p>
+  </footer>
+</div>
+
+<audio id="audio" preload="none"></audio>
+<script src="wavedata.js"></script>
+
+<script>
+/* ===================================================================
+   ★ここに曲を1曲ずつ足していきます★
+   file : music/ フォルダに置いた mp3 のファイル名
+   セクションを増やしたいときは { label:"…", tracks:[…] } を足します
+   =================================================================== */
+/* ===================================================================
+   ★ミュージックビデオ★  videos/ フォルダに置いた mp4 のファイル名
+   =================================================================== */
+const VIDEOS = [
+  { title:"淡い滲み", sub:"Pale Blur",         file:"awai-nijimi-1.mp4",            time:"0:44", tags:"縦型" },
+  { title:"淡い滲み", sub:"Pale Blur / 別編集", file:"awai-nijimi-2.mp4",            time:"1:01", tags:"縦型" },
+  { title:"Pale Blur", sub:"Cyberpunk Remix",  file:"pale-blur-cyberpunk-remix.mp4", time:"0:52", tags:"縦型" },
+  { title:"赤い軌跡", sub:"Red Line",          file:"akai-kiseki-red-line.mp4",      time:"0:46", tags:"横型" },
+  { title:"Prism Dune", sub:"",                file:"prism-dune.mp4",                time:"0:32", tags:"縦型" }
+];
+
+const SECTIONS = [
+  {
+    label: "洋楽",
+    tracks: [
+      { title:"Heart In The Dark", sub:"",                  file:"heart-in-the-dark.mp3",                   time:"2:49", tags:"オリジナル" },
+      { title:"Heart In The Dark", sub:"Darker Synths",     file:"heart-in-the-dark-darker-synths.mp3",     time:"2:47", tags:"シンセを暗くしたバージョン" },
+      { title:"Heart In The Dark", sub:"Deeper Sub-Bass",   file:"heart-in-the-dark-deeper-sub-bass.mp3",   time:"2:47", tags:"サブベースを深くしたバージョン" },
+      { title:"Heart In The Dark", sub:"Extended Bridge",   file:"heart-in-the-dark-extended-bridge.mp3",   time:"2:47", tags:"ブリッジを延ばしたバージョン" },
+      { title:"Refined Vocal Mix", sub:"",                  file:"refined-vocal-mix.mp3",                   time:"2:50", tags:"ボーカルを整えたミックス" },
+      { title:"White Square", sub:"Faded Memories",         file:"white-square.mp3",                        time:"2:40", tags:"インディポップ / ジャングルポップ" },
+      { title:"Blue Surface", sub:"",                       file:"blue-surface.mp3",                        time:"2:43", tags:"インディトロニカ / ハープと水の音" },
+      { title:"Pale Blur", sub:"Cyberpunk Remix",           file:"pale-blur-cyberpunk-remix.mp3",           time:"2:43", tags:"リミックス / ネオンシンセベース" },
+      { title:"Prism Spire", sub:"Take 2",                   file:"prism-spire-take2.mp3",                   time:"2:49", tags:"" },
+      { title:"Sapphire Pulse", sub:"",                      file:"sapphire-pulse.mp3",                      time:"2:42", tags:"" },
+      { title:"Pastel Sundae", sub:"",                        file:"pastel-sundae.mp3",                        time:"2:35", tags:"" },
+      { title:"Silver-Blue and Black-Red", sub:"Soft Cover",  file:"silver-blue-and-black-red-soft-cover.mp3", time:"2:52", tags:"" },
+      { title:"Silver vs Red", sub:"Male Vol.",               file:"silver-vs-red-male-vol.mp3",               time:"2:58", tags:"" },
+      { title:"Heavy Cyberpunk Bass Remix", sub:"",           file:"heavy-cyberpunk-bass-remix.mp3",           time:"3:00", tags:"" },
+      { title:"Quiet Pines", sub:"",                          file:"quiet-pines.mp3",                          time:"2:45", tags:"" },
+      { title:"Borrowed Frame", sub:"",                       file:"borrowed-frame.mp3",                       time:"2:56", tags:"" }
+    ]
+  },
+  {
+    label: "邦楽",
+    tracks: [
+      { title:"青の屈折", sub:"",                  file:"ao-no-kussetsu.mp3",           time:"2:40", tags:"" },
+      { title:"青の屈折", sub:"Take 2",            file:"ao-no-kussetsu-take2.mp3",     time:"2:42", tags:"" },
+      { title:"青の軌跡", sub:"Japanese Ver.",     file:"ao-no-kiseki-japanese.mp3",    time:"2:47", tags:"" },
+      { title:"赤い軌跡", sub:"Red Line",          file:"akai-kiseki-red-line.mp3",     time:"2:53", tags:"" },
+      { title:"赤い軌跡", sub:"Red Line / 別テイク", file:"akai-kiseki-red-line-2.mp3",  time:"2:53", tags:"" },
+      { title:"淡い滲み", sub:"Pale Blur",         file:"awai-nijimi.mp3",              time:"2:56", tags:"シンセポップ / サイバーパンク・シンセウェイブ" },
+      { title:"淡い滲み", sub:"Pale Blur / 別テイク", file:"awai-nijimi-2.mp3",          time:"2:37", tags:"シンセポップ / サイバーパンク・シンセウェイブ" },
+      { title:"青き標", sub:"",                    file:"aoki-shirube.mp3",             time:"3:01", tags:"" },
+      { title:"嶺の青", sub:"",                    file:"mine-no-ao.mp3",               time:"2:55", tags:"" },
+      { title:"八月の塩", sub:"",                  file:"hachigatsu-no-shio.mp3",       time:"2:46", tags:"J-POP / ドリームポップ / 分厚いリバーブ" },
+      { title:"焔", sub:"Boosted Sub-Bass",        file:"homura-boosted-sub-bass.mp3",  time:"3:02", tags:"J-POPディーヴァ / 深いサブベース" },
+      { title:"静寂周波数", sub:"",                file:"seijaku-shuhasu.mp3",          time:"2:57", tags:"" },
+      { title:"暗闇のオルガン", sub:"Take 2",       file:"kurayami-no-organ-take2.mp3",  time:"2:56", tags:"ダーク・ドラムンベース" },
+      { title:"ホワイトライン", sub:"テクノVer.",   file:"white-line-techno.mp3",        time:"2:45", tags:"テクノ" },
+      { title:"接地", sub:"Melodic Take 2",        file:"setchi-melodic-take2.mp3",     time:"2:59", tags:"メロディック" },
+      { title:"Signal Response", sub:"",           file:"signal-response.mp3",          time:"2:50", tags:"フレンチタッチ / フィルターハウス 124BPM" },
+      { title:"Silken Ridge", sub:"",              file:"silken-ridge.mp3",             time:"2:49", tags:"" },
+      { title:"Sultry", sub:"Bass Boosted Cover",  file:"sultry-bass-boosted-cover.mp3",time:"2:46", tags:"ベースを強調したカバー" },
+      { title:"Pure Blue", sub:"",                 file:"pure-blue.mp3",                time:"2:41", tags:"インディトロニカ / 澄んだシンセ" },
+      { title:"Prism Dune", sub:"Take 1",           file:"prism-dune-take1.mp3",         time:"2:43", tags:"" },
+      { title:"Prism Dune", sub:"Take 2",           file:"prism-dune-take2.mp3",         time:"3:01", tags:"" },
+      { title:"雷鳴の抑止", sub:"",                    file:"raimei-no-yokushi.mp3",        time:"2:59", tags:"" },
+      { title:"紺碧の稜線", sub:"",                    file:"konpeki-no-ryosen.mp3",        time:"2:45", tags:"" },
+      { title:"紺碧の稜線", sub:"Techno Remix",        file:"konpeki-no-ryosen-techno-remix.mp3", time:"2:43", tags:"" },
+      { title:"シルバーブルーのシンパシー", sub:"",      file:"silver-blue-no-sympathy.mp3",  time:"2:58", tags:"" },
+      { title:"Pastel Sundae", sub:"Japanese Vocal Version", file:"pastel-sundae-japanese-vocal-version.mp3", time:"2:33", tags:"" },
+      { title:"水底の月", sub:"Refined Vocal Mix",      file:"minasoko-no-tsuki.mp3",        time:"2:53", tags:"" },
+      { title:"Mt. Fuji Sunrise", sub:"Techno Cover",   file:"mt-fuji-sunrise-techno-cover.mp3", time:"2:53", tags:"" },
+      { title:"旋律の海", sub:"",                     file:"senritsu-no-umi.mp3",          time:"2:57", tags:"" }
+    ]
+  }
+];
+
+const audio   = document.getElementById("audio");
+const listEl  = document.getElementById("tracks");
+const npTitle = document.getElementById("npTitle");
+const npMsg   = document.getElementById("npMsg");
+const playBtn = document.getElementById("playBtn");
+const seek    = document.getElementById("seek");
+const timeEl  = document.getElementById("time");
+
+let current = -1;
+
+/* セクション見出しの星（色はグラデーション） */
+const STAR_COLORS = {
+  s0: ["#6FE09B","#2FA556","#0D6635"],   // 洋楽：緑
+  s1: ["#8FE0FA","#33A6DE","#0F5788"],   // 邦楽：スカイブルー
+  sv: ["#FF95DA","#C455BE","#652795"]    // ミュージックビデオ：ピンク紫
+};
+function starSVG(key){
+  const c = STAR_COLORS[key];
+  return `<svg class="star" viewBox="0 0 24 24" aria-hidden="true">
+    <defs><linearGradient id="grad-${key}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${c[0]}"/>
+      <stop offset="45%" stop-color="${c[1]}"/>
+      <stop offset="100%" stop-color="${c[2]}"/>
+    </linearGradient></defs>
+    <path fill="url(#grad-${key})"
+      d="M12 1.9 15.1 8.6 22.4 9.4 16.9 14.4 18.5 21.6 12 17.9 5.5 21.6 7.1 14.4 1.6 9.4 8.9 8.6Z"/>
+  </svg>`;
+}
+
+/* --- リストを組み立てる --- */
+const FLAT = [];
+const ROWS = [];
+const RANGES = [];
+
+SECTIONS.forEach((sec, si) => {
+  const secStart = FLAT.length;
+  const head = document.createElement("div");
+  head.className = "sec-head";
+  head.innerHTML = `<h2>${sec.label}${starSVG("s"+si)}</h2><span class="count">${sec.tracks.length}曲</span>`;
+  listEl.appendChild(head);
+
+  const ul = document.createElement("ul");
+  ul.className = "tracks";
+
+  sec.tracks.forEach((t, n) => {
+    const index = FLAT.length;
+    FLAT.push(t);
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <button class="track">
+        <span class="t-no">${String(n+1).padStart(2,"0")}</span>
+        <span>
+          <span class="t-title">${t.title}${t.sub ? `<span class="t-sub">${t.sub}</span>` : ""}</span>
+          ${t.tags ? `<span class="t-tags">${t.tags}</span>` : ""}
+        </span>
+        <span class="t-time">${t.time}</span>
+      </button>`;
+    li.querySelector("button").addEventListener("click", () => { clearQueue(); load(index, true); });
+    ul.appendChild(li);
+    ROWS.push(li);
+  });
+
+  listEl.appendChild(ul);
+  RANGES.push({start:secStart, len:sec.tracks.length});
+});
+
+/* --- ミュージックビデオ --- */
+const vHead = document.createElement("div");
+vHead.className = "sec-head";
+vHead.innerHTML = `<h2>ミュージックビデオ${starSVG("sv")}</h2><span class="count">${VIDEOS.length}本</span>`;
+listEl.appendChild(vHead);
+
+const vBox = document.createElement("div");
+vBox.className = "videobox";
+vBox.innerHTML = `
+  <div class="frame"><video id="video" controls playsinline preload="metadata"></video></div>
+  <p class="cap" id="vcap"></p>`;
+listEl.appendChild(vBox);
+
+const vUl = document.createElement("ul");
+vUl.className = "tracks";
+VIDEOS.forEach((v, n) => {
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <button class="track">
+      <span class="t-no">${String(n+1).padStart(2,"0")}</span>
+      <span>
+        <span class="t-title">${v.title}${v.sub ? `<span class="t-sub">${v.sub}</span>` : ""}</span>
+        ${v.tags ? `<span class="t-tags">${v.tags}</span>` : ""}
+      </span>
+      <span class="t-time">${v.time}</span>
+    </button>`;
+  li.querySelector("button").addEventListener("click", () => playVideo(n));
+  vUl.appendChild(li);
+});
+listEl.appendChild(vUl);
+
+const videoEl = vBox.querySelector("#video");
+const vCap = vBox.querySelector("#vcap");
+let vCurrent = -1;
+
+function playVideo(n){
+  audio.pause();                       // 音楽と重ならないように止める
+  clearQueue();
+  const v = VIDEOS[n];
+  vCurrent = n;
+  videoEl.src = v.file;
+  vCap.innerHTML = `<b>${v.title}</b>${v.sub || ""}`;
+  vBox.classList.add("on");
+  [...vUl.children].forEach((li,i)=>li.classList.toggle("on", i===n));
+  vBox.scrollIntoView({behavior:"smooth", block:"center"});
+  videoEl.play().catch(()=>{});
+}
+videoEl.addEventListener("play", () => audio.pause());
+videoEl.addEventListener("error", () => {
+  vCap.textContent = "動画ファイルが見つかりません。ファイル名を確認してください。";
+});
+audio.addEventListener("play", () => videoEl.pause());
+
+function mark(){
+  ROWS.forEach((li,i)=>li.classList.toggle("on", i===current));
+}
+function fmt(s){
+  if(!isFinite(s)) return "0:00";
+  return Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+}
+function load(i, autoplay){
+  current = i;
+  const t = FLAT[i];
+  playToken++;
+  audio.src = t.file;
+  npTitle.innerHTML = t.title + (t.sub ? `<span class="sub">${t.sub}</span>` : "");
+  npMsg.textContent = "";
+  setHue(i);
+  updateMediaSession(t);
+  mark();
+  syncTransport();
+  if(autoplay) play();
+}
+let playToken = 0;   // 新しい再生が始まったら、古い再生の失敗は無視する
+function play(){
+  startVisualizer();
+  const my = ++playToken;
+  const pr = audio.play();
+  if(!pr || !pr.catch) return;
+  pr.catch(err => {
+    if(my !== playToken) return;                       // すでに次の曲へ移っている
+    if(err && err.name === "AbortError") return;       // 曲の切り替えによる中断
+    setTimeout(() => {                                 // 実際に鳴っていないか確かめてから出す
+      if(my !== playToken) return;
+      if(!audio.paused) return;
+      npMsg.textContent = "再生できませんでした。もう一度押してください。";
+    }, 350);
+  });
+}
+
+/* --- 連続再生 --- */
+const playEn = document.getElementById("playEn");
+const playJa = document.getElementById("playJa");
+const playAll = document.getElementById("playAll");
+const shuffleBtn = document.getElementById("shuffleBtn");
+const loopBtn = document.getElementById("loopBtn");
+const prevBtn  = document.getElementById("prevBtn");
+const nextBtn  = document.getElementById("nextBtn");
+const stopBtn  = document.getElementById("stopBtn");
+const MODES = [{btn:playEn, key:0}, {btn:playJa, key:1}, {btn:playAll, key:"all"}];
+
+let queueSec = null, queue = [], qpos = 0, shuffleOn = false, loopOn = false;
+
+function shuffled(a){
+  const b = a.slice();
+  for(let i=b.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [b[i],b[j]] = [b[j],b[i]];
+  }
+  return b;
+}
+function indicesOf(key){
+  const out = [];
+  if(key === "all"){
+    for(let i=0;i<FLAT.length;i++) out.push(i);
+  }else{
+    const r = RANGES[key];
+    for(let i=r.start;i<r.start+r.len;i++) out.push(i);
+  }
+  return out;
+}
+function labelOf(key){
+  return key === "all" ? "全曲" : SECTIONS[key].label;
+}
+function updateModes(){
+  MODES.forEach(m => m.btn && m.btn.classList.toggle("active", queueSec === m.key));
+}
+function clearQueue(){
+  queueSec = null; queue = []; qpos = 0; updateModes();
+}
+function startSection(key){
+  if(key !== "all" && !RANGES[key]) return;
+  queueSec = key;
+  const all = indicesOf(key);
+  queue = shuffleOn ? shuffled(all) : all;
+  qpos = 0;
+  updateModes();
+  load(queue[0], true);
+}
+MODES.forEach(m => { if(m.btn) m.btn.addEventListener("click", () => startSection(m.key)); });
+
+shuffleBtn.addEventListener("click", () => {
+  shuffleOn = !shuffleOn;
+  shuffleBtn.setAttribute("aria-pressed", shuffleOn ? "true" : "false");
+  if(queueSec !== null){
+    const rest = indicesOf(queueSec).filter(i => i !== current);
+    queue = [current].concat(shuffleOn ? shuffled(rest) : rest.sort((a,b)=>a-b));
+    qpos = 0;
+  }
+});
+
+/* 押せるボタンだけ有効にする */
+/* 前後の曲へ。連続再生中はその並びの中で、そうでなければ全曲の並びで動く */
+function step(dir){
+  if(current < 0) return;
+  if(queueSec !== null && queue.length){
+    qpos = (qpos + dir + queue.length) % queue.length;
+    load(queue[qpos], true);
+  }else{
+    load((current + dir + FLAT.length) % FLAT.length, true);
+  }
+}
+loopBtn.addEventListener("click", () => {
+  loopOn = !loopOn;
+  loopBtn.setAttribute("aria-pressed", loopOn ? "true" : "false");
+});
+
+/* --- スマホのロック画面から操作できるようにする --- */
+function updateMediaSession(t){
+  if(!("mediaSession" in navigator)) return;
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: t.title + (t.sub ? " (" + t.sub + ")" : ""),
+      artist: "のりくん",
+      album: "のりくんの音楽ひろば"
+    });
+  }catch(e){}
+}
+if("mediaSession" in navigator){
+  const ms = navigator.mediaSession;
+  const set = (name, fn) => { try{ ms.setActionHandler(name, fn); }catch(e){} };
+  set("play",          () => play());
+  set("pause",         () => audio.pause());
+  set("previoustrack", () => step(-1));   // イヤホンの「戻る」
+  set("nexttrack",     () => step(1));    // イヤホンの「次へ」
+  set("stop",          () => audio.pause());
+  set("seekbackward",  d => { audio.currentTime = Math.max(0, audio.currentTime - ((d && d.seekOffset) || 10)); });
+  set("seekforward",   d => { const e = audio.duration || 0; audio.currentTime = Math.min(e, audio.currentTime + ((d && d.seekOffset) || 10)); });
+  set("seekto",        d => { if(d && typeof d.seekTime === "number") audio.currentTime = d.seekTime; });
+}
+
+/* ロック画面に再生位置を伝える（イヤホンの早送り・巻き戻しにも使われる） */
+let lastPosSent = 0;
+function updatePositionState(){
+  if(!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+  const d = audio.duration;
+  if(!isFinite(d) || d <= 0) return;
+  try{
+    navigator.mediaSession.setPositionState({
+      duration: d,
+      playbackRate: audio.playbackRate || 1,
+      position: Math.min(Math.max(0, audio.currentTime), d)
+    });
+  }catch(e){}
+}
+audio.addEventListener("loadedmetadata", updatePositionState);
+audio.addEventListener("seeked", updatePositionState);
+
+/* 画面を戻したときに音が止まったままにならないようにする */
+document.addEventListener("visibilitychange", () => {
+  if(audioCtx && audioCtx.state === "suspended" && !audio.paused){
+    audioCtx.resume().catch(()=>{});
+  }
+});
+
+prevBtn.addEventListener("click", () => step(-1));
+nextBtn.addEventListener("click", () => step(1));
+
+function syncTransport(){
+  const none = current < 0;
+  prevBtn.disabled = none;
+  nextBtn.disabled = none;
+  stopBtn.disabled = none;
+}
+
+stopBtn.addEventListener("click", () => {
+  audio.pause();
+  audio.currentTime = 0;
+  clearQueue();
+  current = -1;
+  mark();
+  npTitle.textContent = "曲を選んでください";
+  npMsg.textContent = "";
+  seek.value = 0;
+  timeEl.textContent = "0:00 / 0:00";
+  syncTransport();
+});
+
+playBtn.addEventListener("click", () => {
+  if(current < 0){ load(0, true); return; }
+  audio.paused ? play() : audio.pause();
+});
+audio.addEventListener("play",  () => { playBtn.textContent = "❚❚"; playBtn.setAttribute("aria-label","一時停止"); syncTransport(); if("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing"; });
+audio.addEventListener("pause", () => { playBtn.textContent = "▶";  playBtn.setAttribute("aria-label","再生"); syncTransport(); if("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused"; });
+audio.addEventListener("playing", () => {
+  if(npMsg.textContent.indexOf("再生できません") === 0 ||
+     npMsg.textContent.indexOf("音源ファイル") === 0) npMsg.textContent = "";
+});
+audio.addEventListener("error", () => {
+  if(!audio.currentSrc) return;               // 読み込み前の空振りは無視
+  if(!audio.paused) return;                   // 鳴っているなら出さない
+  npMsg.textContent = "音源ファイルが見つかりません。ファイル名を確認してください。";
+});
+audio.addEventListener("timeupdate", () => {
+  const d = audio.duration || 0;
+  seek.value = d ? (audio.currentTime / d) * 100 : 0;
+  timeEl.textContent = fmt(audio.currentTime) + " / " + fmt(d);
+  const now = Date.now();
+  if(now - lastPosSent > 900){ lastPosSent = now; updatePositionState(); }
+});
+audio.addEventListener("ended", () => {
+  if(loopOn && current >= 0){        // 同じ曲を繰り返す
+    audio.currentTime = 0;
+    play();
+    return;
+  }
+  if(queueSec !== null){
+    if(qpos < queue.length - 1){ qpos++; load(queue[qpos], true); }
+    else {
+      const label = labelOf(queueSec);
+      clearQueue();
+      npMsg.textContent = label + "を最後まで再生しました。";
+    }
+    return;
+  }
+  if(current < FLAT.length - 1) load(current + 1, true);
+});
+seek.addEventListener("input", () => {
+  const d = audio.duration || 0;
+  audio.currentTime = (seek.value / 100) * d;
+});
+
+/* --- 波形 --- */
+const cvs = document.getElementById("wave");
+const ctx = cvs.getContext("2d");
+const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* iOSは画面を消すと音の解析装置ごと止められる。
+   解析を使わなければ音は鳴り続けるので、iPhone/iPadでは解析を切る。 */
+const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+               (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const H = 59;           // 高さ(px)
+const N = 76;           // 曲線を作る点の数
+const level = new Float32Array(N);
+let analyser = null, data = null, phase = 0, audioCtx = null;
+
+/* 曲ごとの色。順番に切り替わり、曲を変えるとゆっくり移り変わる */
+const HUES = [205, 262, 312, 350, 25, 45, 150, 178];
+let hue = 205, hueTarget = 205;
+function setHue(i){ hueTarget = HUES[i % HUES.length]; }
+function stepHue(){
+  const d = ((hueTarget - hue + 540) % 360) - 180;   // 近いほうへ回す
+  hue = (hue + d * 0.05 + 360) % 360;
+}
+function col(shift, light, alpha){
+  return `hsla(${(hue + shift + 360) % 360},62%,${light}%,${alpha})`;
+}
+
+/* 波形の横位置がどの周波数にあたるかの目盛り（キャンバス内の上側に描く） */
+let sampleRate = 44100;
+/* dense を付けたものは、画面が狭いときだけ隠す */
+const MARKS = [
+  {f:200},  {f:500, dense:true}, {f:1000}, {f:2000, dense:true},
+  {f:3000}, {f:4000, dense:true}, {f:6000, dense:true}, {f:8000}
+];
+function drawScale(W){
+  const fft = 1024, bins = fft/2, binHz = sampleRate/fft;
+  const wide = W >= 620;
+  ctx.font = '10px "Zen Kaku Gothic New", system-ui, sans-serif';
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  for(const m of MARKS){
+    if(m.dense && !wide) continue;
+    const p = Math.pow((m.f/binHz)/(bins*0.7), 1/1.7) / FSCALE * N/(N-1);
+    if(p < 0.02 || p > 0.96) continue;
+    const x = Math.round(p*W) + 0.5;
+    ctx.fillStyle = "rgba(20,34,48,0.62)";
+    ctx.fillText(m.f >= 1000 ? (m.f/1000)+"k" : String(m.f), x, 8);
+    ctx.strokeStyle = "rgba(20,34,48,0.28)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, 10); ctx.lineTo(x, 12.5); ctx.stroke();
+  }
+  ctx.textAlign = "left";
+  ctx.fillStyle = "rgba(20,34,48,0.5)";
+  ctx.fillText("Hz", 1, 8);
+  ctx.textAlign = "start";
+}
+
+function startVisualizer(){
+  if(analyser || calm || IS_IOS) return;
+  try{
+    const ac = audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ac.createMediaElementSource(audio);
+    analyser = ac.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.86;
+    src.connect(analyser); analyser.connect(ac.destination);
+    data = new Uint8Array(analyser.frequencyBinCount);
+    sampleRate = ac.sampleRate;
+    ac.resume();
+  }catch(e){ analyser = null; }
+}
+
+/* 音の強さを取り、前の値へゆっくり寄せて滑らかにする */
+/* 測っておいたデータの読み取り */
+const WCHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+const BANDS = 6, WFPS = 6;
+const FSCALE = 0.73;   // 横軸の右端をおよそ9kHzに切り詰める
+const WLUT = {};
+for(let i=0;i<WCHARS.length;i++) WLUT[WCHARS[i]] = i/63;
+const bandBuf = new Float32Array(BANDS);
+
+function bandsAt(file, time){
+  const d = (typeof WAVEDATA !== "undefined") ? WAVEDATA[file] : null;
+  if(!d) return null;
+  const total = d.length / BANDS;
+  const pos = time * WFPS;
+  const f0 = Math.max(0, Math.min(total-1, Math.floor(pos)));
+  const f1 = Math.min(total-1, f0+1);
+  const m  = pos - f0;
+  for(let b=0;b<BANDS;b++){
+    const v0 = WLUT[d[f0*BANDS+b]] || 0;
+    const v1 = WLUT[d[f1*BANDS+b]] || 0;
+    bandBuf[b] = v0*(1-m) + v1*m;         // コマの間をなめらかにつなぐ
+  }
+  return bandBuf;
+}
+
+function sample(){
+  const sounding = !audio.paused && current >= 0;
+  const hasData  = analyser && sounding;
+  if(hasData) analyser.getByteFrequencyData(data);
+  const bandNow = (!hasData && sounding) ? bandsAt(FLAT[current].file, audio.currentTime) : null;
+  const bins = data ? data.length : 0;
+  const t = audio.currentTime;
+  for(let i=0;i<N;i++){
+    let target;
+    if(hasData){
+      const a = Math.floor(Math.pow((i/N)*FSCALE, 1.7) * bins * 0.7);
+      const b = Math.max(a+1, Math.floor(Math.pow(((i+1)/N)*FSCALE, 1.7) * bins * 0.7));
+      let sum = 0;
+      for(let k=a;k<b;k++) sum += data[k];
+      target = (sum/(b-a)/255) * (0.85 + 0.6*(i/N));  // 高音側を少し持ち上げる
+    }else if(sounding && bandNow){
+      // 解析装置が使えないとき（iPhone）は、測っておいた曲のデータから作る
+      const f = (i/N) * FSCALE * BANDS - 0.5;
+      const a = Math.max(0, Math.min(BANDS-1, Math.floor(f)));
+      const b = Math.max(0, Math.min(BANDS-1, a+1));
+      const m = Math.max(0, Math.min(1, f - a));
+      target = (bandNow[a]*(1-m) + bandNow[b]*m) * (0.95 + 0.35*(i/N));
+    }else if(sounding){
+      target = 0.05 + 0.10*Math.abs(Math.sin(t*2.1 + i*0.18));
+    }else{
+      target = 0.05 + 0.03*Math.sin(phase + i*0.2);   // 停止中はゆっくり呼吸する
+    }
+    level[i] += (target - level[i]) * (sounding ? 0.26 : 0.05);
+  }
+  phase += 0.018;
+}
+
+/* 小さな雪の結晶を描く（6本の枝と小枝） */
+function snowflake(cx, cy, r, rot){
+  ctx.beginPath();
+  for(let k=0;k<6;k++){
+    const a = k*Math.PI/3 - Math.PI/2 + (rot || 0);
+    const dx = Math.cos(a), dy = Math.sin(a);
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + dx*r, cy + dy*r);
+    for(const t of [0.48, 0.78]){                 // 枝の分かれ目2か所
+      const bx = cx + dx*r*t, by = cy + dy*r*t;
+      const b  = r*(t === 0.48 ? 0.36 : 0.24);
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx + Math.cos(a-0.85)*b, by + Math.sin(a-0.85)*b);
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx + Math.cos(a+0.85)*b, by + Math.sin(a+0.85)*b);
+    }
+  }
+  ctx.stroke();
+}
+
+/* 点列をなめらかな曲線としてつなぐ */
+function curve(pts, startNew){
+  if(startNew) ctx.moveTo(pts[0].x, pts[0].y);
+  else ctx.lineTo(pts[0].x, pts[0].y);
+  for(let i=1;i<pts.length-1;i++){
+    const mx = (pts[i].x + pts[i+1].x)/2;
+    const my = (pts[i].y + pts[i+1].y)/2;
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, mx, my);
+  }
+  ctx.lineTo(pts[pts.length-1].x, pts[pts.length-1].y);
+}
+
+/* 拍の検出・ピークの保持・残像のための状態 */
+const peaks = new Float32Array(N);
+const peakTrail = new Float32Array(N);   // 結晶が降りてきた跡
+const spark = new Float32Array(N);       // きらめきの強さ（跳ねた瞬間に1、以後薄れる）
+const trail = [];                 // 過去の形を数枚だけ覚えておく
+let bassAvg = 0, flash = 0, cooldown = 0, frame = 0;
+
+function detectBeat(){
+  let bass = 0;
+  for(let i=0;i<8;i++) bass += level[i];
+  bass /= 8;
+  bassAvg += (bass - bassAvg) * 0.05;
+  if(cooldown > 0) cooldown--;
+  if(bass > bassAvg * 1.28 && bass > 0.12 && cooldown === 0){
+    flash = 1; cooldown = 10;
+  }
+  flash *= 0.90;
+  if(flash < 0.01) flash = 0;
+}
+
+function pointsFrom(vs, W, base, amp){
+  const top = [];
+  for(let i=0;i<N;i++){
+    top.push({x:(i/(N-1))*W, y: base - vs[i]*amp});
+  }
+  return top;
+}
+
+function draw(){
+  const dpr = window.devicePixelRatio || 1;
+  const W = cvs.clientWidth || 600;
+  cvs.width = W*dpr; cvs.height = H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  sample();
+  stepHue();
+  detectBeat();
+  frame++;
+
+  const base = H - 1.5;                        // 下端が基準線
+  const amp  = (H - 26) * (1 + 0.09*flash);    // 上の目盛りと星のぶんを空ける
+
+  const vs = new Float32Array(N);
+  for(let i=0;i<N;i++){
+    const edge = Math.sin((i/(N-1))*Math.PI);
+    vs[i] = Math.min(1, Math.max(0.012, level[i])) * Math.pow(edge, 0.55);
+    const before = peaks[i];
+    peaks[i] = Math.max(vs[i], peaks[i] - 0.006);
+    if(peaks[i] > before + 0.015) spark[i] = 1;    // 上へ跳ねた
+    spark[i] *= 0.975;                             // だんだん薄れて消える
+    peakTrail[i] = Math.max(peaks[i], peakTrail[i] - 0.0034);   // 少し遅れて消える
+  }
+
+  // 残像
+  if(frame % 4 === 0){
+    trail.unshift(Float32Array.from(vs));
+    if(trail.length > 3) trail.pop();
+  }
+  ctx.lineWidth = 1;
+  ctx.lineJoin = "round";
+  for(let k=trail.length-1;k>=0;k--){
+    ctx.strokeStyle = col(12, 40, 0.16 - k*0.045);
+    ctx.beginPath(); curve(pointsFrom(trail[k], W, base, amp), true); ctx.stroke();
+  }
+
+  const top = pointsFrom(vs, W, base, amp);
+
+  // 基準線
+  ctx.beginPath();
+  ctx.moveTo(0, base + 1); ctx.lineTo(W, base + 1);
+  ctx.strokeStyle = col(0, 45, 0.20);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // 内側の面
+  const boost = 0.06*flash;
+  const g = ctx.createLinearGradient(0,0,W,0);
+  g.addColorStop(0,   col(-30, 44, 0.30 + boost));
+  g.addColorStop(0.5, col( 12, 48, 0.20 + boost));
+  g.addColorStop(1,   col( 52, 44, 0.30 + boost));
+  ctx.beginPath();
+  curve(top, true);
+  ctx.lineTo(W, base); ctx.lineTo(0, base);
+  ctx.closePath();
+  ctx.fillStyle = g;
+  ctx.fill();
+
+  // 細い縦線
+  ctx.strokeStyle = "rgba(31,97,147,0.38)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let i=1;i<N-1;i+=3){
+    if(base - top[i].y < 3) continue;
+    const x = Math.round(top[i].x) + 0.5;
+    ctx.moveTo(x, top[i].y + 0.5);
+    ctx.lineTo(x, base);
+  }
+  ctx.stroke();
+
+  // 輪郭
+  const gs = ctx.createLinearGradient(0,0,W,0);
+  gs.addColorStop(0,   col(-30, 31, 0.92));
+  gs.addColorStop(0.5, col( 12, 34, 0.88));
+  gs.addColorStop(1,   col( 52, 31, 0.92));
+  ctx.save();
+  if(flash > 0.02){
+    ctx.shadowColor = col(12, 48, 0.75);
+    ctx.shadowBlur = 12 * flash;
+  }
+  ctx.strokeStyle = gs;
+  ctx.lineWidth = 1.3;
+  ctx.lineJoin = "round";
+  ctx.beginPath(); curve(top, true); ctx.stroke();
+  ctx.restore();
+
+  // 結晶が降りてきた軌跡（細かい点線で薄く残って消える）
+  ctx.save();
+  ctx.setLineDash([1, 2]);
+  ctx.strokeStyle = "rgba(30,116,180,0.48)";
+  ctx.lineWidth = 1.1;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  for(let i=1;i<N-1;i+=3){
+    if(peakTrail[i] - peaks[i] < 0.01 || spark[i] < 0.06) continue;
+    const x = Math.round(top[i].x) + 0.5;
+    ctx.moveTo(x, base - peakTrail[i]*amp);
+    ctx.lineTo(x, base - peaks[i]*amp - 4);   // 結晶に重ならない位置まで
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  // ピークの雪の結晶（水色）
+  const fr = (W < 480) ? 3.2 : 4.0;
+  ctx.lineCap = "round";
+  for(let i=1;i<N-1;i+=3){
+    const sp = spark[i];
+    if(sp < 0.05 || peaks[i] < 0.03) continue;
+    const x = Math.round(top[i].x)+0.5, y = base - peaks[i]*amp;
+    const grow = 1 + 0.45*sp;                       // 跳ねた瞬間だけ少し大きく
+    ctx.globalAlpha = Math.pow(sp, 0.65);           // 薄れて消える
+    // きらめきの光条
+    if(sp > 0.35){
+      ctx.strokeStyle = "#8FD3F4";
+      ctx.lineWidth = 0.8;
+      const rl = fr*2.1*sp;
+      ctx.beginPath();
+      for(let k=0;k<4;k++){
+        const a = k*Math.PI/2 + Math.PI/4;
+        ctx.moveTo(x + Math.cos(a)*fr*0.7, y + Math.sin(a)*fr*0.7);
+        ctx.lineTo(x + Math.cos(a)*rl,     y + Math.sin(a)*rl);
+      }
+      ctx.stroke();
+    }
+    ctx.strokeStyle = "#1E74B4";
+    ctx.lineWidth = 0.9 + 0.5*sp;
+    snowflake(x, y, fr*grow, frame*0.012 + i*0.4);
+  }
+  ctx.globalAlpha = 1;
+  ctx.lineCap = "butt";
+
+  drawScale(W);
+
+  if(!calm) requestAnimationFrame(draw);
+}
+draw();
+if(calm) addEventListener("resize", draw);
+
+syncTransport();
+</script>
+</body>
+</html>
